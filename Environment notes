@@ -1,0 +1,18 @@
+Gazebo (world).sdf default max_step_size is 0.001. Changed to 0.01 in testV1 to increase speed. Worked great so far.
+Could also decrease realtime_update_rate, but that might break SLAM.
+Could also try downrating camera and lidar sensors.
+
+mapper_params set to load map of driveway.
+
+Driveway mesh model z-pose set to 1' below the origin plane so that the road surface is level
+
+driveway.sdf:
+Set groundplane and driveway mesh friction coefficient to 0.8 for rough asphalt (wheels set to 0.7)
+
+To edit a map:
+-Using slam toolbox, generate a map image in RVIZ.
+-Since the Save Map button doesnt seem to do anything, use
+ros2 run nav2_map_server map_saver_cli -f driveway_raw
+-Upload the .yaml and .pgm generated to https://gyropalm.github.io/ROS-SLAM-Map-Editor/editor.html
+-Make edits as needed, then use the Download Map button to save the edited map.
+-The new .yaml filed needs to be edited so that the "image" line contains the full path to the new .pgm file, where ever you end up saving it (you "world" folder, for example), otherwise nav2 map server wont find it.
