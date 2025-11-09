@@ -40,7 +40,7 @@ Launch nav2 navigation
   ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
 
 Git Push Process
-  cd -/garbo_ws/src/garbo
+  cd ~/garbo_ws/src/garbo
   git init
   git add .
   git commit -m "comments"
