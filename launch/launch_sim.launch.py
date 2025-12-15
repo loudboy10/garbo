@@ -32,20 +32,21 @@ def generate_launch_description():
         description='World to load'
     )
 
-    joystick = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory(package_name),'launch','joystick.launch.py'
-                )]), launch_arguments={'use_sim_time': 'true'}.items()
-    )
+    #joystick = IncludeLaunchDescription(
+    #             PythonLaunchDescriptionSource([os.path.join(
+    #                get_package_share_directory(package_name),'launch','joystick.launch.py'
+    #            )]), launch_arguments={'use_sim_time': 'true'}.items()
+    #)
 
-    twist_mux_params = os.path.join(get_package_share_directory(package_name),'config','twist_mux.yaml')
+    twist_mux_params = os.path.join(get_package_share_directory(package_name),'config','twist_mux_topics.yaml')
     twist_mux = Node(
             package="twist_mux",
             executable="twist_mux",
-            parameters=[twist_mux_params, {'use_sim_time': True}],
-            remappings=[('/cmd_vel_out','/diff_cont/cmd_vel_unstamped')]
-        )
+            parameters=[twist_mux_params, {'use_sim_time': True}, {'use_stamped': True}],
+            #remappings=[('/cmd_vel_out','/diff_cont/cmd_vel_unstamped') ],
+            remappings=[('/cmd_vel_out', '/cmd_vel') ],
 
+        )
 
 
     # Include the Gazebo launch file, provided by the ros_gz_sim package
@@ -60,7 +61,7 @@ def generate_launch_description():
     spawn_entity = Node(package='ros_gz_sim', executable='create',
                         arguments=['-topic', 'robot_description',
                                    '-name', 'garbo',
-                                   '-z', '0.33'],  # spawn a bit high to prevent clipping
+                                   '-z', '0.33'],  # spawn a bit above the ground to prevent clipping. The bot will fall into place.
                         output='screen')
 
     # Launch the ROS-Gazebo bridge for normal topics
@@ -103,7 +104,7 @@ def generate_launch_description():
     return LaunchDescription([
         rsp,
         world_arg,
-        joystick,
+        #joystick,
         twist_mux,      
         gazebo,
         spawn_entity,

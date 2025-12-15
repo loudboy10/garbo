@@ -109,7 +109,7 @@ def generate_launch_description():
     declare_container_name_cmd = DeclareLaunchArgument(
         'container_name',
         default_value='nav2_container',
-        description='the name of conatiner that nodes will load in if use composition',
+        description='the name of container that nodes will load in if use composition',
     )
 
     declare_use_respawn_cmd = DeclareLaunchArgument(
@@ -134,7 +134,8 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                remappings=remappings + [('/cmd_vel', 'cmd_vel_nav')],
+                #remappings=remappings,
             ),
             Node(
                 package='nav2_smoother',
@@ -179,6 +180,7 @@ def generate_launch_description():
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
                 remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                #remappings=remappings,
             ),
             Node(
                 package='nav2_bt_navigator',
@@ -211,8 +213,8 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings
-                + [('cmd_vel', 'cmd_vel_nav')],
+                remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                #remappings=remappings,
             ),
             Node(
                 package='nav2_collision_monitor',
@@ -223,7 +225,8 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings,
+                remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                #remappings=remappings,
             ),
             Node(
                 package='opennav_docking',
@@ -234,7 +237,7 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings,
+                remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
             ),
             Node(
                 package='nav2_lifecycle_manager',
@@ -260,6 +263,7 @@ def generate_launch_description():
                         name='controller_server',
                         parameters=[configured_params],
                         remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                        #remappings=remappings,
                     ),
                     ComposableNode(
                         package='nav2_smoother',
@@ -288,6 +292,7 @@ def generate_launch_description():
                         name='behavior_server',
                         parameters=[configured_params],
                         remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                        #remappings=remappings,
                     ),
                     ComposableNode(
                         package='nav2_bt_navigator',
@@ -308,8 +313,8 @@ def generate_launch_description():
                         plugin='nav2_velocity_smoother::VelocitySmoother',
                         name='velocity_smoother',
                         parameters=[configured_params],
-                        remappings=remappings
-                        + [('cmd_vel', 'cmd_vel_nav')],
+                        remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+                        #remappings=remappings,
                     ),
                     ComposableNode(
                         package='nav2_collision_monitor',

@@ -40,7 +40,7 @@ amcl:
 
 bt_navigator:
   ros__parameters:
-    global_frame: map
+    enable_stamped_cmd_vel: true # Manually added parameter    global_frame: map
     robot_base_frame: base_link
     odom_topic: /odom
     bt_loop_duration: 10
@@ -69,6 +69,7 @@ controller_server:
   ros__parameters:
     controller_frequency: 20.0
     costmap_update_timeout: 0.30
+    enable_stamped_cmd_vel: true # Manually added parameter
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
@@ -297,6 +298,7 @@ smoother_server:
 
 behavior_server:
   ros__parameters:
+    enable_stamped_cmd_vel: true # Manually added parameter
     local_costmap_topic: local_costmap/costmap_raw
     global_costmap_topic: global_costmap/costmap_raw
     local_footprint_topic: local_costmap/published_footprint
@@ -358,6 +360,7 @@ route_server:
 
 velocity_smoother:
   ros__parameters:
+    enable_stamped_cmd_vel: true # Manually added parameter
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
@@ -404,6 +407,7 @@ collision_monitor:
 docking_server:
   ros__parameters:
     controller_frequency: 50.0
+    enable_stamped_cmd_vel: true # Manually added parameter
     initial_perception_timeout: 5.0
     wait_charge_timeout: 5.0
     dock_approach_timeout: 30.0

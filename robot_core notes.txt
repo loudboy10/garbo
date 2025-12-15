@@ -7,3 +7,5 @@ Move Materials above Gazebo in robot.core?
 
 Drive wheels friction coefficient set to 0.7 (driveway set to 0.8)
 Drivewheels set to 50N*m of torque (typical for an electric wheelchair)
+
+If a joystick is ever used, uncomment joystick.launch.py from launch_sim.launch.py
