@@ -1,7 +1,7 @@
 robot.core needs to be updated with accurate specs for size, center of gravity(?), and mass
 Remember to adjust wheel specs in robot_core and my_controllers
 
-Move odom/base link origin. Odom is always on the ground at the start point but base link is at the bottom of the chassis, in the air, but it should be on the ground under the chassis.
+Base_link is centered between the drive wheels. Base_footprint is under base_link by a distance of wheel_radius.
 
 Move Materials above Gazebo in robot.core?
 

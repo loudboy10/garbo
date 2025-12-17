@@ -19,12 +19,13 @@
   gz_type_name: "gz.msgs.Odometry"
   direction: GZ_TO_ROS
 
+#Removed as per Nav2 Smoothing Odomotry guide. Transforms will come from the ekf.yaml/node instead.
 # Transforms published by DiffDrive plugin
-- ros_topic_name: "tf"
-  gz_topic_name: "tf"
-  ros_type_name: "tf2_msgs/msg/TFMessage"
-  gz_type_name: "gz.msgs.Pose_V"
-  direction: GZ_TO_ROS
+#- ros_topic_name: "tf"
+ # gz_topic_name: "tf"
+ # ros_type_name: "tf2_msgs/msg/TFMessage"
+ # gz_type_name: "gz.msgs.Pose_V"
+ # direction: GZ_TO_ROS
 
 # Joint states published by JointState plugin
 - ros_topic_name: "joint_states"
@@ -44,4 +45,11 @@
   gz_topic_name: "scan/points"
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+  # IMU Topics
+- ros_topic_name: "imu"
+  gz_topic_name: "imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
   direction: GZ_TO_ROS

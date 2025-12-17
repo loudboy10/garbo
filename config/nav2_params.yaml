@@ -1,3 +1,15 @@
+#To-Do
+#-Adjust local_costmap footprint, load xacro variables from launch file
+#-Ajust global_costmap robot_radius
+#-Enable dynamic footprint for picking up objects. See Nav2 docs > footprint
+
+
+#Edits:
+#-Added "enable_stamped_cmd_vel: true" to movement nodes to create stamped type twist messages (not default in Jazzy)
+#-Set map_server yaml_filename to driveway_edited.yaml
+#-Set robot footprint in local_costmap
+#-Adjust radius in global_costmap(?)
+
 amcl:
   ros__parameters:
     alpha1: 0.2
@@ -197,7 +209,8 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.05
-      robot_radius: 0.22
+      #robot_radius: 0.22
+      footprint: "[ [0.21, 0.195], [0.21, -0.195], [-0.21, -0.195], [-0.21, 0.195] ]" #FL, FR, RL, RR corners in meters from base_link (x-longitudinal, y-transverse offset)
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"

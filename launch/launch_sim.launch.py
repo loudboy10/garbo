@@ -99,6 +99,15 @@ def generate_launch_description():
         executable="spawner",
         arguments=["joint_broad"],
     )
+    ekf_params = os.path.join(get_package_share_directory(package_name),'config','ekf.yaml')
+    robot_localization_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[ekf_params, {'use_sim_time': LaunchConfiguration('use_sim_time')}]
+)
+    
 
     # Launch them all!
     return LaunchDescription([
@@ -108,6 +117,7 @@ def generate_launch_description():
         twist_mux,      
         gazebo,
         spawn_entity,
+        robot_localization_node,
         ros_gz_bridge,
         ros_gz_image_bridge,
         diff_drive_spawner,

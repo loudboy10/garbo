@@ -49,4 +49,5 @@ Git Push Process
 if spawner takes too long and times out:
 https://beta.articulatedrobotics.xyz/tutorials/mobile-robot/applications/ros2_control-concepts/#updating-the-launch-file
 
-Is nav2_behaviors node needed in navigation_launch?
+Adjust robot footprint on the fly, from nav2 documentation > footprint
+"Note that this can also be adjusted over time using the costmap’s ~/footprint topic, which will update the polygon over time as needed due to changes in the robot’s state, such as movement of an attached manipulator, picking up a pallet, or other actions that adjust a robot’s shape. That polygon will then automatically be used by the planners and controllers."
