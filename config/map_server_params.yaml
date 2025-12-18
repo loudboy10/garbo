@@ -1,3 +1,5 @@
+#This just points the SLAM map server at the correct map file for the world to be navigated
+
 # map_server_params.yaml
 map_server:
     ros__parameters:

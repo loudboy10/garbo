@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<!--OBSOLETE AND UNUSED-->
+<!--Introduced at the beginning of the Articulated Robotics tutorials,
+but then phased out in favor of ros2_control.xacro-->
+<!--Plug-ins for simulating various aspects of the robot in Gazebo-->
+
+
+
     <gazebo>
         <plugin name="gz::sim::systems::DiffDrive" filename="gz-sim-diff-drive-system">
 

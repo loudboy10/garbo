@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+<!--LIDAR description for the robot-->
+<!--Includes orientation, locations, various properties, and simulation instructions for Gazebo-->
+
+
     <!-- Lidar's urdf-->
     <joint name="laser_joint" type="fixed">
         <parent link="chassis"/>

@@ -1,4 +1,10 @@
-# Input topics handled/muxed.
+# Twist_mux parameters
+
+#Twist-mux combines the various navigation and movement controls sources,
+#such as manual control from keyboard joystick and autonomous control from nav2
+#and outputs a since unified movement instrusction on the /cmd_vel topic as a TwistStamped message.
+#Each input source is assigned a priority so that lower level commands are ignored, such as manual override of autonomous navigation.
+
 # For each topic:
 # - name    : name identifier to select the topic (*sub-namespace, see below)
 # - topic   : input topic of geometry_msgs::Twist type

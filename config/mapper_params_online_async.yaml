@@ -1,3 +1,13 @@
+# SLAM Toolbox Configuration File for Online Asynchronous SLAM
+
+#Edits:
+#-Set to localization mode for navigation after map is built
+#-Set map file name to driveway map
+
+#To-Do
+#-Set up a dock and enabled starting at dock
+#-Tune parameters for performance
+
 slam_toolbox:
   ros__parameters:
 

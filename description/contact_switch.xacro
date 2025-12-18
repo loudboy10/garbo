@@ -1,6 +1,12 @@
-<!--
+<!-- NOT SETUP OR USED YET
+
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!--Contact switch description for the robot-->
+<!--Includes orientation, locations, various properties, and simulation instructions for Gazebo-->
+<!--These are limit switches to sense when the robot touches an object, such as the charging dock-->
+
 
     <joint name="contact_joint" type="fixed">
         <parent link="chassis"/>

@@ -1,3 +1,6 @@
+#This launches SLAM toolbox to create maps of new worlds or to navigate within saved maps,
+# depending on settings from maper_params_online_async.yaml
+
 import os
 
 from launch import LaunchDescription

@@ -1,3 +1,5 @@
+#Configuration file for nav2 navigation and docking
+
 #To-Do
 #-Adjust local_costmap footprint, load xacro variables from launch file
 #-Ajust global_costmap robot_radius

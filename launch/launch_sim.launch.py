@@ -1,3 +1,6 @@
+#This is currently the main launch file for simulating the robot in Gazebo
+
+
 import os
 
 from ament_index_python.packages import get_package_share_directory

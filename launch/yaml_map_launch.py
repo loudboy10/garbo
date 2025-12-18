@@ -1,5 +1,6 @@
-# This is used to open a previously saved
-# .yaml/.pgm format map.
+# This is used to open a previously saved .yaml/.pgm format map.
+# But I thought a bunch of the other nav/SLAM files could do that too? Need to map this all better.
+# I think a lot of these could be combined.
 
 import os
 from ament_index_python.packages import get_package_share_directory

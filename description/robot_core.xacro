@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<!--This defines the physical structure and properties of the robot.-->
+
+
+
         <!-- Chassis Variables (all in metric) -->
     <xacro:property name="box_length" value="0.7"/> <!--meters-->
     <xacro:property name="box_width" value="0.35"/>

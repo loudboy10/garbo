@@ -1,3 +1,6 @@
+#Launches SLAM to navigate through a previously created map.
+#Not entirely clear on how this is different from online_async_launch or slam.launch????
+
 import os
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription

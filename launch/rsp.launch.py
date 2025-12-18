@@ -1,3 +1,7 @@
+#Uh, I'm not sure where this fits into the puzzle or what it does.
+#Is this actually the main robot that is then launched into sim or into a physical bot IRL?
+
+
 import os
 
 from ament_index_python.packages import get_package_share_directory

@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<!--3D Depth Camera description for the robot-->
+<!--Includes orientation, locations, various properties, and simulation instructions for Gazebo-->
+
+
     <joint name="depth_camera_joint" type="fixed">
         <parent link="chassis"/>
         <child link="depth_camera_link"/>
@@ -25,14 +29,7 @@
         </xacro:inertial_box>
   </link>
 
-  <!--This rotates the camera image orientation to match
-  ROS coordinate standards
-    <joint name="depth_camera_optical_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
-        <parent link="depth_camera_link" />
-        <child link="depth_camera_link_optical" />
-    </joint>
-    <link name="depth_camera_link_optical"></link> -->
+<!-- Optical frame does not need to be rotated as it did for the rgb camera. I dont know why.-->
 
 <!--Gazebo plugin-->
     <gazebo reference="depth_camera_link">

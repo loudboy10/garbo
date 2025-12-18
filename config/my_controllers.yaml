@@ -1,3 +1,6 @@
+# Controller configuration for differential drive robot
+#I'm not entirely sure why this is necessary as a stand-alone file.
+
 controller_manager:
   ros__parameters:
     update_rate: 30

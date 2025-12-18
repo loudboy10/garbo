@@ -1,3 +1,7 @@
+#This launches Nav2 for localization purposes(?)
+#Still fuzzy on what it all means and why it is in a seperate launch file from navigation_launch.py
+
+
 # Copyright (c) 2018 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

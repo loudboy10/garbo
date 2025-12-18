@@ -1,3 +1,5 @@
+#This starts the twist_mux program to combine and parse various motion commands
+
 #!/usr/bin/env python3
 # Copyright 2020 Gaitech Korea Co., Ltd.
 #

@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<!--Inertial Measurement Unit sensor description for the robot-->
+<!--Includes orientation, locations, various properties, and simulation instructions for Gazebo-->
+
+
     <joint name="imu_joint" type="fixed">
         <parent link="chassis"/>
         <child link="imu_link"/>

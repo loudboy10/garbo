@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<!--Adaptors to exchange info with Gazebo -->
+<!--Possibly same/same but different as gz_bridge.yaml method-->
+
     <ros2_control name="GazeboSystem" type="system">
         <hardware>
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
