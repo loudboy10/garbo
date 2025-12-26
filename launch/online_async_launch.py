@@ -1,5 +1,5 @@
-#This launches SLAM toolbox to create maps of new worlds or to navigate within saved maps,
-# depending on settings from maper_params_online_async.yaml
+#This launches SLAM online-asynch, looks for custom params yaml file, and falls back to the system default params yaml file if a custom one isnt found.
+#This is just a more robust version of slam.launch.py
 
 import os
 

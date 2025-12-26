@@ -22,21 +22,28 @@ This has the alias "build".
 Custom launch command
   ros2 launch garbo launch_sim.launch.py world:=src/garbo/worlds/Driveway/driveway.sdf  use_sim_time:=true
 
-Teleop command
-  ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true
+Teleop command with remapped output for use with twist_mux
+  ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true --remap cmd_vel:=/cmd_vel_keyboard
 
 Launch SLAM to mapping mode
+  Custom:
   ros2 launch slam_toolbox online_async_launch.py use_sim_time:=true params_file:=./src/garbo/config/mapper_params_online_async.yaml
+  Default:
+  ros2 launch slam_toolbox online_async_launch.py use_sim_time:=true
 
 Launch SLAM to localization mode (after changing params file)
   ros2 launch garbo slam_localization_launch.py
 
 Launch nav2 localization
-  ros2 launch garbo nav2_localization_launch.py
+  Custom:
+  ros2 launch garbo nav2_localization_launch.py use_sim_time:=true
+  Default:
   ros2 launch nav2_bringup localization_launch.py
 
 Launch nav2 navigation
-  ros2 launch garbo navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
+  Custom:
+  ros2 launch garbo nav2_navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
+  Default:
   ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
 
 Git Push Process
@@ -49,5 +56,24 @@ Git Push Process
 if spawner takes too long and times out:
 https://beta.articulatedrobotics.xyz/tutorials/mobile-robot/applications/ros2_control-concepts/#updating-the-launch-file
 
-Adjust robot footprint on the fly, from nav2 documentation > footprint
-"Note that this can also be adjusted over time using the costmap’s ~/footprint topic, which will update the polygon over time as needed due to changes in the robot’s state, such as movement of an attached manipulator, picking up a pallet, or other actions that adjust a robot’s shape. That polygon will then automatically be used by the planners and controllers."
+Topic/Node Info commands
+  ros2 topic list
+  ros2 node list
+  ros2 topic info /{topic} -v
+  ros2 topic echo
+  ros2 run tf2_tools view_frames
+  
+  To load a yaml map:
+    -Open just RVIZ, not Gazebo or robot launch file
+    -Edit nav2 params to point to map yaml
+    - ros2 launch garbo nav2_localization_launch.py 
+    -Launch slam toolbox in mapping mode (edit yaml)
+    - ros2 launch slam_toolbox online_async_launch.py use_sim_time:=true
+    -Set initial pose
+    -Open SlamToolboxPlugin
+    -Serialize to name of your choice
+
+Then to load the serialized map
+-Change SLAM config yaml to localization, set map location, set starting pose
+-Remove yaml map location from nav2 config yaml
+-start gazebo, robot state, slam, nav. rviz

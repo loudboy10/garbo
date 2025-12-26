@@ -16,3 +16,11 @@ ros2 run nav2_map_server map_saver_cli -f driveway_raw
 -Upload the .yaml and .pgm generated to https://gyropalm.github.io/ROS-SLAM-Map-Editor/editor.html
 -Make edits as needed, then use the Download Map button to save the edited map.
 -The new .yaml filed needs to be edited so that the "image" line contains the full path to the new .pgm file, where ever you end up saving it (you "world" folder, for example), otherwise nav2 map server wont find it.
+
+To run SLAM and Nav2 with costmap in a new world:
+-Start Gazebo in the desired world
+-Launch rviz2
+-Launch SLAM Toolbox from its package: ros2 launch slam_toolbox online_async_launch.py use_sim_time:=true
+-Launch Nav2 from its package: ros2 launch nav2_bringup bringup_launch.py use_sim_time:=true
+This allows SLAM to map and localize the new world while Nav2 generates a costmap of the layout and obstacles.
+Neither of those programs relies on an existing map or edited parameters file at this point, but the generated map can be saved or serialized.

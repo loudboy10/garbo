@@ -3,6 +3,7 @@
 
 <!--3D Depth Camera description for the robot-->
 <!--Includes orientation, locations, various properties, and simulation instructions for Gazebo-->
+<!--Reduced range(clip) from 15m to 7m, reduced framerate from 30Hz to 10Hz. This is for better performance and accuracy in simulation. -->
 
 
     <joint name="depth_camera_joint" type="fixed">
@@ -61,17 +62,17 @@
                 </image>
                 <clip>
                     <near>0.1</near>
-                    <far>15</far>
+                    <far>7</far>
                 </clip>
                 <depth_camera>
                     <clip>
                         <near>0.1</near>
-                        <far>15</far>
+                        <far>7</far>
                     </clip>
                 </depth_camera>
             </camera>
             <always_on>1</always_on>
-            <update_rate>30</update_rate>
+            <update_rate>10</update_rate>
             <visualize>0</visualize>
             <topic>/depth_camera</topic>
         </sensor>

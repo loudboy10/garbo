@@ -1,6 +1,6 @@
-#This launches Nav2 for localization purposes(?)
-#Still fuzzy on what it all means and why it is in a seperate launch file from navigation_launch.py
-
+#This is the map server for nav2 localization
+#This pairs with nav2_navigation which moves the robot through the map
+#I dont know why they are two separate services
 
 # Copyright (c) 2018 Intel Corporation
 #

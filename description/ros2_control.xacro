@@ -2,9 +2,10 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 <!--Adaptors to exchange info with Gazebo -->
-<!--Possibly same/same but different as gz_bridge.yaml method-->
+<!--Possibly same/same but different as gz_bridge.yaml method?-->
 
-    <ros2_control name="GazeboSystem" type="system">
+    <ros2_control name="GazeboSystem" type="system"> <!--For use with the simulator, as opposed to a physical bot-->
+     <!--https://beta.articulatedrobotics.xyz/tutorials/mobile-robot/applications/ros2_control-concepts-->
         <hardware>
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
         </hardware>
@@ -27,7 +28,7 @@
         </joint>
     </ros2_control>
 
-    <gazebo>
+    <gazebo> <!--This is the second part of above, not a seperate idea-->
         <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
             <!-- Make sure to put your package name in there!! -->
             <parameters>$(find garbo)/config/my_controllers.yaml</parameters>

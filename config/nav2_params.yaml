@@ -1,16 +1,20 @@
 #Configuration file for nav2 navigation and docking
 
 #To-Do
-#-Adjust local_costmap footprint, load xacro variables from launch file
-#-Ajust global_costmap robot_radius
-#-Enable dynamic footprint for picking up objects. See Nav2 docs > footprint
-
+#-Adjust robot footprint, load xacro variables from launch file
+#-Enable dynamic footprint for picking up objects. See Nav2 docs > footprint.
+#---Dynamic footprint can be enabled to change size based on whether carrying an object or not.
+#-Tune inflation radius and cost scaling factor in both costmaps
+#-Local costmap - max obstacle height?
+#Global costmap - max obstacle height?
 
 #Edits:
 #-Added "enable_stamped_cmd_vel: true" to movement nodes to create stamped type twist messages (not default in Jazzy)
 #-Set map_server yaml_filename to driveway_edited.yaml
-#-Set robot footprint in local_costmap
-#-Adjust radius in global_costmap(?)
+#-Set robot footprint in global and local_costmap
+#---Footprint is based on the location of base_link, which is at the bottom, middle, centered between the wheels.
+#--It may be too computationally expensive to use the full rectangular footprint in global_costmap. Would need to find solution to move robot radius to center (currently at base-link)
+#-Added initial pose settings under amcl
 
 amcl:
   ros__parameters:
@@ -41,6 +45,12 @@ amcl:
     resample_interval: 1
     robot_model_type: "nav2_amcl::DifferentialMotionModel"
     save_pose_rate: 0.5
+    set_initial_pose: true #Added inital pose settings.
+    initial_pose:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      yaw: 0.0
     sigma_hit: 0.2
     tf_broadcast: true
     transform_tolerance: 1.0
@@ -54,7 +64,8 @@ amcl:
 
 bt_navigator:
   ros__parameters:
-    enable_stamped_cmd_vel: true # Manually added parameter    global_frame: map
+    enable_stamped_cmd_vel: true # Manually added parameter
+    global_frame: map
     robot_base_frame: base_link
     odom_topic: /odom
     bt_loop_duration: 10
@@ -212,12 +223,12 @@ local_costmap:
       height: 3
       resolution: 0.05
       #robot_radius: 0.22
-      footprint: "[ [0.21, 0.195], [0.21, -0.195], [-0.21, -0.195], [-0.21, 0.195] ]" #FL, FR, RL, RR corners in meters from base_link (x-longitudinal, y-transverse offset)
+      footprint: "[ [0.573, 0.25], [0.573, -0.25], [-0.127, -0.25], [-0.127, 0.25] ]" #FL, FR, RL, RR corners in meters from base_link (x-longitudinal, y-transverse offset)
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.70
+        inflation_radius: 0.55
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -250,9 +261,11 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: base_link
-      robot_radius: 0.22
+      #robot_radius: 0.35 #Half the length of the robot (0.7m)
+      footprint: "[ [0.573, 0.25], [0.573, -0.25], [-0.127, -0.25], [-0.127, 0.25] ]" #FL, FR, RL, RR corners in meters from base_link (x-longitudinal, y-transverse offset)
       resolution: 0.05
       track_unknown_space: true
+      rolling_window: false
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -274,7 +287,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.7
+        inflation_radius: 0.55
       always_send_full_costmap: True
 
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.

@@ -1,4 +1,5 @@
 #This launches nav2 for autonomous motion control
+#This is a modified version of the stock nav2_bringup navigation_launch.py
 
 # Copyright (c) 2018 Intel Corporation
 #

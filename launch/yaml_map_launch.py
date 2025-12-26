@@ -12,6 +12,7 @@ def generate_launch_description():
     map_file_path = os.path.join(
         get_package_share_directory('garbo'),  # Replace with your package name
         'worlds',
+        'Driveway',
         'driveway_edited.yaml'  # Replace with your map file name
     )
 

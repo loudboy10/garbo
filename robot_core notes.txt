@@ -12,3 +12,5 @@ If a joystick is ever used, uncomment joystick.launch.py from launch_sim.launch.
 
 Commented out regular camera in robot.urdf and replaced with depth_camera
 Camera and depth camera share same exact dimensions and location. Change as needed to show both.
+
+Adjust acceleration settings and edit ekf.yaml to match

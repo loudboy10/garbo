@@ -16,12 +16,14 @@
   gz_type_name: "gz.msgs.Twist"
   direction: ROS_TO_GZ
 
+#Excluded following AutomaticAddison tutorial
+#Diff_Drive_controller should be publishing this instead?
 # Odometry published by DiffDrive plugin
-- ros_topic_name: "odom"
-  gz_topic_name: "odom"
-  ros_type_name: "nav_msgs/msg/Odometry"
-  gz_type_name: "gz.msgs.Odometry"
-  direction: GZ_TO_ROS
+#- ros_topic_name: "diff_cont/odom"
+#  gz_topic_name: "diff_cont/odom"
+#  ros_type_name: "nav_msgs/msg/Odometry"
+#  gz_type_name: "gz.msgs.Odometry"
+#  direction: GZ_TO_ROS
 
 #Removed as per Nav2 Smoothing Odomotry guide. Transforms will come from the ekf.yaml/node instead.
 # Transforms published by DiffDrive plugin

@@ -1,5 +1,5 @@
-#This just points the SLAM map server at the correct map file for the world to be navigated
-
+#This just points the nav2 map server to the correct map file for the world to be navigated
+#But I dont see in it's launch file HOW. No biggie at this point.
 # map_server_params.yaml
 map_server:
     ros__parameters:

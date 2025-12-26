@@ -102,6 +102,7 @@ def generate_launch_description():
         executable="spawner",
         arguments=["joint_broad"],
     )
+    
     ekf_params = os.path.join(get_package_share_directory(package_name),'config','ekf.yaml')
     robot_localization_node = Node(
         package='robot_localization',

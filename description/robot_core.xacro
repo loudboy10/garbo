@@ -5,18 +5,18 @@
 
 
 
-        <!-- Chassis Variables (all in metric) -->
-    <xacro:property name="box_length" value="0.7"/> <!--meters-->
+        <!-- Chassis Variables (all in meters/kg) -->
+    <xacro:property name="box_length" value="0.7"/> <!--Adjust footprint to reflect changes here-->
     <xacro:property name="box_width" value="0.35"/>
     <xacro:property name="box_height" value="0.15"/>
     <xacro:property name="box_mass" value="10"/>
 
-    <xacro:property name="wheel_width" value="0.075"/>
+    <xacro:property name="wheel_width" value="0.075"/> <!--Adjust footprint to reflect changes here-->
     <xacro:property name="wheel_radius" value="0.127"/>
     <xacro:property name="wheel_offset" value="${box_width/2 + wheel_width/2}"/>
     <xacro:property name="wheel_mass" value="1.0"/> <!--kg-->
     <xacro:property name="wheel_torque" value="50"/> <!--N.m-->
-    <xacro:property name="wheel_speed" value="10.0"/> <!--rad/s-->
+    <xacro:property name="wheel_speed" value="20.0"/> <!--rad/s-->
 
     <xacro:property name="caster_radius" value="0.0635"/>
     <xacro:property name="caster_Xoffset" value="${box_length - caster_radius}"/>
