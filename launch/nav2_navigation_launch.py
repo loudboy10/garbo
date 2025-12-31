@@ -22,9 +22,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import LoadComposableNodes, SetParameter
-from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration, PythonExpression, NotEqualsSubstitution
+from launch_ros.actions import LoadComposableNodes, Node, PushROSNamespace, SetParameter
 from launch_ros.descriptions import ComposableNode, ParameterFile
 from nav2_common.launch import RewrittenYaml
 
@@ -37,6 +36,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     autostart = LaunchConfiguration('autostart')
     params_file = LaunchConfiguration('params_file')
+    mask_yaml_file = LaunchConfiguration('mask') #Added for keepout mask
     use_composition = LaunchConfiguration('use_composition')
     container_name = LaunchConfiguration('container_name')
     container_name_full = (namespace, '/', container_name)
@@ -54,6 +54,8 @@ def generate_launch_description():
         'bt_navigator',
         'waypoint_follower',
         'docking_server',
+        'filter_mask_server', #Added for keepout mask
+        'costmap_filter_info_server', #Added for keepout mask,
     ]
 
     # Map fully qualified names to relative ones so the node's namespace can be prepended.
@@ -65,7 +67,10 @@ def generate_launch_description():
     remappings = [('/tf', 'tf'), ('/tf_static', 'tf_static')]
 
     # Create our own temporary YAML files that include substitutions
-    param_substitutions = {'autostart': autostart}
+    param_substitutions = {
+        'autostart': autostart,
+        'use_sim_time': use_sim_time,
+        'yaml_filename': mask_yaml_file} #Added for keepout mask
 
     configured_params = ParameterFile(
         RewrittenYaml(
@@ -95,6 +100,12 @@ def generate_launch_description():
         'params_file',
         default_value=os.path.join(bringup_dir, 'config', 'nav2_params.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes',
+    )
+
+    declare_mask_yaml_file_cmd = DeclareLaunchArgument( #Added for keepout mask
+        'mask',
+        default_value=os.path.join(bringup_dir, 'worlds', 'Driveway', 'driveway_costmap.yaml'),
+        description='Full path to filter mask yaml file to load'
     )
 
     declare_autostart_cmd = DeclareLaunchArgument(
@@ -242,6 +253,24 @@ def generate_launch_description():
                 arguments=['--ros-args', '--log-level', log_level],
                 remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
             ),
+            Node( #Added for keepout mask
+                package='nav2_map_server',
+                executable='map_server',
+                name='filter_mask_server',
+                namespace=namespace,
+                output='screen',
+                emulate_tty=True,  # https://github.com/ros2/launch/issues/188
+                parameters=[configured_params]
+                ),
+            Node( #Added for keepout mask
+                package='nav2_map_server',
+                executable='costmap_filter_info_server',
+                name='costmap_filter_info_server',
+                namespace=namespace,
+                output='screen',
+                emulate_tty=True,  # https://github.com/ros2/launch/issues/188
+                parameters=[configured_params]
+                ),
             Node(
                 package='nav2_lifecycle_manager',
                 executable='lifecycle_manager',
@@ -252,14 +281,43 @@ def generate_launch_description():
             ),
         ],
     )
+    # LoadComposableNode for map server twice depending if we should use the
+    # value of map from a CLI or launch default or user defined value in the
+    # yaml configuration file. They are separated since the conditions
+    # currently only work on the LoadComposableNodes commands and not on the
+    # ComposableNode node function itself
 
+    #Added for keepout mask
     load_composable_nodes = GroupAction(
         condition=IfCondition(use_composition),
         actions=[
+            PushROSNamespace( #Added for keepout mask
+                condition=IfCondition(NotEqualsSubstitution(LaunchConfiguration('namespace'), '')),
+                namespace=namespace),
             SetParameter('use_sim_time', use_sim_time),
             LoadComposableNodes(
                 target_container=container_name_full,
                 composable_node_descriptions=[
+                    ComposableNode(     #Added for keepout mask
+                        package='nav2_map_server',
+                        plugin='nav2_map_server::MapServer',
+                        name='filter_mask_server',
+                        parameters=[configured_params]
+                        ),
+                    ComposableNode(   #Added for keepout mask
+                        package='nav2_map_server',
+                        plugin='nav2_map_server::CostmapFilterInfoServer',
+                        name='costmap_filter_info_server',
+                        parameters=[configured_params]
+                        ),
+                    ComposableNode(     #Added for keepout mask
+                        package='nav2_lifecycle_manager',
+                        plugin='nav2_lifecycle_manager::LifecycleManager',
+                        name='lifecycle_manager_costmap_filters',
+                        parameters=[{'use_sim_time': use_sim_time},
+                                    {'autostart': autostart},
+                                    {'node_names': lifecycle_nodes}]
+                        ),
                     ComposableNode(
                         package='nav2_controller',
                         plugin='nav2_controller::ControllerServer',
@@ -357,10 +415,12 @@ def generate_launch_description():
     ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(declare_params_file_cmd)
     ld.add_action(declare_autostart_cmd)
+    ld.add_action(declare_mask_yaml_file_cmd) #Added for keepout mask
     ld.add_action(declare_use_composition_cmd)
     ld.add_action(declare_container_name_cmd)
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
+
     # Add the actions to launch all of the navigation nodes
     ld.add_action(load_nodes)
     ld.add_action(load_composable_nodes)

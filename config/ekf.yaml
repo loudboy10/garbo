@@ -5,13 +5,14 @@
 #Edits
 #-See the section on "odom0_pose_rejection_threshold: 5.0" if needed. Commented out for now.
 #- Figure out if twist inputs are needed from cmd_vel or not.
+#-Add lidar info?
 
 ekf_filter_node:
     ros__parameters:
         # The frequency, in Hz, at which the filter will output a position estimate. Note that the filter will not begin
         # computation until it receives at least one message from one of the inputs. It will then run continuously at the
         # frequency specified here, regardless of whether it receives more measurements. Defaults to 30 if unspecified.
-        frequency: 30.0
+        frequency: 10.0 #Default 30.0
 
         # The period, in seconds, after which we consider a sensor to have timed out. In this event, we carry out a predict
         # cycle on the EKF without correcting it. This parameter can be thought of as the minimum frequency with which the
@@ -49,7 +50,7 @@ ekf_filter_node:
         permit_corrected_publication: false
 
         # Whether to publish the acceleration state. Defaults to false if unspecified.
-        publish_acceleration: true
+        publish_acceleration: false
 
         # Whether to broadcast the transformation over the /tf topic. Defaults to true if unspecified.
         publish_tf: true
@@ -115,20 +116,22 @@ ekf_filter_node:
         # data is converted to velocity data by differentiating the absolute pose measurements. These velocities are then
         # integrated as usual. NOTE: this only applies to sensors that provide pose measurements; setting differential to true
         # for twist measurements has no effect.
-        odom0_differential: false
+        #If both differential and relative are true, defaults to differential.
+        odom0_differential: false #default false
 
         # [ADVANCED] When the node starts, if this parameter is true, then the first measurement is treated as a "zero point"
         # for all future measurements. While you can achieve the same effect with the differential paremeter, the key
         # difference is that the relative parameter doesn't cause the measurement to be converted to a velocity before
         # integrating it. If you simply want your measurements to start at 0 for a given sensor, set this to true.
-        odom0_relative: false
+        #If both differential and relative are true, defaults to differential.
+        odom0_relative: true #default false
 
         # [ADVANCED] Whether to use the starting pose of child_frame_id as the origin of odometry.
         # Note: this is different from setting odom0_relative to true, as when child_frame is different from 
         # base_link_frame, the rotation of base_link will be coupled into the translation of child_frame.
         # Set to true for fusing secondary odometry sources that are rigidly connected to base_link but has a non-zero 
         # offset from base_link.
-        odom0_pose_use_child_frame: false
+        odom0_pose_use_child_frame: true #default false
 
         # [ADVANCED] If your data is subject to outliers, use these threshold settings, expressed as Mahalanobis distances, to
         # control how far away from the current vehicle state a sensor measurement is permitted to be. Each defaults to
@@ -151,6 +154,7 @@ ekf_filter_node:
 #        odom1_queue_size: 2
 #        odom1_pose_rejection_threshold: 2.0
 #        odom1_twist_rejection_threshold: 0.2
+
 #        pose0: example/pose
 #        pose0_config: [true,  true,  false,
 #                       false, false, false,
@@ -176,8 +180,13 @@ ekf_filter_node:
                       false,  false,  false,
                       false, false, false,
                       false,  false,  true,
-                      true,  true,  false]
-        imu0_differential: false
+                      false, true, false]
+        #        [x_pos   , y_pos    , z_pos,
+        #         roll    , pitch    , yaw,
+        #         x_vel   , y_vel    , z_vel,
+        #         roll_vel, pitch_vel, yaw_vel,
+        #         x_accel , y_accel  , z_accel]
+        imu0_differential: false #default false
         imu0_relative: true
         imu0_queue_size: 5
         imu0_pose_rejection_threshold: 0.8                 # Note the difference in parameter names

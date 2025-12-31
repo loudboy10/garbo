@@ -16,19 +16,23 @@ twist_mux:
     use_stamped: true
     topics:
       keyboard:
-        topic   : cmd_vel_keyboard
+        topic   : cmd_vel_keyboard #Takes input directly from the command line.
         timeout : 0.5
-        priority: 100
+        priority: 100 #Highest priority because it is the most direct and fail-safe.
+
+#      joystick: #Not implement yet.
+#        topic   : cmd_vel_joy #Takes input from a joystick controller, which hasnt been set up yet
+#        timeout : 0.5
+#        priority: 90 #High priority to override automation
+
       navigation:
-        topic   : cmd_vel_nav
+        topic   : cmd_vel_nav #Takes input from Nav2 autonomous navigation stack.
         timeout : 0.5
-        priority: 10
-      tracker:
-        topic   : cmd_vel_tracker
+        priority: 80 #This will be the main operating mode.
+        
+
+      tracker: #Isnt this part of nav2? Why is it separate?
+        topic   : cmd_vel_tracker #Takes input from a tracking node, such as person or object tracking. Not sure why it's not part of Nav2?
         timeout : 0.5
-        priority: 20
-      joystick:
-        topic   : cmd_vel_joy
-        timeout : 0.5
-        priority: 90
+        priority: 70 #Lowest priority so that it is easily overridden by assited_teleop or joystick control.
 

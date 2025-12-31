@@ -1,0 +1,14 @@
+#Setting associated with the driveway costmap filter
+#This map is a keepIN zone to ignore lidar hits off the ramp which create a false barrier.
+#Used by nav2_navigation_launch.py
+
+image: driveway_costmap.pgm
+mode: trinary
+resolution: 0.05
+origin:
+  - -16.657
+  - -12.504
+  - 0
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

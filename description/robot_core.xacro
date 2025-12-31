@@ -16,7 +16,7 @@
     <xacro:property name="wheel_offset" value="${box_width/2 + wheel_width/2}"/>
     <xacro:property name="wheel_mass" value="1.0"/> <!--kg-->
     <xacro:property name="wheel_torque" value="50"/> <!--N.m-->
-    <xacro:property name="wheel_speed" value="20.0"/> <!--rad/s-->
+    <xacro:property name="wheel_speed" value="5.0"/> <!--rad/s-->
 
     <xacro:property name="caster_radius" value="0.0635"/>
     <xacro:property name="caster_Xoffset" value="${box_length - caster_radius}"/>

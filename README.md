@@ -77,3 +77,12 @@ Then to load the serialized map
 -Change SLAM config yaml to localization, set map location, set starting pose
 -Remove yaml map location from nav2 config yaml
 -start gazebo, robot state, slam, nav. rviz
+
+To kill all processes
+pkill -9 -f "ros2|gazebo|gz|nav2|amcl|bt_navigator|nav_to_pose|rviz2|assisted_teleop|cmd_vel_relay|robot_state_publisher|joint_state_publisher|move_to_free|mqtt|autodock|cliff_detection|moveit|move_group|basic_navigator"
+
+To-Do
+-Confirm sizes/weights/speeds for robot_core
+-Set up joystick control
+-Reduced obstacle range in nav2 global and local costmaps to get around ramp/lidar issue. Keepout filters are set up and run but arent achieving the desired goals and are vestigial at this point. This issue might not even be a problem IRL?
+-Update collision monitor to use depth camera points instead of scan?

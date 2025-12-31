@@ -5,8 +5,9 @@
 #-Enable dynamic footprint for picking up objects. See Nav2 docs > footprint.
 #---Dynamic footprint can be enabled to change size based on whether carrying an object or not.
 #-Tune inflation radius and cost scaling factor in both costmaps
-#-Local costmap - max obstacle height?
-#Global costmap - max obstacle height?
+#-Local costmap - max obstacle height? -Set this up for depth cam
+#Global costmap - max obstacle height? -Set this up for depth cam
+#Try setting always_send_full_costmap to false for better performance?
 
 #Edits:
 #-Added "enable_stamped_cmd_vel: true" to movement nodes to create stamped type twist messages (not default in Jazzy)
@@ -15,6 +16,9 @@
 #---Footprint is based on the location of base_link, which is at the bottom, middle, centered between the wheels.
 #--It may be too computationally expensive to use the full rectangular footprint in global_costmap. Would need to find solution to move robot radius to center (currently at base-link)
 #-Added initial pose settings under amcl
+#-Added keepout filter params
+#-Velocity smoother: increased max velocity
+#-Reduced obstacle_max_range to 1.0 in both costmaps to eliminate lidar/ramp issue
 
 amcl:
   ros__parameters:
@@ -23,7 +27,7 @@ amcl:
     alpha3: 0.2
     alpha4: 0.2
     alpha5: 0.2
-    base_frame_id: "base_footprint"
+    base_frame_id: "base_footprint" #Ignores the vertical component of base_link
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
     beam_skip_threshold: 0.3
@@ -45,13 +49,13 @@ amcl:
     resample_interval: 1
     robot_model_type: "nav2_amcl::DifferentialMotionModel"
     save_pose_rate: 0.5
+    sigma_hit: 0.2
     set_initial_pose: true #Added inital pose settings.
     initial_pose:
       x: 0.0
       y: 0.0
       z: 0.0
       yaw: 0.0
-    sigma_hit: 0.2
     tf_broadcast: true
     transform_tolerance: 1.0
     update_min_a: 0.2
@@ -67,7 +71,7 @@ bt_navigator:
     enable_stamped_cmd_vel: true # Manually added parameter
     global_frame: map
     robot_base_frame: base_link
-    odom_topic: /odom
+    odom_topic: /diff_cont/odom #Default /odom prior to ekf addition???????????????????????????
     bt_loop_duration: 10
     default_server_timeout: 20
     wait_for_service_timeout: 1000
@@ -92,9 +96,9 @@ bt_navigator:
 
 controller_server:
   ros__parameters:
-    controller_frequency: 20.0
+    controller_frequency: 20.0 #Default 20.0
+    odom_topic: /diff_cont/odom #This isnt here by default, but it was trying to subscribe to /odom?????
     costmap_update_timeout: 0.30
-    enable_stamped_cmd_vel: true # Manually added parameter
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
@@ -103,6 +107,7 @@ controller_server:
     goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
     controller_plugins: ["FollowPath"]
     use_realtime_priority: false
+    enable_stamped_cmd_vel: true # Manually added parameter
 
     # Progress checker parameters
     progress_checker:
@@ -177,9 +182,8 @@ controller_server:
         enabled: true
         cost_power: 1
         cost_weight: 3.81
-        near_collision_cost: 253
         critical_cost: 300.0
-        consider_footprint: false
+        consider_footprint: true
         collision_cost: 1000000.0
         near_goal_distance: 1.0
         trajectory_point_step: 2
@@ -224,11 +228,16 @@ local_costmap:
       resolution: 0.05
       #robot_radius: 0.22
       footprint: "[ [0.573, 0.25], [0.573, -0.25], [-0.127, -0.25], [-0.127, 0.25] ]" #FL, FR, RL, RR corners in meters from base_link (x-longitudinal, y-transverse offset)
-      plugins: ["voxel_layer", "inflation_layer"]
+      filters: ["keepout_filter"]  #Added for keepout mask. Needs to be placed BEFORE the obstacle layer to override it.
+      keepout_filter:
+        plugin: "nav2_costmap_2d::KeepoutFilter"
+        enabled: True
+        filter_info_topic: "/costmap_filter_info"
+      plugins: ["inflation_layer", "voxel_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        inflation_radius: 0.7 #default 0.55
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -247,7 +256,7 @@ local_costmap:
           data_type: "LaserScan"
           raytrace_max_range: 3.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
+          obstacle_max_range: 1.0 #Default 2.5. Reduced to ignore ramp
           obstacle_min_range: 0.0
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -266,6 +275,11 @@ global_costmap:
       resolution: 0.05
       track_unknown_space: true
       rolling_window: false
+      #filters: ["keepout_filter"]  #Added for keepout mask. Needs to be placed BEFORE the obstacle layer to override it.
+      #keepout_filter:
+      #  plugin: "nav2_costmap_2d::KeepoutFilter"
+      #  enabled: True
+      #  filter_info_topic: "/costmap_filter_info"
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -279,7 +293,7 @@ global_costmap:
           data_type: "LaserScan"
           raytrace_max_range: 3.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
+          obstacle_max_range: 1.0 #Default 2.5
           obstacle_min_range: 0.0
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -287,15 +301,32 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        inflation_radius: 0.7 #default 0.55
       always_send_full_costmap: True
 
+
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.
-# If you'd rather set it in the yaml, remove the default "map" value in the tb3_simulation_launch.py
+# If you'd rather set it in the yaml, remove the default "map" value in the nav2_navigation_launch.py
 # file & provide full path to map below. If CLI map configuration or launch default is provided, that will be used.
 map_server:
   ros__parameters:
     yaml_filename: "/home/indie/garbo_ws/src/garbo/worlds/Driveway/driveway_edited.yaml"
+
+#Added for keepout mask
+costmap_filter_info_server:
+  ros__parameters:
+    use_sim_time: true
+    type: 0
+    filter_info_topic: "/costmap_filter_info"
+    mask_topic: "/keepout_filter_mask"
+    base: 0.0
+    multiplier: 1.0
+filter_mask_server:
+  ros__parameters:
+    use_sim_time: true
+    frame_id: "map"
+    topic_name: "/keepout_filter_mask"
+    yaml_filename: "/home/indie/garbo_ws/src/garbo/worlds/Driveway/driveway_costmap.yaml"
 
 map_saver:
   ros__parameters:
@@ -306,7 +337,7 @@ map_saver:
 
 planner_server:
   ros__parameters:
-    expected_planner_frequency: 5.0
+    expected_planner_frequency: 20.0
     planner_plugins: ["GridBased"]
     costmap_update_timeout: 1.0
     GridBased:
@@ -326,7 +357,6 @@ smoother_server:
 
 behavior_server:
   ros__parameters:
-    enable_stamped_cmd_vel: true # Manually added parameter
     local_costmap_topic: local_costmap/costmap_raw
     global_costmap_topic: global_costmap/costmap_raw
     local_footprint_topic: local_costmap/published_footprint
@@ -343,6 +373,7 @@ behavior_server:
       plugin: "nav2_behaviors::Wait"
     assisted_teleop:
       plugin: "nav2_behaviors::AssistedTeleop"
+      cmd_vel_teleop: /cmd_vel_teleop #added but unused
     local_frame: odom
     global_frame: map
     robot_base_frame: base_link
@@ -351,6 +382,7 @@ behavior_server:
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
     rotational_acc_lim: 3.2
+    enable_stamped_cmd_vel: true # Manually added parameter
 
 waypoint_follower:
   ros__parameters:
@@ -363,7 +395,7 @@ waypoint_follower:
       enabled: True
       waypoint_pause_duration: 200
 
-route_server:
+route_server: #Not in default Jazzy params. Leaving it here for now
   ros__parameters:
     # The graph_filepath does not need to be specified since it going to be set by defaults in launch.
     # If you'd rather set it in the yaml, remove the default "graph" value in the launch file(s).
@@ -392,11 +424,11 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.5, 0.0, 2.0]
-    min_velocity: [-0.5, 0.0, -2.0]
+    max_velocity: [10.0, 0.0, 2.0] #Increased x-vel from 0.5 to 5.0
+    min_velocity: [-1.0, 0.0, -2.0] #Increased max reverse x-vel to 2.5 from 0.5
     max_accel: [2.5, 0.0, 3.2]
     max_decel: [-2.5, 0.0, -3.2]
-    odom_topic: "odom"
+    odom_topic: "diff_cont/odom" #default /odom
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0
@@ -407,6 +439,7 @@ collision_monitor:
     odom_frame_id: "odom"
     cmd_vel_in_topic: "cmd_vel_smoothed"
     cmd_vel_out_topic: "cmd_vel"
+    enable_stamped_cmd_vel: true # Manually added parameter
     state_topic: "collision_monitor_state"
     transform_tolerance: 0.2
     source_timeout: 1.0
@@ -493,9 +526,9 @@ loopback_simulator:
     map_frame_id: "map"
     scan_frame_id: "base_scan"  # tb4_loopback_simulator.launch.py remaps to 'rplidar_link'
     update_duration: 0.02
-    scan_range_min: 0.05
-    scan_range_max: 30.0
-    scan_angle_min: -3.1415
-    scan_angle_max: 3.1415
-    scan_angle_increment: 0.02617
-    scan_use_inf: true
+#    scan_range_min: 0.05 #These arent in default Jazzy params
+#    scan_range_max: 30.0
+#    scan_angle_min: -3.1415
+#    scan_angle_max: 3.1415
+#    scan_angle_increment: 0.02617
+#    scan_use_inf: true
