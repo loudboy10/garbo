@@ -1,18 +1,46 @@
 <sdf version='1.10'>
-  <world name='empty'>
+  <world name='driveway'>
+
     <physics name='1ms' type='ignored'>
       <max_step_size>0.01</max_step_size>
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>1000</real_time_update_rate>
     </physics>
+
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin>
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+    <plugin filename="gz-sim-imu-system"
+      name="gz::sim::systems::Imu">
+    </plugin>
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
     <gravity>0 0 -9.8000000000000007</gravity>
+
     <magnetic_field>5.5644999999999998e-06 2.2875799999999999e-05 -4.2388400000000002e-05</magnetic_field>
+    
     <atmosphere type='adiabatic'/>
+    
     <scene>
       <ambient>0.400000006 0.400000006 0.400000006 1</ambient>
       <background>0.699999988 0.699999988 0.699999988 1</background>
       <shadows>true</shadows>
     </scene>
+
+    
     <model name='ground_plane'>
       <static>true</static>
       <link name='link'>
@@ -65,6 +93,7 @@
       <pose>0 0 0 0 0 0</pose>
       <self_collide>false</self_collide>
     </model>
+
     <model name='cylinder'>
       <pose>2.4996803647074355 -1.7120214653368446 0.53332607497845363 0.0027131386142535429 0.00015417512395317888 6.300732504563015e-06</pose>
       <link name='cylinder_link'>
@@ -114,6 +143,7 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+
     <model name='sphere'>
       <pose>-1.2581936727758221 -2.7498126592616607 0.499999990200098 0 0 0</pose>
       <link name='sphere_link'>
@@ -161,6 +191,7 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+
     <model name='sphere_0'>
       <pose>1.288429648377158 -3.5908630058379987 0.499999990200098 0 0 0</pose>
       <link name='sphere_link'>
@@ -208,19 +239,20 @@
       <static>false</static>
       <self_collide>false</self_collide>
     </model>
+
     <model name='Driveway'>
       <link name='link'>
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/indie/garbo_ws/src/garbo/worlds/Driveway/meshes/Driveway.dae</uri>
+              <uri>file:///home/indie/garbo_ws/src/garbo/world/meshes/Driveway.dae</uri>
             </mesh>
           </geometry>
         </visual>
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/indie/garbo_ws/src/garbo/worlds/Driveway/meshes/Driveway.dae</uri>
+              <uri>file:///home/indie/garbo_ws/src/garbo/world/meshes/Driveway.dae</uri>
             </mesh>
           </geometry>
           <surface>
@@ -251,6 +283,7 @@
       <static>true</static>
       <self_collide>false</self_collide>
     </model>
+
     <light name='sun' type='directional'>
       <pose>0 0 10 0 0 0</pose>
       <cast_shadows>true</cast_shadows>
@@ -270,5 +303,6 @@
         <falloff>0</falloff>
       </spot>
     </light>
+    
   </world>
 </sdf>

@@ -104,7 +104,7 @@ def generate_launch_description():
 
     declare_mask_yaml_file_cmd = DeclareLaunchArgument( #Added for keepout mask
         'mask',
-        default_value=os.path.join(bringup_dir, 'worlds', 'Driveway', 'driveway_costmap.yaml'),
+        default_value=os.path.join(bringup_dir, 'world', 'driveway_costmap.yaml'),
         description='Full path to filter mask yaml file to load'
     )
 

@@ -3,12 +3,11 @@
 <package format="3">
   <name>garbo</name>
   <version>1.0.0</version>
-  <description> A system to autonomously operate GarBo, the garbage robot. "Cheaper than a broken hip!"</description>
-  <maintainer email="loubdoy@sbcglobal.net">MY NAME</maintainer>
-  <license>TODO: License declaration</license>
+  <description>URDF Setup Demo</description>
+  <maintainer email="jd.deleon@samsung.com">Josen Daniel De Leon</maintainer>
+  <license>Apache 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
 
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
@@ -17,7 +16,7 @@
   <exec_depend>rviz2</exec_depend>
   <exec_depend>sdformat_urdf</exec_depend>
   <exec_depend>xacro</exec_depend>
-
+  
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 

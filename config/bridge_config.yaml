@@ -2,37 +2,34 @@
 # This file defines the topics to be bridged between ROS 2 and Gazebo.
 
 
-# Clock needed so ROS understand's Gazebo's time
+# Clock
 - ros_topic_name: "/clock"
   gz_topic_name: "/clock"
   ros_type_name: "rosgraph_msgs/msg/Clock"
   gz_type_name: "gz.msgs.Clock"
   direction: GZ_TO_ROS
 
-# Command velocity subscribed to by DiffDrive plugin
-- ros_topic_name: "/cmd_vel"
-  gz_topic_name: "/cmd_vel"
+# IMU
+- ros_topic_name: "/demo/imu"
+  gz_topic_name: "/demo/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+# Diff Drive plugin
+- ros_topic_name: "/demo/odom"
+  gz_topic_name: "/demo/odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/demo/cmd_vel"
+  gz_topic_name: "/demo/cmd_vel"
   ros_type_name: "geometry_msgs/msg/TwistStamped"
   gz_type_name: "gz.msgs.Twist"
   direction: ROS_TO_GZ
 
-#Removed as per Nav2 Smoothing Odomotry guide.
-# Odometry published by DiffDrive plugin
-#- ros_topic_name: "/diff_cont/odom"
-#  gz_topic_name: "/diff_cont/odom"
-#  ros_type_name: "nav_msgs/msg/Odometry"
-#  gz_type_name: "gz.msgs.Odometry"
-#  direction: GZ_TO_ROS
-
-#Removed as per Nav2 Smoothing Odomotry guide. Transforms will come from the ekf.yaml/node instead.
-# Transforms published by DiffDrive plugin
-#- ros_topic_name: "tf"
- # gz_topic_name: "tf"
- # ros_type_name: "tf2_msgs/msg/TFMessage"
- # gz_type_name: "gz.msgs.Pose_V"
- # direction: GZ_TO_ROS
-
-# Joint states published by JointState plugin
+# Joint State Publisher
 - ros_topic_name: "/joint_states"
   gz_topic_name: "/joint_states"
   ros_type_name: "sensor_msgs/msg/JointState"
@@ -52,16 +49,6 @@
   gz_type_name: "gz.msgs.PointCloudPacked"
   direction: GZ_TO_ROS
 
-  # IMU Topics
-- ros_topic_name: "/imu"
-  gz_topic_name: "/imu"
-  ros_type_name: "sensor_msgs/msg/Imu"
-  gz_type_name: "gz.msgs.IMU"
-  direction: GZ_TO_ROS
-
-# Camera Topics
-#For some reason the image bridge is in the launch_sim.launch file?
-
 #Depth Camera Topics
 - ros_topic_name: "/depth_camera/camera_info"
   gz_topic_name: "/depth_camera/camera_info"
@@ -80,3 +67,20 @@
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
+
+# Camera Topics
+#For some reason the image bridge is in the launch_sim.launch file?
+
+   # Contact Sensor Topics
+#- ros_topic_name: "/contact_switch"
+#  gz_topic_name: "/contact_switch"
+#  ros_type_name: "ros_gz_interfaces/msg/Contact"
+#  gz_type_name: "gz.msgs.Contact"
+#  direction: GZ_TO_ROS
+
+  # Velocity command from collision plugin
+#- ros_topic_name: "/cmd_vel_collision"
+#  gz_topic_name: "/cmd_vel_collision"
+#  ros_type_name: "geometry_msgs/msg/TwistStamped"
+#  gz_type_name: "gz.msgs.Twist"
+#  direction: GZ_TO_ROS

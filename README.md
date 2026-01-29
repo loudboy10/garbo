@@ -21,6 +21,7 @@ This has the alias "build".
 
 Custom launch command
   ros2 launch garbo launch_sim.launch.py world:=src/garbo/worlds/Driveway/driveway.sdf  use_sim_time:=true
+  -Add "headless:=True" to run Gazebo without the GUI
 
 Teleop command with remapped output for use with twist_mux
   ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true --remap cmd_vel:=/cmd_vel_keyboard
@@ -86,3 +87,13 @@ To-Do
 -Set up joystick control
 -Reduced obstacle range in nav2 global and local costmaps to get around ramp/lidar issue. Keepout filters are set up and run but arent achieving the desired goals and are vestigial at this point. This issue might not even be a problem IRL?
 -Update collision monitor to use depth camera points instead of scan?
+-Tune costmap resolution to balance computation load and not running over a cat. Global and local can be set different
+-Use synchronous SLAM mode for mapping next time. Slower but better.
+-In sim, use behavior tree, AprilTags, docking server, and dynamic footprint to handle picking up the bin. 
+  -IRL, use above along with Arduino to handle hoist actions based on limit switches, with overrides sent to twist-mux until bin is lifted. This avoids the clusterfuck of having to simulate contact switches.
+-Adjust twist-mux timeouts if commands start conflicting. Increase a timeout to block other inputs for longer.
+
+1/2/26 - Updated a ton of Nav2 params per Addison tuning guide.
+Simulation speed is much better but bot performance is worse. 
+Bot is moving too fast and scans arent localizing well.
+Compare params against the last commit, which navigated well but sim was slow. Good luck remembering how to do anything, fucker.

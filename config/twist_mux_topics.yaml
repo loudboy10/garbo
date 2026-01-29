@@ -2,7 +2,7 @@
 
 #Twist-mux combines the various navigation and movement controls sources,
 #such as manual control from keyboard joystick and autonomous control from nav2
-#and outputs a since unified movement instruction on the /cmd_vel topic as a TwistStamped message.
+#and outputs a unified movement instruction on the /cmd_vel topic as a TwistStamped message.
 #Each input source is assigned a priority so that lower level commands are ignored, such as manual override of autonomous navigation.
 
 # For each topic:
@@ -13,12 +13,18 @@
 
 twist_mux:
   ros__parameters:
+    use_sim_time: true
     use_stamped: true
     topics:
+#      collision: #Move this to below keyboard for physical bot.
+#        topic   : cmd_vel_collision #Takes input from the collision avoidance node.
+#        timeout : 0.5
+#        priority: 100 #Highest priority for testing.
+    
       keyboard:
         topic   : cmd_vel_keyboard #Takes input directly from the command line.
         timeout : 0.5
-        priority: 100 #Highest priority because it is the most direct and fail-safe.
+        priority: 90 #Highest priority because it is the most direct and fail-safe.
 
 #      joystick: #Not implement yet.
 #        topic   : cmd_vel_joy #Takes input from a joystick controller, which hasnt been set up yet
@@ -26,7 +32,7 @@ twist_mux:
 #        priority: 90 #High priority to override automation
 
       navigation:
-        topic   : cmd_vel_nav #Takes input from Nav2 autonomous navigation stack.
+        topic   : /demo/cmd_vel_nav #Takes input from Nav2 autonomous navigation stack.
         timeout : 0.5
         priority: 80 #This will be the main operating mode.
         
