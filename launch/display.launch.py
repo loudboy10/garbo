@@ -5,7 +5,8 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
-from launch_ros.actions import Node
+from launch_ros.actions import Node, ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 from ros_gz_bridge.actions import RosGzBridge
 from ros_gz_sim.actions import GzServer
 
@@ -19,8 +20,34 @@ def generate_launch_description():
     default_rviz_config_path = os.path.join(pkg_share, 'rviz', 'config.rviz')
     world_path = os.path.join(pkg_share, 'world', 'driveway.sdf')
     bridge_config_path = os.path.join(pkg_share, 'config', 'bridge_config.yaml')
-    twist_mux_params = os.path.join(pkg_share, 'config', 'twist_mux_topics.yaml')
+    ekf_config_path = os.path.join(pkg_share, 'config', 'ekf.yaml')
+    twist_mux_config_path = os.path.join(pkg_share, 'config', 'twist_mux.yaml')
+    apriltag_config_path = os.path.join(pkg_share, 'config', 'apriltag.yaml')
 
+#https://docs.ros.org/en/jazzy/p/image_proc/doc/tutorials.html#launch-image-proc-components
+    composable_nodes = [
+        ComposableNode(
+            package='image_proc',
+            plugin='image_proc::RectifyNode',
+            name='rectify_node',
+            remappings=[
+                ('image', 'depth_camera/image_raw'),
+                ('image_rect', 'image_rect')
+            ],
+        ),
+        ComposableNode(
+            package='image_proc',
+            plugin='image_proc::CropDecimateNode',
+            name='crop_decimate_node',
+            remappings=[
+                ('in/image_raw', 'image_rect'),
+                ('out/image_raw', 'image_downsized')
+            ],
+            parameters=[{
+                'decimation_x': 2, 'decimation_y': 2,
+            }]
+        )
+    ]
 
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
@@ -85,16 +112,37 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_node',
         output='screen',
-        parameters=[os.path.join(pkg_share, 'config', 'ekf.yaml'), {'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        parameters=[ekf_config_path, {'use_sim_time': LaunchConfiguration('use_sim_time')}],
     )
     twist_mux = Node(
-            package="twist_mux",
-            executable="twist_mux",
-            parameters=[twist_mux_params, {'use_sim_time': True}, {'use_stamped': True}],
-            #remappings=[('/cmd_vel_out','/diff_cont/cmd_vel_unstamped') ],
-            remappings=[('/cmd_vel_out', '/demo/cmd_vel') ],
+        package="twist_mux",
+        executable="twist_mux",
+        parameters=[twist_mux_config_path, {'use_sim_time': True}, {'use_stamped': True}],
+        remappings=[('/cmd_vel_out', '/demo/cmd_vel') ],
+    )
+    apriltag_node = Node(
+        package='apriltag_ros', # The name of the package containing the node executable
+        executable='apriltag_node', # The name of the executable for the AprilTag detector
+        name='apriltag_detector',
+        output='screen',
+        # Optional: Remap topics if necessary to match your system (e.g., camera input)
+        remappings=[ 
+            ('/image_rect', '/image_downsized'),
+            #('/image_rect', '/depth_camera/image_raw'),
+            #('/camera_info', '/depth_camera/camera_info')
+        ],
+        parameters=[apriltag_config_path, {'use_sim_time': True}],
+    )   
+    container = ComposableNodeContainer(
+        name='image_proc_container',
+        namespace='',
+        package='rclcpp_components',
+        executable='component_container',
+        composable_node_descriptions=composable_nodes,
+    )
 
-        )
+
+
 
     return LaunchDescription([
         DeclareLaunchArgument(name='model', default_value=default_model_path, description='Absolute path to robot model file'),
@@ -111,4 +159,6 @@ def generate_launch_description():
         spawn_entity,
         robot_localization_node,
         twist_mux,
+        apriltag_node,
+        container,
     ])

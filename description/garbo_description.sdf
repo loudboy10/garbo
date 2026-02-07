@@ -494,22 +494,25 @@
 
       <xacro:box_inertia m="0.035" w="0.01" d="0.03" h="0.03"/>
 
-      <sensor name="camera" type="camera">
+      <sensor name="rear_camera" type="camera">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>5.0</update_rate>
+        <topic>rear_camera/image_raw</topic>
+        <gz_frame_id>rear_camera_link</gz_frame_id>
         <camera>
+          <camera_info_topic>rear_camera/camera_info</camera_info_topic>
           <horizontal_fov>1.047</horizontal_fov>
             <image>
+              <format>R8G8B8</format>
               <width>320</width>
               <height>240</height>
             </image>
             <clip>
-              <near>0.1</near>
-              <far>100</far>
+              <near>0.05</near>
+              <far>3.0</far>
             </clip>
           </camera>
-          <always_on>1</always_on>
-          <update_rate>30</update_rate>
-          <visualize>true</visualize>
-          <topic>camera</topic>
       </sensor>
     </link>
   </model>
