@@ -1,0 +1,60 @@
+#Availble docks
+#Called by Nav2_params.yaml, docking server section
+
+docks:
+  home_dock: #Charging base
+    type: "home_dock"
+    frame: map
+    pose: [-5.0, 3.9, 0]  # [x, y, theta] Matches pose of the home Apriltag listed in driveway.sdf
+
+  trash_bin: # For picking up the bin itself, based on its Apriltag
+    type: "bin_dock"
+    frame: map
+    pose: [10.0, 10.0, 0.0]
+
+  recycle_bin:
+    type: "bin_dock"
+    frame: map
+    pose: [10.0, 10.0, 0.0]
+
+  green_bin:
+    type: "bin_dock"
+    frame: map
+    pose: [10.0, 10.0, 0.0]
+
+  trash_dock: #For placing the bin next to the house, based on an Apriltag signpost
+    type: "placement_dock"
+    frame: map
+    pose: [5, 0.5, -3.1415] #Based on spawn point in driveway.sdf
+    #Locator tag is at 3,0, 1.5708. Should ^pose be based on this?
+
+  recycle_dock: #For placing the bin next to the house, based on an Apriltag signpost
+    type: "placement_dock"
+    frame: map
+    pose: [5, 0, -3.1415] #Based on spawn point in driveway.sdf
+    #Locator tag is at 3,0, 1.5708. Should ^pose be based on this?
+
+  green_dock: #This will be out in the parking area. Not based on an Apriltag, but we'll use the same dock type for simplicity.
+    type: "placement_dock"
+    frame: map
+    pose: [6, -5, 1.5708] #Based on spawn point in parking_area.sdf
+
+  trash_curb: #For placing the bin out on the curb, based on nav2 localization
+    type: "placement_dock"
+    frame: map
+    pose: [-5.5196502793423949, 2.4806453110246496, 0.0] # Mirror location of trash dock across the y-axis
+
+  recycle_curb:
+    type: "placement_dock"
+    frame: map
+    pose: [-5.4409400294970771, 0.50960481367723409, 0.0]
+
+  green_curb:
+    type: "placement_dock"
+    frame: map
+    pose: [-5.3450411942024942, -1.4334154578621039, 0.0]
+
+
+
+
+

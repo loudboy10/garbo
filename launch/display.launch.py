@@ -24,6 +24,8 @@ def generate_launch_description():
     twist_mux_config_path = os.path.join(pkg_share, 'config', 'twist_mux.yaml')
     apriltag_config_path = os.path.join(pkg_share, 'config', 'apriltag.yaml')
 
+
+
 #https://docs.ros.org/en/jazzy/p/image_proc/doc/tutorials.html#launch-image-proc-components
     composable_nodes = [
         ComposableNode(
@@ -140,7 +142,6 @@ def generate_launch_description():
         executable='component_container',
         composable_node_descriptions=composable_nodes,
     )
-
 
 
 

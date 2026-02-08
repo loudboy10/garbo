@@ -547,22 +547,41 @@ docking_server:
     dock_approach_timeout: 30.0
     undock_linear_tolerance: 0.05
     undock_angular_tolerance: 0.1
+    rotation_angular_tolerance: 0.05
     max_retries: 3
     base_frame: "base_link"
     fixed_frame: "odom"
-    dock_backwards: true
+    odom_topic: "odom"
+    odom_duration: 0.3
+    #dock_backwards: true #Depricated param. Use the dock plugin’s dock_direction parameter instead. 
     dock_prestaging_tolerance: 0.5
 
     # Types of docks
-    dock_plugins: ['simple_charging_dock']
-    simple_charging_dock:
+    dock_plugins: ['home_dock', 'bin_dock', 'placement_dock']
+    home_dock: # The home-base charging dock
       plugin: 'opennav_docking::SimpleChargingDock'
       docking_threshold: 0.05
       staging_x_offset: -0.7
-      use_external_detection_pose: true
+      use_external_detection_pose: true #Apriltag on charging base
       use_battery_status: false # true
       use_stall_detection: false # true
-      dock_direction: "forward"
+      dock_direction: "backward" # forward/backward
+    bin_dock: # For docking to a bin at a non-fixed location
+      plugin: 'opennav_docking::SimpleNonChargingDock'
+      docking_threshold: 0.05
+      staging_x_offset: -0.7
+      use_external_detection_pose: true #Apriltag on the bin itself
+      use_battery_status: false # true
+      use_stall_detection: false # true
+      dock_direction: "backward" # forward/backward
+    placement_dock: #For dropping off a bin next to the house or out on the curb
+      plugin: 'opennav_docking::SimpleNonChargingDock'
+      docking_threshold: 0.05
+      staging_x_offset: -0.7
+      use_external_detection_pose: false #Based on nav2 localization, not an Apriltag
+      use_battery_status: false # true
+      use_stall_detection: false # true
+      dock_direction: "forward" # forward/backward
 
       external_detection_timeout: 1.0
       external_detection_translation_x: -0.18
@@ -572,13 +591,8 @@ docking_server:
       external_detection_rotation_yaw: 0.0
       filter_coef: 0.1
 
-    # Dock instances
-    # The following example illustrates configuring dock instances.
-    # docks: ['home_dock']  # Input your docks here
-    # home_dock:
-    #   type: 'simple_charging_dock'
-    #   frame: map
-    #   pose: [0.0, 0.0, 0.0]
+    # Docks
+    dock_database: /home/indie/garbo_ws/src/garbo/config/docks.yaml
 
     controller:
       k_phi: 3.0
@@ -591,7 +605,7 @@ docking_server:
       transform_tolerance: 0.1
       projection_time: 5.0
       simulation_step: 0.1
-      dock_collision_threshold: 0.3
+      dock_collision_threshold: 0.1 #The distance from the dock pose to ignore collisions. Set to 0.0 when the dock isn't physically contacted.
 
 loopback_simulator:
   ros__parameters:
