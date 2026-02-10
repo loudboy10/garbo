@@ -6,53 +6,118 @@ docks:
     type: "home_dock"
     frame: map
     pose: [-5.0, 3.9, 0]  # [x, y, theta] Matches pose of the home Apriltag listed in driveway.sdf
+    id: 0 #Matches the tag ID for the home Apriltag in apriltag.yaml. These may not be needed? use_dock_id=true by defualt, so reference the dock by name.
+    #This is the final position of the bot when docked, relative to the detected tag.
+    external_detection_translation_x: 0.1 #0.1m in front of the tag, so the bot doesn't have to be perfectly on top of the tag to dock. Set to 0.0 if the dock is based on a global pose, not an Apriltag.
+    external_detection_translation_y: 0.0 #No offset from the tag in the y direction, so the bot will be centered on the tag when docked.
+    external_detection_rotation_roll: -1.5708 #Rotate the tag's reference point to create a point on the ground plane below it's physical location.
+    external_detection_rotation_pitch: -1.5708 #Rotate the tag's reference point to create a point on the ground plane below it's physical location.
+    external_detection_rotation_yaw: 0.0 #No rotation from the tag in the yaw direction, so the bot will face the same way as the tag when docked.
 
   trash_bin: # For picking up the bin itself, based on its Apriltag
     type: "bin_dock"
     frame: map
-    pose: [10.0, 10.0, 0.0]
+    pose: [0, 0, 0] #Pose will be based on the detected Apriltag, so this can be all zeros to start.
+    id: 1
+    external_detection_translation_x: 0.1
+    external_detection_translation_y: 0.0
+    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_pitch: -1.5708
+    external_detection_rotation_yaw: 0.0
 
   recycle_bin:
     type: "bin_dock"
     frame: map
-    pose: [10.0, 10.0, 0.0]
+    pose: [0.0, 0.0, 0.0]
+    id: 2
+    external_detection_translation_x: 0.1
+    external_detection_translation_y: 0.0
+    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_pitch: -1.5708
+    external_detection_rotation_yaw: 0.0
 
   green_bin:
     type: "bin_dock"
     frame: map
-    pose: [10.0, 10.0, 0.0]
+    pose: [0.0, 0.0, 0.0]
+    id: 3
+    external_detection_translation_x: 0.1
+    external_detection_translation_y: 0.0
+    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_pitch: -1.5708
+    external_detection_rotation_yaw: 0.0
 
   trash_dock: #For placing the bin next to the house, based on an Apriltag signpost
     type: "placement_dock"
     frame: map
-    pose: [5, 0.5, -3.1415] #Based on spawn point in driveway.sdf
-    #Locator tag is at 3,0, 1.5708. Should ^pose be based on this?
+    pose: [7, 0.5, 1.5708] #Based on spawn point in driveway.sdf
+    id: 4 #Matches the tag ID for the trash dock Apriltag in apriltag.yaml. Recycle dock will reference the same tag, so it doesn't need its own ID.
+    dock_direction: "forward" #Even though the bot will be backing the bin into it's spot, it will be facing forward towards the Apriltag.
+    external_detection_translation_x: -2.0 #Place the bin 2m in front of the signpost tag.
+    external_detection_translation_y: 0.0 #No offset from the tag in the y direction.
+    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_pitch: -1.5708
+    external_detection_rotation_yaw: 0.0
 
   recycle_dock: #For placing the bin next to the house, based on an Apriltag signpost
     type: "placement_dock"
     frame: map
-    pose: [5, 0, -3.1415] #Based on spawn point in driveway.sdf
-    #Locator tag is at 3,0, 1.5708. Should ^pose be based on this?
+    pose: [7, 0.5, 1.5708] #Based on spawn point in driveway.sdf
+    id: 5 #Uses the same Apriltag as trash_dock/id:4, but will have a different end pose so that the bins end up next to each other.
+    dock_direction: "forward" # forward/backward
+    external_detection_translation_x: -2.0
+    external_detection_translation_y: -0.5
+    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_pitch: -1.5708
+    external_detection_rotation_yaw: 0.0
 
   green_dock: #This will be out in the parking area. Not based on an Apriltag, but we'll use the same dock type for simplicity.
     type: "placement_dock"
     frame: map
     pose: [6, -5, 1.5708] #Based on spawn point in parking_area.sdf
+    id: 6 #Doesn't have an Apriltag, but the dock still needs an ID for Nav2 to reference it.
+    dock_direction: "forward" # forward/backward
+    external_detection_translation_x: 0.0 #All zeros because this location is based on a global pose, not an Apriltag. The bot will navigate to this pose and then use its internal localization to fine-tune its position for docking.
+    external_detection_translation_y: 0.0
+    external_detection_rotation_roll: 0.0
+    external_detection_rotation_pitch: 0.0
+    external_detection_rotation_yaw: 0.0
 
   trash_curb: #For placing the bin out on the curb, based on nav2 localization
     type: "placement_dock"
     frame: map
     pose: [-5.5196502793423949, 2.4806453110246496, 0.0] # Mirror location of trash dock across the y-axis
+    id: 7
+    dock_direction: "forward" # forward/backward
+    external_detection_translation_x: 0.0
+    external_detection_translation_y: 0.0
+    external_detection_rotation_roll: 0.0
+    external_detection_rotation_pitch: 0.0
+    external_detection_rotation_yaw: 0.0
 
   recycle_curb:
     type: "placement_dock"
     frame: map
     pose: [-5.4409400294970771, 0.50960481367723409, 0.0]
+    id: 8
+    dock_direction: "forward" # forward/backward
+    external_detection_translation_x: 0.0
+    external_detection_translation_y: 0.0
+    external_detection_rotation_roll: 0.0
+    external_detection_rotation_pitch: 0.0
+    external_detection_rotation_yaw: 0.0
 
   green_curb:
     type: "placement_dock"
     frame: map
     pose: [-5.3450411942024942, -1.4334154578621039, 0.0]
+    id: 9
+    dock_direction: "forward" # forward/backward
+    external_detection_translation_x: 0.0
+    external_detection_translation_y: 0.0
+    external_detection_rotation_roll: 0.0
+    external_detection_rotation_pitch: 0.0
+    external_detection_rotation_yaw: 0.0
 
 
 

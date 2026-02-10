@@ -129,9 +129,9 @@ def generate_launch_description():
         output='screen',
         # Optional: Remap topics if necessary to match your system (e.g., camera input)
         remappings=[ 
-            ('/image_rect', '/image_downsized'),
+            #('/image_rect', '/image_downsized'),
             #('/image_rect', '/depth_camera/image_raw'),
-            #('/camera_info', '/depth_camera/camera_info')
+            ('/camera_info', '/depth_camera/camera_info')
         ],
         parameters=[apriltag_config_path, {'use_sim_time': True}],
     )   

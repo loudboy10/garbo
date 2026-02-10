@@ -29,8 +29,8 @@
 
   <!-- Define robot constants -->
   <xacro:property name="base_width" value="0.35"/>
-  <xacro:property name="base_length" value="0.7"/>
-  <xacro:property name="base_height" value="0.15"/>
+  <xacro:property name="base_length" value="1.0"/>
+  <xacro:property name="base_height" value="${0.66 - wheel_radius}"/> <!--Approx height of Apriltag sticker on bins-->
   <xacro:property name="base_mass" value="10"/>
 
   <xacro:property name="wheel_radius" value="0.127"/>
@@ -252,8 +252,15 @@
   <joint name="depth_camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="depth_camera_link"/>
-    <origin xyz="${base_length - wheel_radius + 0.005} 0 0.1" rpy="0 0 0"/>
+    <origin xyz="${base_length - wheel_radius + 0.005} 0 ${base_height - 0.015}" rpy="0 0 0"/>
   </joint>
+<!--Rotate optical frame to ROS standard frame-->
+  <joint name="depth_camera_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+        <parent link="depth_camera_link" />
+        <child link="depth_camera_optical_link" />
+  </joint>
+  <link name="depth_camera_optical_link"></link>
 
 
 
@@ -284,8 +291,16 @@
   <joint name="rear_camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rear_camera_link"/>
-    <origin xyz="${-wheel_radius-0.01} 0 0.1" rpy="0 0 ${pi}"/> <!--Faces backwards-->
+    <origin xyz="${-wheel_radius-0.01} 0 ${base_height - 0.015}" rpy="0 0 ${-pi}"/> <!--Faces backwards-->
   </joint>
+<!--Rotate optical frame to ROS standard frame-->
+  <joint name="rear_camera_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+      <parent link="rear_camera_link" />
+      <child link="rear_camera_optical_link" />
+  </joint>
+  <link name="rear_camera_optical_link">
+  </link>
 
 
 </robot>
