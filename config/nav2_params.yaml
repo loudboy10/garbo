@@ -497,8 +497,8 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [1.0, 0.0, 2.5] #Increased x-vel from 0.5 to 1.0
-    min_velocity: [-1.0, 0.0, -2.0] #Increased max reverse x-vel to 1.0 from 0.5
+    max_velocity: [1.0, 0.0, 1.0] #(x, y, theta) Increased x-vel from 0.5 to 1.0, reduced turn rate to 1.0 to reduce loss of laser
+    min_velocity: [-1.0, 0.0, -1.0] #Increased max reverse x-vel to 1.0 from 0.5
     max_accel: [0.3, 0.0, 3.2] #Decreased x from 2.5 to allow for heavy bot
     max_decel: [-0.3, 0.0, -3.2] #Decreased x from 2.5 to allow for heavy bot
     odom_topic: "/demo/odom"

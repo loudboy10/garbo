@@ -513,14 +513,14 @@
 <!--Apriltags-->
     <include>
       <name>home_tag</name>
-      <pose>-5 3.9 0.66 1.5708 0 0</pose> <!--The center of this tag is 5m behind the origin, 3.9m to the left, and 26in off the ground. The tag mesh model default is flat, so it is rotated up to face inward.-->
+      <pose>-1.137 0 0.645 1.5708 0 1.5708</pose> <!--Original home tag: -5 3.9 0.66 1.5708 0 0 The center of this tag is 5m behind the origin, 3.9m to the left, and 26in off the ground. The tag mesh model default is flat, so it is rotated up to face inward.-->
       <static>true</static>
       <uri>model://Apriltag36_11_00000</uri>
     </include>
 
     <include>
       <name>placement_dock</name> <!--This one tag will be used as a reference to place both trash and recycle bin.-->
-      <pose>7 .5 0.66 1.5708 0 1.5708</pose> 
+      <pose>1.878 0 0.645 1.5708 0 -1.5708</pose>  <!--Original reference tag 7 .5 0.66 1.5708 0 1.5708-->
       <static>true</static>
       <uri>model://Apriltag36_11_00004</uri>
     </include>

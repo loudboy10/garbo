@@ -1,32 +1,26 @@
 # Configuration parameters for the apriltag_ros node
 # https://chaitanyantr.github.io/apriltag.html
 
-apriltag:                 # node name
-  ros__parameters:
-    # setup (defaults)
-    image_transport: raw  # image format: "raw" or "compressed"
-    family: 36h11         # tag family name: 16h5, 25h9, 36h11
-    size: 1.0             # default tag edge size in meter. Can be overridden by tag-specific sizes below.
-    profile: false        # print profiling information to stdout
+/**: # node name. Use /** as a wildcard so that this file is used by whichever node calls it. Params wont load if the name doesnt match.
+    ros__parameters:
+        image_transport: raw    # Controls image compression - 'raw' means uncompressed images
+        family: 36h11           # The type/style of AprilTag - 36h11 is a common, reliable family
+        size: 0.08              # default/global tag edge size in meters that will be used for all detected AprilTags unless overridden
+        max_hamming: 0          # How many bit errors to tolerate - 0 means no errors allowed, making detection stricter
 
-    # tuning of detection (defaults)
-    max_hamming: 0        # maximum allowed hamming distance (corrected bits)
-    detector:
-      threads: 1          # number of threads
-      decimate: 2.0       # decimate resolution for quad detection
-      blur: 0.0           # sigma of Gaussian blur for quad detection
-      refine: 1           # snap to strong gradients
-      sharpening: 0.25    # sharpening of decoded images
-      debug: 0            # write additional debugging images to current working directory
+        # see "apriltag.h" 'struct apriltag_detector' for more documentation on these optional parameters
+        detector:
+            threads: 1          # How many CPU threads to use - higher numbers can make detection faster
+            decimate: 2.0       # Makes image smaller for faster detection (2.0 = use half resolution)
+            blur: 0.0           # How much to blur the image - can help with noisy images (0.0 = no blur)
+            refine: True        # Whether to fine-tune tag corners for better accuracy
+            sharpening: 0.25    # How much to sharpen the image - can help see tag edges better
+            debug: False        # Whether to save debug images - useful for troubleshooting
 
-    pose_estimation_method: "pnp" # method for estimating the tag pose
-
-    # (optional) list of tags
-    # If defined, 'frames' and 'sizes' must have the same length as 'ids'.
-    tag:
-      ids:    [0, 1, 2, 3, 4] # tag IDs for which to publish transform
-      frames: [home, trash_bin, recycle_bin, green_bin, bin_dock] # frame names dont need to match. 
-      sizes:  [0.08, 0.08, 0.08, 0.08, 0.08] # tag-specific edge size, overrides the default 'size'.
-      #Curb dropoff dock and green_dock are based on global pose, not Apriltag.
-      #trach_dock and recycle_dock will both reference the same Apriltag signpost, so only one tag ID is needed for both.
-
+        # optional list of tags
+        tag:
+            ids:    [0, 1, 2, 3, 4] # tag IDs for which to publish transform
+            frames: [home, trash_bin, recycle_bin, green_bin, bin_dock] # frame names dont need to match.
+            sizes:  [0.08, 0.08, 0.08, 0.08, 0.08] # tag-specific edge size, overrides the default 'size'.
+            #Curb dropoff dock and green_dock are based on global pose, not Apriltag.
+             #trash_dock and recycle_dock will both reference the same Apriltag signpost, so only one tag ID is needed for both.

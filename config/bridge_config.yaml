@@ -81,8 +81,7 @@
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
 
-# Camera Topics
-#For some reason the image bridge is in the launch_sim.launch file?
+# Other
 
    # Contact Sensor Topics
 #- ros_topic_name: "/contact_switch"

@@ -82,6 +82,8 @@ Then to load the serialized map
 To kill all processes
 pkill -9 -f "ros2|gazebo|gz|nav2|amcl|bt_navigator|nav_to_pose|rviz2|assisted_teleop|cmd_vel_relay|robot_state_publisher|joint_state_publisher|move_to_free|mqtt|autodock|cliff_detection|moveit|move_group|basic_navigator"
 
+If Error Code 14 unable to find model file, run "export GZ_SIM_RESOURCE_PATH=/home/indie/garbo_ws/src/garbo/world/models" from the terminal in use. Add it to bashrc as well so that it loads every time.
+
 To-Do
 -Confirm sizes/weights/speeds for robot_core
 -Set up joystick control
@@ -93,7 +95,3 @@ To-Do
   -IRL, use above along with Arduino to handle hoist actions based on limit switches, with overrides sent to twist-mux until bin is lifted. This avoids the clusterfuck of having to simulate contact switches.
 -Adjust twist-mux timeouts if commands start conflicting. Increase a timeout to block other inputs for longer.
 
-1/2/26 - Updated a ton of Nav2 params per Addison tuning guide.
-Simulation speed is much better but bot performance is worse. 
-Bot is moving too fast and scans arent localizing well.
-Compare params against the last commit, which navigated well but sim was slow. Good luck remembering how to do anything, fucker.

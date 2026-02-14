@@ -33,22 +33,26 @@ def generate_launch_description():
             plugin='image_proc::RectifyNode',
             name='rectify_node',
             remappings=[
-                ('image', 'depth_camera/image_raw'),
-                ('image_rect', 'image_rect')
+                #('image', 'depth_camera/image_raw'),
+                #('image_rect', 'depth_camera/image_rect'),
+                ('image', 'rear_camera/image_raw'),
+                ('image_rect', 'rear_camera/image_rect'),
             ],
         ),
-        ComposableNode(
-            package='image_proc',
-            plugin='image_proc::CropDecimateNode',
-            name='crop_decimate_node',
-            remappings=[
-                ('in/image_raw', 'image_rect'),
-                ('out/image_raw', 'image_downsized')
-            ],
-            parameters=[{
-                'decimation_x': 2, 'decimation_y': 2,
-            }]
-        )
+#        ComposableNode(
+#            package='image_proc',
+#            plugin='image_proc::CropDecimateNode',
+#            name='crop_decimate_node',
+#            remappings=[
+#               #('in/image_raw', 'depth_camera/image_rect'),
+#                #('out/image_raw', 'depth_camera/image_downsized')
+#                ('in/image_raw', 'rear_camera/image_rect'),
+#               ('out/image_raw', 'rear_camera/image_downsized')
+#           ],
+#            parameters=[{
+#                'decimation_x': 2, 'decimation_y': 2,
+#            }]
+#        )
     ]
 
     robot_state_publisher_node = Node(
@@ -129,9 +133,11 @@ def generate_launch_description():
         output='screen',
         # Optional: Remap topics if necessary to match your system (e.g., camera input)
         remappings=[ 
-            #('/image_rect', '/image_downsized'),
-            #('/image_rect', '/depth_camera/image_raw'),
-            ('/camera_info', '/depth_camera/camera_info')
+            #('/image_rect', '/depth_camera/image_downsized'),
+            #('/image_rect', '/depth_camera/image_rect'),
+            #('/image_rect', '/rear_camera/image_downsized'),
+            ('/image_rect', '/rear_camera/image_rect'),
+            #('/camera_info', '/depth_camera/camera_info')
         ],
         parameters=[apriltag_config_path, {'use_sim_time': True}],
     )   

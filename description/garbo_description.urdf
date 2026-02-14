@@ -124,8 +124,8 @@
     </joint>
   </xacro:macro>
 
-  <xacro:wheel prefix="drivewhl_l" x_reflect="-1" y_reflect="1" />
-  <xacro:wheel prefix="drivewhl_r" x_reflect="-1" y_reflect="-1" />
+  <xacro:wheel prefix="drivewhl_l" x_reflect="1" y_reflect="1" />
+  <xacro:wheel prefix="drivewhl_r" x_reflect="1" y_reflect="-1" />
 
 
 
@@ -254,11 +254,18 @@
     <child link="depth_camera_link"/>
     <origin xyz="${base_length - wheel_radius + 0.005} 0 ${base_height - 0.015}" rpy="0 0 0"/>
   </joint>
+
+  <joint name="depth_camera_depth_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="depth_camera_link"/>
+        <child link="depth_camera_depth_link"/>
+  </joint>
+  <link name="depth_camera_depth_link"></link>
 <!--Rotate optical frame to ROS standard frame-->
   <joint name="depth_camera_optical_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
-        <parent link="depth_camera_link" />
-        <child link="depth_camera_optical_link" />
+        <origin xyz="0 0 0" rpy="0 0 0" /> <!--"0 0 0" "${-pi/2} 0 ${-pi/2}"-->
+        <parent link="depth_camera_link"/>
+        <child link="depth_camera_optical_link"/>
   </joint>
   <link name="depth_camera_optical_link"></link>
 
