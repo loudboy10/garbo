@@ -437,7 +437,7 @@
         <visualize>true</visualize>
         <update_rate>5.0</update_rate>
         <topic>depth_camera</topic>
-        <gz_frame_id>depth_camera_optical_link</gz_frame_id>
+        <gz_frame_id>depth_camera_optical_frame</gz_frame_id>
         <camera>
           <camera_info_topic>depth_camera/camera_info</camera_info_topic>
           <horizontal_fov>1.047</horizontal_fov>
@@ -468,22 +468,22 @@
 
     <joint name="depth_camera_depth_joint" type="fixed">
       <parent>depth_camera_link</parent>
-      <child>depth_camera_depth_link</child>
+      <child>depth_camera_depth_frame</child>
       <pose relative_to="depth_camera_joint"/>
     </joint>
-    <link name="depth_camera_depth_link"/>
+    <link name="depth_camera_depth_frame"/>
 
-  <!--UNECESSARY FOR DEPTH CAMERA FOR SOME REASON?   Rotate optical frame to ROS standard frame-->
+  <!--Rotate optical frame to ROS standard frame-->
     <joint name="depth_camera_optical_joint" type="fixed">
-      <pose relative_to="depth_camera_joint">0 0 0 0 0 0</pose><!--0 0 0 ${-pi/2} 0 ${-pi/2}-->
+      <pose relative_to="depth_camera_joint">0 0 0 ${-pi/2} 0 ${-pi/2}</pose><!--0 0 0 ${-pi/2} 0 ${-pi/2}-->
       <parent>depth_camera_link</parent>
-      <child>depth_camera_optical_link</child>
+      <child>depth_camera_optical_frame</child>
     </joint>
-    <link name="depth_camera_optical_link"/>
+    <link name="depth_camera_optical_frame"/>
 
 
 
-<!--Rear Camera Sensor-->
+<!--Rear Camera Sensor
     <joint name="rear_camera_joint" type="fixed">
       <parent>base_link</parent>
       <child>rear_camera_link</child>
@@ -530,16 +530,15 @@
             </clip>
           </camera>
       </sensor>
-    </link>
 
-  <!--Rotate optical frame to ROS standard frame-->
+    </link>
     <joint name="rear_camera_optical_joint" type="fixed">
       <pose relative_to="rear_camera_joint">0 0 0 ${-pi/2} 0 ${-pi/2}</pose>
       <parent>rear_camera_link</parent>
       <child>rear_camera_optical_link</child>
     </joint>
     <link name="rear_camera_optical_link"/>
-
+  -->
 
 
   </model>

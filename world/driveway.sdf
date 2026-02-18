@@ -378,7 +378,7 @@
       <self_collide>false</self_collide>
       <include>
         <name>trash_bin_tag</name>
-        <pose>0.175 0 0.21 1.5708 0 1.5708</pose> <!--Placed on front of bin, approx 26" off the ground-->
+        <pose>0.175 0 0.195 1.5708 0 1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match cameras-->
         <static>true</static>
         <uri>model://Apriltag36_11_00001</uri>
       </include>
@@ -431,7 +431,7 @@
       <self_collide>false</self_collide>
       <include>
         <name>trash_bin_tag</name>
-        <pose>0.25 0 0.16 1.5708 0 1.5708</pose> <!--Placed on front of bin, approx 26" off the ground-->
+        <pose>0.25 0 0.145 1.5708 0 1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match cameras-->
         <static>true</static>
         <uri>model://Apriltag36_11_00002</uri>
       </include>
@@ -484,7 +484,7 @@
       <self_collide>false</self_collide>
       <include>
         <name>trash_bin_tag</name>
-        <pose>-0.25 0 0.16 1.5708 0 -1.5708</pose> <!--Placed on front of bin, approx 26" off the ground-->
+        <pose>-0.25 0 0.145 1.5708 0 -1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match cameras-->
         <static>true</static>
         <uri>model://Apriltag36_11_00003</uri>
       </include>

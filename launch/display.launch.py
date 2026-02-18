@@ -33,10 +33,10 @@ def generate_launch_description():
             plugin='image_proc::RectifyNode',
             name='rectify_node',
             remappings=[
-                #('image', 'depth_camera/image_raw'),
-                #('image_rect', 'depth_camera/image_rect'),
-                ('image', 'rear_camera/image_raw'),
-                ('image_rect', 'rear_camera/image_rect'),
+                ('image', 'depth_camera/image_raw'),
+                ('image_rect', 'depth_camera/image_rect'),
+                #('image', 'rear_camera/image_raw'),
+                #('image_rect', 'rear_camera/image_rect'),
             ],
         ),
 #        ComposableNode(
@@ -44,10 +44,10 @@ def generate_launch_description():
 #            plugin='image_proc::CropDecimateNode',
 #            name='crop_decimate_node',
 #            remappings=[
-#               #('in/image_raw', 'depth_camera/image_rect'),
-#                #('out/image_raw', 'depth_camera/image_downsized')
-#                ('in/image_raw', 'rear_camera/image_rect'),
-#               ('out/image_raw', 'rear_camera/image_downsized')
+#               ('in/image_raw', 'depth_camera/image_rect'),
+#                ('out/image_raw', 'depth_camera/image_downsized')
+#                #('in/image_raw', 'rear_camera/image_rect'),
+#               #('out/image_raw', 'rear_camera/image_downsized')
 #           ],
 #            parameters=[{
 #                'decimation_x': 2, 'decimation_y': 2,
@@ -96,14 +96,14 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}],
         arguments=['/depth_camera/depth_image'],
     )
-    rear_camera_bridge_image = Node(
-        package='ros_gz_image',
-        executable='image_bridge',
-        name='bridge_gz_ros_rear_camera_image',
-        output='screen',
-        parameters=[{'use_sim_time': True}],
-        arguments=['/rear_camera/image_raw'],
-    )
+#    rear_camera_bridge_image = Node(
+#        package='ros_gz_image',
+#        executable='image_bridge',
+#        name='bridge_gz_ros_rear_camera_image',
+#        output='screen',
+#        parameters=[{'use_sim_time': True}],
+#        arguments=['/rear_camera/image_raw'],
+#    )
     spawn_entity = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(gz_spawn_model_launch_source),
         launch_arguments={
@@ -134,9 +134,9 @@ def generate_launch_description():
         # Optional: Remap topics if necessary to match your system (e.g., camera input)
         remappings=[ 
             #('/image_rect', '/depth_camera/image_downsized'),
-            #('/image_rect', '/depth_camera/image_rect'),
+            ('/image_rect', '/depth_camera/image_rect'),
             #('/image_rect', '/rear_camera/image_downsized'),
-            ('/image_rect', '/rear_camera/image_rect'),
+            #('/image_rect', '/rear_camera/image_rect'),
             #('/camera_info', '/depth_camera/camera_info')
         ],
         parameters=[apriltag_config_path, {'use_sim_time': True}],
@@ -162,7 +162,7 @@ def generate_launch_description():
         ros_gz_bridge,
         depth_camera_bridge_image,
         depth_camera_bridge_depth,
-        rear_camera_bridge_image,
+#        rear_camera_bridge_image,
         spawn_entity,
         robot_localization_node,
         twist_mux,

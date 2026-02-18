@@ -254,16 +254,16 @@
     <child link="depth_camera_link"/>
     <origin xyz="${base_length - wheel_radius + 0.005} 0 ${base_height - 0.015}" rpy="0 0 0"/>
   </joint>
-
+<!--
   <joint name="depth_camera_depth_joint" type="fixed">
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <parent link="depth_camera_link"/>
         <child link="depth_camera_depth_link"/>
   </joint>
-  <link name="depth_camera_depth_link"></link>
+  <link name="depth_camera_depth_link"></link>-->
 <!--Rotate optical frame to ROS standard frame-->
   <joint name="depth_camera_optical_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="0 0 0" /> <!--"0 0 0" "${-pi/2} 0 ${-pi/2}"-->
+        <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/> <!--"0 0 0" "${-pi/2} 0 ${-pi/2}"-->
         <parent link="depth_camera_link"/>
         <child link="depth_camera_optical_link"/>
   </joint>
@@ -272,7 +272,7 @@
 
 
 
-<!--Rear Camera Sensor-->
+<!--Rear Camera Sensor
   <link name="rear_camera_link">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -298,9 +298,8 @@
   <joint name="rear_camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rear_camera_link"/>
-    <origin xyz="${-wheel_radius-0.01} 0 ${base_height - 0.015}" rpy="0 0 ${-pi}"/> <!--Faces backwards-->
+    <origin xyz="${-wheel_radius-0.01} 0 ${base_height - 0.015}" rpy="0 0 ${-pi}"/> 
   </joint>
-<!--Rotate optical frame to ROS standard frame-->
   <joint name="rear_camera_optical_joint" type="fixed">
       <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
       <parent link="rear_camera_link" />
@@ -308,6 +307,6 @@
   </joint>
   <link name="rear_camera_optical_link">
   </link>
-
+-->
 
 </robot>

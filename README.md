@@ -84,6 +84,9 @@ pkill -9 -f "ros2|gazebo|gz|nav2|amcl|bt_navigator|nav_to_pose|rviz2|assisted_te
 
 If Error Code 14 unable to find model file, run "export GZ_SIM_RESOURCE_PATH=/home/indie/garbo_ws/src/garbo/world/models" from the terminal in use. Add it to bashrc as well so that it loads every time.
 
+Transform between two points
+ros2 run tf2_ros tf2_echo <origin frame> <target frame>
+
 To-Do
 -Confirm sizes/weights/speeds for robot_core
 -Set up joystick control

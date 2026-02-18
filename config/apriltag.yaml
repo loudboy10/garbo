@@ -1,5 +1,6 @@
 # Configuration parameters for the apriltag_ros node
 # https://chaitanyantr.github.io/apriltag.html
+#https://github.com/m11112089/apriltag_ros
 
 /**: # node name. Use /** as a wildcard so that this file is used by whichever node calls it. Params wont load if the name doesnt match.
     ros__parameters:
