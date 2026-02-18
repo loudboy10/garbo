@@ -21,7 +21,7 @@
         # optional list of tags
         tag:
             ids:    [0, 1, 2, 3, 4] # tag IDs for which to publish transform
-            frames: [home, trash_bin, recycle_bin, green_bin, bin_dock] # frame names dont need to match.
+            frames: [home, trash_bin, recycle_bin, green_bin, bin_dock] # frame names dont need to match dock names.
             sizes:  [0.08, 0.08, 0.08, 0.08, 0.08] # tag-specific edge size, overrides the default 'size'.
             #Curb dropoff dock and green_dock are based on global pose, not Apriltag.
              #trash_dock and recycle_dock will both reference the same Apriltag signpost, so only one tag ID is needed for both.

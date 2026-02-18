@@ -59,7 +59,7 @@
   <xacro:property name="wheel_radius" value="0.127"/>
   <xacro:property name="wheel_width" value="0.075"/>
   <xacro:property name="wheel_ygap" value="0.0"/><!--Gap between body and wheel-->
-  <xacro:property name="wheel_zoff" value="0.0"/><!--Use if center of wheel isnt at bottom of base/-->
+  <xacro:property name="wheel_zoff" value="0.0"/><!--Use if center of wheels isnt at the bottom of the base/-->
   <xacro:property name="wheel_xoff" value="0.0"/><!--Set at 0.0 so wheels are inline with base origin/center of rotation-->
   <xacro:property name="wheel_mass" value="1"/>
 
@@ -85,7 +85,7 @@
     <joint name='base_joint' type='fixed'>
       <parent>base_link</parent>
       <child>base_footprint</child>
-      <pose relative_to="base_link">0.0 0.0 ${-(wheel_radius+wheel_zoff)} 0 0 0</pose>
+      <pose relative_to="base_link">0 0 ${-(wheel_radius+wheel_zoff)} 0 0 0</pose>
     </joint>
 
 
@@ -335,7 +335,7 @@
       <tf_topic>/tf</tf_topic>
 
       <frame_id>odom</frame_id>
-      <child_frame_id>base_link</child_frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
     </plugin>
 
     <plugin

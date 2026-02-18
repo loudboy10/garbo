@@ -97,4 +97,4 @@ To-Do
 -In sim, use behavior tree, AprilTags, docking server, and dynamic footprint to handle picking up the bin. 
   -IRL, use above along with Arduino to handle hoist actions based on limit switches, with overrides sent to twist-mux until bin is lifted. This avoids the clusterfuck of having to simulate contact switches.
 -Adjust twist-mux timeouts if commands start conflicting. Increase a timeout to block other inputs for longer.
-
+-Odom is at same height as base_link, not on the ground. Fix?
