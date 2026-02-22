@@ -18,7 +18,6 @@
 #---Footprint is based on the location of base_link, which is at the bottom, middle, centered between the wheels.
 #--It may be too computationally expensive to use the full rectangular footprint in global_costmap. Would need to find solution to move robot radius to center (currently at base-link)
 #-Added initial pose settings under amcl
-#-Added keepout filter params
 #-Velocity smoother: increased max velocity
 #-Reduced obstacle_max_range to 1.0 in both costmaps to eliminate lidar/ramp issue
 #-Reduced costmap resolution for easier compute.
@@ -262,13 +261,6 @@ local_costmap:
       #robot_radius: 0.22
       footprint: "[ [0.573, 0.25], [0.573, -0.25], [-0.127, -0.25], [-0.127, 0.25] ]" #FL, FR, RL, RR corners in meters from base_link (x-longitudinal, y-transverse offset)
       plugins: ["obstacle_layer","denoise_layer","inflation_layer", "voxel_layer"]
-      filters: ["keepout_filter"]  #Added for keepout mask. Needs to be placed BEFORE the obstacle layer to override it.
-      keepout_filter: #These need to be before plugins to override the obstacle layer with the keepout mask
-        plugin: "nav2_costmap_2d::KeepoutFilter"
-        enabled: True #This is set via a RewrittenYaml remap from the parent launch file to Nav2, which pulls from the dock config yaml. This allows us to enable/disable the keepout zone for different objectives.
-        filter_info_topic: "/costmap_filter_info"
-        override_lethal_cost: True
-        lethal_override_cost: 200
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -336,14 +328,7 @@ global_costmap:
       resolution: 0.1
       track_unknown_space: true
       rolling_window: false
-      plugins: ["static_layer","obstacle_layer","inflation_layer", "voxel_layer"]
-      #filters: ["keepout_filter"]  #Added for keepout mask. Needs to be placed BEFORE the obstacle layer to override it.
-      #keepout_filter:
-      #  plugin: "nav2_costmap_2d::KeepoutFilter"
-      #  enabled: True
-      #  filter_info_topic: "/costmap_filter_info"
-      #  override_lethal_cost: True
-      #  lethal_override_cost: 200      
+      plugins: ["static_layer","obstacle_layer","inflation_layer", "voxel_layer"]    
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -404,22 +389,6 @@ map_server:
   ros__parameters:
     yaml_filename: "/home/indie/garbo_ws/src/garbo/world/driveway_edited.yaml"
     service_introspection_mode: "disabled"
-
-#Added for keepout mask
-costmap_filter_info_server:
-  ros__parameters:
-    use_sim_time: true
-    type: 0
-    filter_info_topic: "/costmap_filter_info"
-    mask_topic: "/keepout_filter_mask"
-    base: 0.0
-    multiplier: 1.0
-filter_mask_server:
-  ros__parameters:
-    use_sim_time: true
-    frame_id: "map"
-    topic_name: "/keepout_filter_mask"
-    yaml_filename: "/home/indie/garbo_ws/src/garbo/world/driveway_costmap.yaml"
 
 map_saver:
   ros__parameters:
