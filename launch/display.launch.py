@@ -4,9 +4,10 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution, TextSubstitution
 from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
+#from launch_ros.descriptions import FindPackageShare
 from ros_gz_bridge.actions import RosGzBridge
 from ros_gz_sim.actions import GzServer
 
@@ -24,9 +25,35 @@ def generate_launch_description():
     twist_mux_config_path = os.path.join(pkg_share, 'config', 'twist_mux.yaml')
     apriltag_config_path = os.path.join(pkg_share, 'config', 'apriltag.yaml')
 
+#Variables
+    camera_frame_type = LaunchConfiguration('camera_frame_type')
+    camera_namespace = LaunchConfiguration('camera_namespace')
+    #tag_family = LaunchConfiguration('tag_family')
+    #tag_id = LaunchConfiguration('tag_id')
+
+    declare_camera_frame_type_cmd = DeclareLaunchArgument(
+        name='camera_frame_type',
+        default_value='_optical_frame',
+        description='Type of camera frame to use (e.g., _depth_optical_frame, _optical_frame)'
+    )
+    declare_camera_namespace_cmd = DeclareLaunchArgument(
+        name='camera_namespace',
+        default_value='depth_camera',
+        description='Namespace for the camera and AprilTag nodes'
+    )
+    declare_tag_family_cmd = DeclareLaunchArgument(
+        name='tag_family',
+        default_value='tag36h11',
+        description='Family of AprilTag being used'
+    )
+    declare_tag_id_cmd = DeclareLaunchArgument(
+        name='tag_id',
+        default_value='0',
+        description='ID of the AprilTag being used'
+    )
 
 
-#https://docs.ros.org/en/jazzy/p/image_proc/doc/tutorials.html#launch-image-proc-components
+#https://docs.ros.org/en/kilted/p/image_proc/doc/tutorials.html#launch-image-proc-components
     composable_nodes = [
         ComposableNode(
             package='image_proc',
@@ -39,6 +66,17 @@ def generate_launch_description():
                 #('image_rect', 'rear_camera/image_rect'),
             ],
         ),
+#        ComposableNode( #Unnecessary?
+#            package='image_proc',
+#            plugin='image_proc::TrackMarkerNode',
+#            name='track_marker_node',
+#            parameters=[apriltag_config_path, {'use_sim_time': True}], #shares a config file with the apriltag_ros node to ensure consistent parameters
+#            # Remap to match input camera topics
+#            remappings=[
+#                ('image', 'depth_camera/image_raw'),
+#                ('camera_info', 'depth_camera/camera_info')
+#            ]
+#        ),
 #        ComposableNode(
 #            package='image_proc',
 #            plugin='image_proc::CropDecimateNode',
@@ -49,9 +87,7 @@ def generate_launch_description():
 #                #('in/image_raw', 'rear_camera/image_rect'),
 #               #('out/image_raw', 'rear_camera/image_downsized')
 #           ],
-#            parameters=[{
-#                'decimation_x': 2, 'decimation_y': 2,
-#            }]
+#            parameters=[{'decimation_x': 2, 'decimation_y': 2,}]
 #        )
     ]
 
@@ -148,8 +184,24 @@ def generate_launch_description():
         executable='component_container',
         composable_node_descriptions=composable_nodes,
     )
+    start_detected_dock_pose_publisher = Node(
+        package='garbo',
+        executable='detected_dock_pose_publisher',
+        parameters=[{
+            'use_sim_time': True,
+            'parent_frame': [camera_namespace, TextSubstitution(text=''), camera_frame_type],
+            'child_frame': 'home',
+            'publish_rate': 10.0
+        }],
+        output='screen'
+    )
 
-
+    ld = LaunchDescription()
+    ld.add_action(declare_camera_frame_type_cmd)
+    ld.add_action(declare_camera_namespace_cmd)
+    ld.add_action(declare_tag_family_cmd)
+    ld.add_action(declare_tag_id_cmd)
+    ld.add_action(start_detected_dock_pose_publisher)
 
     return LaunchDescription([
         DeclareLaunchArgument(name='model', default_value=default_model_path, description='Absolute path to robot model file'),
@@ -168,4 +220,5 @@ def generate_launch_description():
         twist_mux,
         apriltag_node,
         container,
+        ld,
     ])

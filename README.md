@@ -19,7 +19,12 @@ colcon build --symlink-install
 This version of build requires fewer rebuilds between file changes. Rebuild only required when new files are added to the package.
 This has the alias "build".
 
+Change permissions for /.bash: ~/garbo_ws/install$ chmod +x setup.bash
+
 Custom launch command
+New:
+ros2 launch garbo display.launch.py
+old:
   ros2 launch garbo launch_sim.launch.py world:=src/garbo/worlds/Driveway/driveway.sdf  use_sim_time:=true
   -Add "headless:=True" to run Gazebo without the GUI
 
@@ -46,6 +51,9 @@ Launch nav2 navigation
   ros2 launch garbo nav2_navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
   Default:
   ros2 launch nav2_bringup navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
+
+Send docking goal:
+  ros2 action send_goal /dock_robot nav2_msgs/action/DockRobot "{dock_id: <YOUR_DOCK_ID_HERE>}" --feedback
 
 Git Push Process
   cd ~/garbo_ws/src/garbo
@@ -98,3 +106,4 @@ To-Do
   -IRL, use above along with Arduino to handle hoist actions based on limit switches, with overrides sent to twist-mux until bin is lifted. This avoids the clusterfuck of having to simulate contact switches.
 -Adjust twist-mux timeouts if commands start conflicting. Increase a timeout to block other inputs for longer.
 -Odom is at same height as base_link, not on the ground. Fix?
+-Use docking plugins>subscribe_toggle? Reduces overheard in transit, but not sure how to toggle it.

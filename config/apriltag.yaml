@@ -7,9 +7,11 @@
         image_transport: raw    # Controls image compression - 'raw' means uncompressed images
         family: 36h11           # The type/style of AprilTag - 36h11 is a common, reliable family
         size: 0.08              # default/global tag edge size in meters that will be used for all detected AprilTags unless overridden
+        profile: false        # print profiling information to stdout for optimizing and troubleshooting.
         max_hamming: 0          # How many bit errors to tolerate - 0 means no errors allowed, making detection stricter
 
         # see "apriltag.h" 'struct apriltag_detector' for more documentation on these optional parameters
+        #Tuning detections
         detector:
             threads: 1          # How many CPU threads to use - higher numbers can make detection faster
             decimate: 2.0       # Makes image smaller for faster detection (2.0 = use half resolution)
@@ -17,6 +19,8 @@
             refine: True        # Whether to fine-tune tag corners for better accuracy
             sharpening: 0.25    # How much to sharpen the image - can help see tag edges better
             debug: False        # Whether to save debug images - useful for troubleshooting
+
+            pose_estimation_method: "pnp" # method for estimating the tag pose
 
         # optional list of tags
         tag:
