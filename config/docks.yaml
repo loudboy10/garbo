@@ -4,11 +4,11 @@
 #Parameters here are unique to each dock. Params in nav2>docking_server>dock_plugins apply to all docks of that type, but could used here individually instead.
 
 docks:
-  home_dock: #Charging base name
-    type: "home_dock" #Also the name of the plugin used in Docking Server
+  home: #Charging base name
+    type: "home_dock" #Cant be the same as the plugin name, but can match ID and Apriltag.
     frame: map
     pose: [-5.0, 3.9, 0]  # [x, y, theta] General-vicinity pose of the dock in the map frame. This is the pose that Nav2 will navigate to when going to the dock, and will be used as the reference point for any external detection if use_external_detection_pose is true. For an Apriltag-based dock, this can be all zeros to start since the detected tag pose will be used as the reference.
-    id: "home" #or use Apriltag36h11.0 format? ID for the dock matches the accossiated Apriltag ID in apriltag.yaml. It's fine for two docks to use the same ID since their external pose translations will be different.
+    id: "home" #oCant be the same as dock plugin name, but can be the same as the dock name. This is just an identifier for the dock, and can be used in the docking server's action goals to specify which dock to use.
     use_external_detection_pose: true #This dock is based on an Apriltag, so use the tag's detected pose as the reference for the dock's position.
     #This is the final position of the bot when docked, relative to the detected tag.
     external_detection_translation_x: 0.5 #0.5m in front of the tag for testing, so the bot doesn't have to be perfectly on top of the tag to dock. Set to 0.0 if the dock is based on a global pose, not an Apriltag.
@@ -21,7 +21,7 @@ docks:
     type: "bin_dock"
     frame: map
     pose: [5.175, 0.5, 0] #Based on pose in driveway.sdf.
-    id: 1
+    id: "trash_bin"
     dock_direction: "backward"
     rotate_to_dock: true
     use_external_detection_pose: true
@@ -35,7 +35,7 @@ docks:
     type: "bin_dock"
     frame: map
     pose: [5.25, 0, 0] #Based on pose in driveway.sdf.
-    id: 2
+    id: "recycle_bin"
     dock_direction: "backward"
     rotate_to_dock: true
     use_external_detection_pose: true
@@ -49,7 +49,7 @@ docks:
     type: "bin_dock"
     frame: map
     pose: [6.25, -5, 1.5708] #Based on pose in driveway.sdf.
-    id: 3
+    id: "green_bin"
     dock_direction: "backward"
     rotate_to_dock: true
     use_external_detection_pose: true
@@ -63,7 +63,7 @@ docks:
     type: "placement_dock"
     frame: map
     pose: [7, 0.5, 1.5708] #This is the location of a reference tag which external detection translations are based on.
-    id: 4 #Matches the tag ID for the trash dock Apriltag in apriltag.yaml. Recycle dock will reference the same tag, so it doesn't need its own ID.
+    id: "trash_dock"
     dock_direction: "backward"
     rotate_to_dock: true
     use_external_detection_pose: true #This dock is based on an Apriltag signpost, so use the tag's detected pose as the reference for the dock's position. The bot will drive to the tag, then use the external detection translations and rotations to determine the final dock pose which is 2m in front of the tag and facing the same direction as the tag, so that the bins end up next to each other.
@@ -72,14 +72,14 @@ docks:
     external_detection_rotation_roll: -1.5708
     external_detection_rotation_pitch: -1.5708
     external_detection_rotation_yaw: 0.0
-    staging_x_offset: -0.7 #This might be tight quarters in reality, so test accordingly
+    staging_x_offset: 0.7 #This might be tight quarters in reality, so test accordingly
     staging_yaw_offset: 0.0
 
   recycle_dock: #For placing the bin next to the house, based on an Apriltag signpost
     type: "placement_dock"
     frame: map
     pose: [7, 0.5, 1.5708] #Based on spawn point in driveway.sdf. This will update as the bin moves?
-    id: 5 #Uses the same Apriltag as trash_dock/id:4, but will have a different end pose so that the bins end up next to each other.
+    id: "recycle_dock"
     dock_direction: "backward"
     rotate_to_dock: true
     use_external_detection_pose: true
@@ -88,25 +88,25 @@ docks:
     external_detection_rotation_roll: -1.5708
     external_detection_rotation_pitch: -1.5708
     external_detection_rotation_yaw: 0.0
-    staging_x_offset: -0.7
+    staging_x_offset: 0.7
     staging_yaw_offset: 0.0
 
   green_dock: #This will be out in the parking area, not based on an Apriltag, but we'll use the same dock type for simplicity.
     type: "placement_dock"
     frame: map
     pose: [6, -5, 1.5708] #Map pose based on spawn point in parking_area.sdf
-    id: 6 #Doesn't have an Apriltag, but the dock still needs an ID for Nav2 to reference it.
+    id: "green_dock"
     dock_direction: "backward"
     rotate_to_dock: true
     use_external_detection_pose: false
-    staging_x_offset: -0.7
+    staging_x_offset: 0.7
     staging_yaw_offset: 0.0
 
   trash_curb: #For placing the bin out on the curb, based on nav2 localization
     type: "placement_dock"
     frame: map
     pose: [-5.5196502793423949, 2.4806453110246496, 0.0] #In simulation, this is the mirror location of trash dock across the y-axis. 
-    id: 7
+    id: "trash_curb"
     dock_direction: "forward"
     use_external_detection_pose: false #Since this dock is based on a global pose and not an Apriltag, we won't use external detection to adjust the pose. The bot will just navigate to this pose and assume it's correct.
     external_detection_translation_x: 0.0
@@ -121,7 +121,7 @@ docks:
     type: "placement_dock"
     frame: map
     pose: [-5.4409400294970771, 0.50960481367723409, 0.0]
-    id: 8
+    id: "recycle_curb"
     dock_direction: "forward"
     use_external_detection_pose: false
     external_detection_translation_x: 0.0
@@ -135,8 +135,8 @@ docks:
   green_curb:
     type: "placement_dock"
     frame: map
-    pose: [-5.3450411942024942, -1.4334154578621039, 0.0]
-    id: 9
+    pose: [0.0, 0.0, 0.0] #[-5.3450411942024942, -1.4334154578621039, 0.0]
+    id: "green_curb"
     dock_direction: "forward"
     use_external_detection_pose: false
     external_detection_translation_x: 0.0
@@ -146,7 +146,3 @@ docks:
     external_detection_rotation_yaw: 0.0
     staging_x_offset: -0.7
     staging_yaw_offset: 0.0
-
-
-
-

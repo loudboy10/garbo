@@ -108,6 +108,7 @@ def generate_launch_description():
         container_name='ros_gz_container',
         create_own_container='True',
         use_composition='True',
+        #arguments=['-s',],
     )
     ros_gz_bridge = RosGzBridge(
         bridge_name='ros_gz_bridge',
@@ -219,6 +220,6 @@ def generate_launch_description():
         robot_localization_node,
         twist_mux,
         apriltag_node,
-        container,
-        ld,
+        container, #image_proc
+        ld, #Dock detector
     ])

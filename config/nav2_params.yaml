@@ -1,3 +1,5 @@
+#Good
+
 #Configuration file for nav2 navigation and docking
 #https://github.com/ros-navigation/navigation2/blob/kilted/nav2_bringup/params/nav2_params.yaml
 
@@ -78,7 +80,6 @@ bt_navigator:
     filter_duration: 0.3
     default_server_timeout: 40 #defualt 20ms. This makes it more lag tolerant.
     wait_for_service_timeout: 1000
-    action_server_result_timeout: 900.0
     navigators: ["navigate_to_pose", "navigate_through_poses"]
     navigate_to_pose:
       plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
@@ -112,7 +113,6 @@ bt_navigator:
       - smoother
       - undock_robot
       - wait
-
 
 
 controller_server:
@@ -311,9 +311,9 @@ local_costmap:
         inflation_radius: 1.75 #Experimental magic number, apparently. Default 0.55
         inflate_unknown: False
         inflate_around_unknown: False
-      #static_layer:
-      #  plugin: "nav2_costmap_2d::StaticLayer" #Why commented out?
-      #  map_subscribe_transient_local: True #Why commented out?
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
       always_send_full_costmap: True
 
 global_costmap:
@@ -388,6 +388,8 @@ global_costmap:
 map_server:
   ros__parameters:
     yaml_filename: "/home/indie/garbo_ws/src/garbo/world/driveway_edited.yaml"
+    topic_name: "map"
+    frame_id: "map"
     service_introspection_mode: "disabled"
 
 map_saver:
@@ -583,7 +585,7 @@ docking_server:
       #Setting this param empty breaks nav2 if use_stall_detection is false: stall_joint_names:  #Names in joint_states topic of joints to track.
       stall_effort_threshold: 1.0 #Current or motor effort in joint state to trigger isDocked() = true, when use_stall_detection is true.
       docking_threshold: 0.05 #L2 distance in meters and radians to the dock pose at which to consider the robot docked when not using stall or battery detection.
-      staging_x_offset: -0.7 #Staging pose will be 0.7m in front of the dock, so the bot can use its internal localization to fine-tune its position for docking instead of relying on perfect initial navigation to the dock.
+      staging_x_offset: 1.0 #Staging pose will be 0.7m in front of the dock, so the bot can use its internal localization to fine-tune its position for docking instead of relying on perfect initial navigation to the dock.
       staging_yaw_offset: 0.0 #Staging pose angle relative to dock pose (rad). If dock_direction is set to “backward”, this angle must be faced in the opposite direction of the dock pose. However, if rotate_to_dock is enabled, this angle must be facing the same direction as the dock pose because the robot will rotate to the dock pose after detection.
       dock_direction: "backward" # Whether the robot is docking with the dock forward or backward in motion. This is the replacement for the deprecated dock_backwards parameter. Options are “forward” or “backward”.
       rotate_to_dock: true #Enables backward docking without requiring a sensor for detection during the final approach. This may also be paired with sensor detection in the reverse direction as well if available. Note: This parameter is only valid when the dock_direction is set to “backward”.
@@ -595,7 +597,7 @@ docking_server:
       filter_coef: 0.1
       use_stall_detection: false
       docking_threshold: 0.05
-      staging_x_offset: -0.7
+      staging_x_offset: 0.7
       staging_yaw_offset: 0.0
       dock_direction: "backward"
       rotate_to_dock: true
@@ -607,10 +609,19 @@ docking_server:
       use_stall_detection: false
       docking_threshold: 0.05
 
-
     # Docks
-    use_dock_id: true  #Not in kilted?#Easier to reference dock by id/name than by full pose, and allows for multiple docks with the same plugin but different poses. The dock id is specified in the dock database yaml file. This param is mentioned in the nav2 tutorials but not on the params page??????
+    #use_dock_id: true  #Not in kilted?#Easier to reference dock by id/name than by full pose, and allows for multiple docks with the same plugin but different poses. The dock id is specified in the dock database yaml file. This param is mentioned in the nav2 tutorials but not on the params page??????
     dock_database: /home/indie/garbo_ws/src/garbo/config/docks.yaml
+
+
+    # Dock instances
+    #This doesn't throw errors.
+    #docks: ['home']  # Input your docks here. Plugin name cannot be the same as dock name.
+    #home:
+    #  type: 'home_dock'
+    #  frame: map
+    #  pose: [-5.0, 3.9, 0.0]
+    #  id: 'home'
 
     controller:
       k_phi: 3.0 #Ratio of the rate of change of angle relative to distance from the target. Much be > 0.
@@ -631,6 +642,7 @@ docking_server:
       simulation_step: 0.1 #Time step for projections (s).
       dock_collision_threshold: 0.1 #The distance from the dock pose to ignore collisions. Set to 0.0 when the dock isn't physically contacted.
 
+
 loopback_simulator:
   ros__parameters:
     enable_stamped_cmd_vel: true # Manually added parameter
@@ -645,3 +657,10 @@ loopback_simulator:
     scan_angle_max: 3.1415
     scan_angle_increment: 0.02617
     scan_use_inf: true
+
+#lifecycle_manager_localization: #Adding this to increase the bond timer.
+#  ros__parameters:
+#    use_sim_time: false
+#    autostart: true
+#    bond_timeout: 9.0 #Default is 4.0 seconds. Increase to make nav2 more tolerant to lag and slow startups, especially with the depth camera in the mix.
+#    attempt_respawn_reconnection: true
