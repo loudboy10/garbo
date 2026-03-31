@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<sdf version="1.8" xmlns:xacro="http://ros.org/wiki/xacro">
+<sdf version="1.10" xmlns:xacro="http://ros.org/wiki/xacro">
   <model name='garbo' canonical_link='base_link'>
 
 <!-- Define some commonly used intertial properties  -->
@@ -257,7 +257,7 @@
         <update_rate>100</update_rate>
         <visualize>true</visualize>
         <topic>demo/imu</topic>
-        <gz_frame_id>imu_link</gz_frame_id>
+        <frame_id>imu_link</frame_id>
         <imu>
           <angular_velocity>
             <x>
@@ -380,7 +380,8 @@
         <visualize>true</visualize>
         <update_rate>10</update_rate>
         <topic>scan</topic>
-        <gz_frame_id>lidar_link</gz_frame_id>
+        <frame_id>lidar_link</frame_id>
+        <plugin filename="gz-sim-rgbd-camera-system" name="gz::sim::systems::lidar"></plugin>
         <ray>
           <scan>
             <horizontal>
@@ -409,7 +410,7 @@
     <joint name="depth_camera_joint" type="fixed">
       <parent>base_link</parent>
       <child>depth_camera_link</child>
-      <pose relative_to="base_link">${base_length - wheel_radius + 0.005} 0 ${2*base_height - 0.015} 0 0 0</pose>
+      <pose relative_to="base_link">${base_length - wheel_radius + 0.005} 0 0.533 0 0 0</pose>
     </joint>
 
     <link name='depth_camera_link'>
@@ -435,9 +436,11 @@
       <sensor name="depth_camera" type="rgbd_camera">
         <always_on>true</always_on>
         <visualize>true</visualize>
-        <update_rate>5.0</update_rate>
+        <update_rate>15.0</update_rate>
         <topic>depth_camera</topic>
-        <gz_frame_id>depth_camera_optical_frame</gz_frame_id>
+        <frame_id>depth_camera_optical_frame</frame_id>
+        <enable_metrics>true</enable_metrics>
+        <plugin filename="gz-sim-rgbd-camera-system" name="gz::sim::systems::RGBDCamera"></plugin>
         <camera>
           <camera_info_topic>depth_camera/camera_info</camera_info_topic>
           <horizontal_fov>1.047</horizontal_fov>
@@ -458,9 +461,6 @@
         <distortionK3>0</distortionK3>
         <distortionT1>0</distortionT1>
         <distortionT2>0</distortionT2>
-        <CxPrime>0</CxPrime>
-        <Cx>0</Cx>
-        <Cy>0</Cy>
         <focalLength>0</focalLength>
         <hackBaseline>0</hackBaseline>
       </sensor>
@@ -476,7 +476,7 @@
   <!--Rotate optical frame to ROS standard frame-->
     <joint name="depth_camera_optical_joint" type="fixed">
       <pose relative_to="depth_camera_joint">0 0 0 ${-pi/2} 0 ${-pi/2}</pose><!--0 0 0 ${-pi/2} 0 ${-pi/2}-->
-      <parent>depth_camera_link</parent>
+      <parent>depth_camera_depth_frame</parent>
       <child>depth_camera_optical_frame</child>
     </joint>
     <link name="depth_camera_optical_frame"/>
@@ -515,7 +515,7 @@
         <visualize>true</visualize>
         <update_rate>5.0</update_rate>
         <topic>rear_camera/image_raw</topic>
-        <gz_frame_id>rear_camera_optical_link</gz_frame_id>
+        <frame_id>rear_camera_optical_link</frame_id>
         <camera>
           <camera_info_topic>rear_camera/camera_info</camera_info_topic>
           <horizontal_fov>1.047</horizontal_fov>
