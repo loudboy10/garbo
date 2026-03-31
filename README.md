@@ -1,8 +1,17 @@
-GarBo, the garbage robot
+A differential drive robot using the usual sensors to navigate an environment. 
+At this stage of the build I am trying to get the robot to dock properly, but it is never successful after the "navigate to pose" stage.
+The simulation fails to load the lidar returns properly 90% of the time. The beams are generated at the correct tranform location on the bot by Gazebo and displayed properly in RVIZ2, but are SHOWN as originating from the base_footprint location in Gazebo. This feedback loop then negatively impacts navigation. This happens more frequently when the process is run from within VSCode, but still happens most of the time when run from Terminal as well. My computer is a (5 year old?) Asus Vivobook with an i5 processor and 12gb of RAM, running Ubuntu 24, ROS2 Kitled, and Gazebo Harmonic.
 
-"Cheaper than a broken hip!"
+My launch process is my main launch file:   ros2 launch garbo display.launch.py
+Then nav2 localization:   ros2 launch garbo nav2_localization_launch.py use_sim_time:=true
+Then finally nav2 navigation:   ros2 launch garbo nav2_navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
+
+All feedback is welcome. Thank you.
 
 
+
+
+*****Just a bunch of notes for myself as this is usually a private repo due to shame and embarassment****
 Templated from joshnewans/my_bot
 
 ArticulatedRobotics.com
