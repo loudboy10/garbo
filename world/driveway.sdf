@@ -31,16 +31,16 @@
     <gravity>0 0 -9.8000000000000007</gravity>
 
     <magnetic_field>5.5644999999999998e-06 2.2875799999999999e-05 -4.2388400000000002e-05</magnetic_field>
-    
+
     <atmosphere type='adiabatic'/>
-    
+
     <scene>
       <ambient>0.9 0.9 0.9 1</ambient>
       <background>0.699999988 0.699999988 0.699999988 1</background>
       <shadows>false</shadows>
     </scene>
 
-    
+
     <model name='ground_plane'>
       <static>true</static>
       <link name='link'>
@@ -245,14 +245,14 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>file:///home/indie/garbo_ws/src/garbo/world/meshes/Driveway.dae</uri>
+              <uri>model://world/meshes/Driveway.dae</uri>
             </mesh>
           </geometry>
         </visual>
         <collision name='collision'>
           <geometry>
             <mesh>
-              <uri>file:///home/indie/garbo_ws/src/garbo/world/meshes/Driveway.dae</uri>
+              <uri>model://world/meshes/Driveway.dae</uri>
             </mesh>
           </geometry>
           <surface>
@@ -380,7 +380,7 @@
         <name>trash_bin_tag</name>
         <pose>0.175 0 0.195 1.5708 0 1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match cameras-->
         <static>true</static>
-        <uri>model://Apriltag36_11_00001</uri>
+        <uri>model://world/models/Apriltag36_11_00001</uri>
       </include>
     </model>
 
@@ -433,7 +433,7 @@
         <name>recycle_bin_tag</name>
         <pose>0.25 0 0.145 1.5708 0 1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match cameras-->
         <static>true</static>
-        <uri>model://Apriltag36_11_00002</uri>
+        <uri>model://world/models/Apriltag36_11_00002</uri>
       </include>
     </model>
 
@@ -486,7 +486,7 @@
         <name>green_bin_tag</name>
         <pose>0.25 0 0.145 1.5708 0 -1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match cameras-->
         <static>true</static>
-        <uri>model://Apriltag36_11_00003</uri>
+        <uri>model://world/models/Apriltag36_11_00003</uri>
       </include>
     </model>
 
@@ -515,15 +515,15 @@
       <name>home_tag</name>
       <pose>-5 3.9 0.66 1.5708 0 0</pose> <!--Behind bot: -1.137 0 0.645 1.5708 0 1.5708 Original home tag: -5 3.9 0.66 1.5708 0 0 The center of this tag is 5m behind the origin, 3.9m to the left, and 26in off the ground. The tag mesh model default is flat, so it is rotated up to face inward.-->
       <static>true</static>
-      <uri>model://Apriltag36_11_00000</uri>
+      <uri>model://world/models/Apriltag36_11_00000</uri>
     </include>
 
     <include>
       <name>placement_dock</name> <!--This one tag will be used as a reference to place both trash and recycle bin.-->
       <pose>7 .5 0.66 1.5708 0 -1.5708</pose>  <!--In front of bot 1.878 0 0.645 1.5708 0 -1.5708  Original reference tag 7 .5 0.66 1.5708 0 -1.5708-->
       <static>true</static>
-      <uri>model://Apriltag36_11_00004</uri>
+      <uri>model://world/models/Apriltag36_11_00004</uri>
     </include>
-    
+
   </world>
 </sdf>

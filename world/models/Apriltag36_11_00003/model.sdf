@@ -18,7 +18,7 @@
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
-            <uri>model://Apriltag36_11_00003/meshes/tag36_11_00003.dae</uri>
+            <uri>model://world/models/Apriltag36_11_00003/meshes/tag36_11_00003.dae</uri>
           </mesh>
         </geometry>
         <surface>
@@ -42,7 +42,7 @@
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
-            <uri>model://Apriltag36_11_00003/meshes/tag36_11_00003.dae</uri>
+            <uri>model://world/models/Apriltag36_11_00003/meshes/tag36_11_00003.dae</uri>
           </mesh>
         </geometry>
       </visual>

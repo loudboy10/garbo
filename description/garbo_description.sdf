@@ -70,7 +70,7 @@
    <xacro:property name="caster_Zoffset" value="${-wheel_radius/2}"/>
    <xacro:property name="caster_mass" value="0.5"/>
 
-   
+
 
 <!-- Robot Base -->
     <link name='base_link'>
@@ -85,7 +85,7 @@
     <joint name='base_joint' type='fixed'>
       <parent>base_link</parent>
       <child>base_footprint</child>
-      <pose relative_to="base_link">0 0 ${-(wheel_radius+wheel_zoff)} 0 0 0</pose>
+      <pose relative_to="base_link">0 0 -0.127 0 0 0</pose>
     </joint>
 
 
@@ -119,7 +119,7 @@
             ${base_length} ${base_width} ${base_height}
           </size></box>
         </geometry>
-      </collision> 
+      </collision>
     </link>
 
 <!-- Drive Wheels -->
