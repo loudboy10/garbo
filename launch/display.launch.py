@@ -234,7 +234,7 @@ def generate_launch_description():
             "world": "driveway",
             "topic": "/robot_description",
             "entity_name": "garbo",
-            "z": "0.65",
+            "z": "1.0",
         }.items(),
     )
 
