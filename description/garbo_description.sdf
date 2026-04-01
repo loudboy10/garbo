@@ -110,7 +110,6 @@
           <ambient>0 1 1 1</ambient>
           <diffuse>0 1 1 1</diffuse>
         </material>
-        <xacro:box_inertia m="${base_mass}" w="${base_width}" d="${base_length}" h="${base_height}"/>
       </visual>
 
       <collision name="chassis_collision">
@@ -120,6 +119,8 @@
           </size></box>
         </geometry>
       </collision>
+
+      <xacro:box_inertia m="${base_mass}" w="${base_width}" d="${base_length}" h="${base_height}"/>
     </link>
 
 <!-- Drive Wheels -->
@@ -257,7 +258,7 @@
         <update_rate>100</update_rate>
         <visualize>true</visualize>
         <topic>demo/imu</topic>
-        <frame_id>imu_link</frame_id>
+        <gz_frame_id>imu_link</gz_frame_id>
         <imu>
           <angular_velocity>
             <x>
@@ -325,7 +326,7 @@
       <wheel_radius>${wheel_radius}</wheel_radius>
 
       <!-- limits -->
-      <max_linear_acceleration>0.1</max_linear_acceleration>
+      <max_linear_acceleration>3.0</max_linear_acceleration>
 
       <!-- input -->
       <topic>/demo/cmd_vel</topic>
@@ -380,8 +381,7 @@
         <visualize>true</visualize>
         <update_rate>10</update_rate>
         <topic>scan</topic>
-        <frame_id>lidar_link</frame_id>
-        <plugin filename="gz-sim-rgbd-camera-system" name="gz::sim::systems::lidar"></plugin>
+        <gz_frame_id>lidar_link</gz_frame_id>
         <ray>
           <scan>
             <horizontal>
@@ -438,7 +438,7 @@
         <visualize>true</visualize>
         <update_rate>15.0</update_rate>
         <topic>depth_camera</topic>
-        <frame_id>depth_camera_optical_frame</frame_id>
+        <gz_frame_id>depth_camera_optical_frame</gz_frame_id>
         <enable_metrics>true</enable_metrics>
         <plugin filename="gz-sim-rgbd-camera-system" name="gz::sim::systems::RGBDCamera"></plugin>
         <camera>
@@ -515,7 +515,7 @@
         <visualize>true</visualize>
         <update_rate>5.0</update_rate>
         <topic>rear_camera/image_raw</topic>
-        <frame_id>rear_camera_optical_link</frame_id>
+        <gz_frame_id>rear_camera_optical_link</gz_frame_id>
         <camera>
           <camera_info_topic>rear_camera/camera_info</camera_info_topic>
           <horizontal_fov>1.047</horizontal_fov>
