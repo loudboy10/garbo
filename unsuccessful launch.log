@@ -1,0 +1,47 @@
+1775182675.1607828 [INFO] [launch]: All log files can be found below /home/indie/.ros/log/2026-04-02-22-17-55-159872-indie-7470
+1775182675.1609082 [INFO] [launch]: Default logging verbosity is set to INFO
+1775182675.7156436 [INFO] [gz-1]: process started with pid [7495]
+1775182675.7159119 [INFO] [robot_state_publisher-2]: process started with pid [7496]
+1775182675.7161250 [INFO] [rviz2-3]: process started with pid [7497]
+1775182675.7162561 [INFO] [ekf_node-4]: process started with pid [7498]
+1775182675.7163553 [INFO] [twist_mux-5]: process started with pid [7499]
+1775182675.7164466 [INFO] [apriltag_node-6]: process started with pid [7500]
+1775182675.7165391 [INFO] [component_container-7]: process started with pid [7501]
+1775182675.7166295 [INFO] [detected_dock_pose_publisher-8]: process started with pid [7502]
+1775182675.7167208 [INFO] [component_container-9]: process started with pid [7503]
+1775182675.7168140 [INFO] [create-10]: process started with pid [7504]
+1775182675.8661983 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="chassis"]/visual[@name="chassis_visual"]/inertial:<data-string>:L2]: XML Element[inertial], child of element[visual], not defined in SDF. Copying[inertial] as children of [visual].
+1775182675.8874087 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/baseline:<data-string>:L2]: XML Element[baseline], child of element[sensor], not defined in SDF. Copying[baseline] as children of [sensor].
+1775182675.8876469 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/pointCloudCutoff:<data-string>:L2]: XML Element[pointCloudCutoff], child of element[sensor], not defined in SDF. Copying[pointCloudCutoff] as children of [sensor].
+1775182675.8877621 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/pointCloudCutoffMax:<data-string>:L2]: XML Element[pointCloudCutoffMax], child of element[sensor], not defined in SDF. Copying[pointCloudCutoffMax] as children of [sensor].
+1775182675.8878467 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/distortionK1:<data-string>:L2]: XML Element[distortionK1], child of element[sensor], not defined in SDF. Copying[distortionK1] as children of [sensor].
+1775182675.8879189 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/distortionK2:<data-string>:L2]: XML Element[distortionK2], child of element[sensor], not defined in SDF. Copying[distortionK2] as children of [sensor].
+1775182675.8879979 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/distortionK3:<data-string>:L2]: XML Element[distortionK3], child of element[sensor], not defined in SDF. Copying[distortionK3] as children of [sensor].
+1775182675.8881271 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/distortionT1:<data-string>:L2]: XML Element[distortionT1], child of element[sensor], not defined in SDF. Copying[distortionT1] as children of [sensor].
+1775182675.8882246 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/distortionT2:<data-string>:L2]: XML Element[distortionT2], child of element[sensor], not defined in SDF. Copying[distortionT2] as children of [sensor].
+1775182675.8883114 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/focalLength:<data-string>:L2]: XML Element[focalLength], child of element[sensor], not defined in SDF. Copying[focalLength] as children of [sensor].
+1775182675.8884120 [robot_state_publisher-2] [1;33mWarning [Utils.cc:132][0m [/sdf/model[@name="garbo"]/link[@name="depth_camera_link"]/sensor[@name="depth_camera"]/hackBaseline:<data-string>:L2]: XML Element[hackBaseline], child of element[sensor], not defined in SDF. Copying[hackBaseline] as children of [sensor].
+1775182675.8973379 [robot_state_publisher-2] [WARN] [1775182675.896587333] [sdformat_urdf]: SDFormat link [imu_link] has a <sensor>, but URDF does not support this
+1775182675.8975296 [robot_state_publisher-2] [WARN] [1775182675.896670898] [sdformat_urdf]: SDFormat link [lidar_link] has a <sensor>, but URDF does not support this
+1775182675.8976369 [robot_state_publisher-2] [WARN] [1775182675.896689485] [sdformat_urdf]: SDFormat link [depth_camera_link] has a <sensor>, but URDF does not support this
+1775182675.9193668 [robot_state_publisher-2] [WARN] [1775182675.918035661] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+1775182675.9386680 [robot_state_publisher-2] [INFO] [1775182675.938342380] [robot_state_publisher]: Robot initialized
+1775182675.9941444 [component_container-7] [INFO] [1775182675.993861934] [image_proc_container]: Load Library: /opt/ros/kilted/lib/librectify.so
+1775182676.0149877 [INFO] [launch_ros.actions.load_composable_nodes]: Loaded node '/gz_server' in container '/ros_gz_container'
+1775182676.0582180 [INFO] [launch_ros.actions.load_composable_nodes]: Loaded node '/ros_gz_bridge' in container 'ros_gz_container'
+1775182676.0996883 [component_container-7] [INFO] [1775182676.099472385] [image_proc_container]: Found class: rclcpp_components::NodeFactoryTemplate<image_proc::RectifyNode>
+1775182676.0999277 [component_container-7] [INFO] [1775182676.099517377] [image_proc_container]: Instantiate class: rclcpp_components::NodeFactoryTemplate<image_proc::RectifyNode>
+1775182676.1433690 [INFO] [launch_ros.actions.load_composable_nodes]: Loaded node '/rectify_node' in container '/image_proc_container'
+1775182678.2979321 [INFO] [create-10]: process has finished cleanly [pid 7504]
+1775182687.8072479 [WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+1775182692.1624849 [INFO] [robot_state_publisher-2]: process has finished cleanly [pid 7496]
+1775182692.1626070 [INFO] [component_container-9]: process has finished cleanly [pid 7503]
+1775182692.1626763 [INFO] [twist_mux-5]: process has finished cleanly [pid 7499]
+1775182692.1627343 [INFO] [detected_dock_pose_publisher-8]: process has finished cleanly [pid 7502]
+1775182692.1627879 [INFO] [ekf_node-4]: process has finished cleanly [pid 7498]
+1775182692.1628401 [INFO] [component_container-7]: process has finished cleanly [pid 7501]
+1775182692.1628938 [INFO] [gz-1]: process has finished cleanly [pid 7495]
+1775182692.1629605 [ERROR] [apriltag_node-6]: process has died [pid 7500, exit code -11, cmd '/opt/ros/kilted/lib/apriltag_ros/apriltag_node --ros-args -r __node:=apriltag_detector --params-file /home/indie/garbo_ws/install/garbo/share/garbo/config/apriltag.yaml --params-file /tmp/launch_params_ongl3h2w -r /image_rect:=/depth_camera/image_rect'].
+1775182692.1630523 [ERROR] [rviz2-3]: process has died [pid 7497, exit code -6, cmd '/opt/ros/kilted/lib/rviz2/rviz2 -d /home/indie/garbo_ws/install/garbo/share/garbo/rviz/config.rviz --ros-args -r __node:=rviz2 --params-file /tmp/launch_params_yu6kou6g'].
+1775182692.1632686 [component_container-7] [INFO] [1775182687.806566851] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+1775182692.1635101 [robot_state_publisher-2] [INFO] [1775182687.806593350] [rclcpp]: signal_handler(SIGINT/SIGTERM)
