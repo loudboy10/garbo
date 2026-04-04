@@ -1,4 +1,4 @@
-<sdf version='1.10'>
+<sdf version='1.8'>
   <world name='driveway'>
 
     <physics name='1ms' type='ignored'>

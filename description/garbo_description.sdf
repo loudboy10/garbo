@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<sdf version="1.10" xmlns:xacro="http://ros.org/wiki/xacro">
+<sdf version="1.8" xmlns:xacro="http://ros.org/wiki/xacro">
   <model name='garbo' canonical_link='base_link'>
 
 <!-- Define some commonly used intertial properties  -->

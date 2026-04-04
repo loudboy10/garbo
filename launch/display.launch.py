@@ -1,11 +1,11 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     ExecuteProcess,
     IncludeLaunchDescription,
+    TimerAction,
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
@@ -20,6 +20,8 @@ from launch_ros.descriptions import ComposableNode
 # from launch_ros.descriptions import FindPackageShare
 from ros_gz_bridge.actions import RosGzBridge
 from ros_gz_sim.actions import GzServer
+
+from launch import LaunchDescription
 
 
 def generate_launch_description():
@@ -238,6 +240,19 @@ def generate_launch_description():
         }.items(),
     )
 
+    # === NEW: Force lidar entity initialization after spawn ===
+    force_lidar_init = ExecuteProcess(
+        cmd=["gz", "model", "-m", "garbo", "-l", "lidar_link"],
+        output="screen",
+        shell=True,
+    )
+
+    # Wrap the force command with a short delay (2–3 seconds is usually enough)
+    delayed_force_cmd = TimerAction(
+        period=3.0,  # ← adjust if needed (2.0 ~ 4.0)
+        actions=[force_lidar_init],
+    )
+
     ld = LaunchDescription()
     ld.add_action(declare_camera_frame_type_cmd)
     ld.add_action(declare_camera_namespace_cmd)
@@ -273,5 +288,6 @@ def generate_launch_description():
             #        depth_camera_bridge_points,
             #        rear_camera_bridge_image,
             spawn_entity,
+            delayed_force_cmd,
         ]
     )
