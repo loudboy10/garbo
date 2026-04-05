@@ -35,10 +35,16 @@ twist_mux:
         topic   : /demo/cmd_vel_nav #Takes input from Nav2 autonomous navigation stack.
         timeout : 0.5
         priority: 80 #This will be the main operating mode.
+
+
+      docking:
+        topic   : /cmd_vel_docking #Takes input from Nav2 autonomous docking stack.
+        timeout : 0.5
+        priority: 70 #Used only for docking. Priority doesnt matter much, I don't think, because nav2 handles the control transfer internally.
         
 
       tracker: #Isnt this part of nav2? Why is it separate?
         topic   : cmd_vel_tracker #Takes input from a tracking node, such as person or object tracking. Not sure why it's not part of Nav2?
         timeout : 0.5
-        priority: 70 #Lowest priority so that it is easily overridden by assited_teleop or joystick control.
+        priority: 60 #Lowest priority so that it is easily overridden by assited_teleop or joystick control.
 

@@ -1,4 +1,4 @@
-<sdf version='1.10'>
+<sdf version='1.8'>
   <world name='driveway'>
 
     <physics name='1ms' type='ignored'>
@@ -484,7 +484,7 @@
       <self_collide>false</self_collide>
       <include>
         <name>green_bin_tag</name>
-        <pose>0.25 0 0.145 1.5708 0 -1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match cameras-->
+        <pose>0.25 0 0.145 1.5708 0 1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match camera-->
         <static>true</static>
         <uri>model://Apriltag36_11_00003</uri>
       </include>

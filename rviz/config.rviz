@@ -7,6 +7,7 @@ Panels:
         - /Map1/Topic1
         - /TF1/Tree1
         - /LaserScan1/Topic1
+        - /PointCloud21
       Splitter Ratio: 0.3881118893623352
     Tree Height: 165
   - Class: rviz_common/Selection
@@ -210,6 +211,8 @@ Visualization Manager:
           Value: true
         drivewhl_r_link:
           Value: true
+        green_bin:
+          Value: true
         imu_link:
           Value: true
         lidar_link:
@@ -219,6 +222,10 @@ Visualization Manager:
         odom:
           Value: true
         rear_camera_link:
+          Value: true
+        recycle_bin:
+          Value: true
+        trash_bin:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -239,9 +246,13 @@ Visualization Manager:
                 {}
               depth_camera_link:
                 depth_camera_depth_frame:
-                  {}
-                depth_camera_optical_frame:
-                  {}
+                  depth_camera_optical_frame:
+                    green_bin:
+                      {}
+                    recycle_bin:
+                      {}
+                    trash_bin:
+                      {}
               drivewhl_l_link:
                 {}
               drivewhl_r_link:
@@ -383,6 +394,39 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /depth_camera/image_rect
       Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /depth_camera/points
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -429,25 +473,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/XYOrbit
-      Distance: 100
+      Distance: 10.40121841430664
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
+        X: -0.8011680841445923
+        Y: 1.0812561511993408
         Z: 0
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5697963237762451
+      Pitch: 0.9747962951660156
       Target Frame: map
       Value: XYOrbit (rviz_default_plugins)
-      Yaw: -1.5707963705062866
+      Yaw: 2.5773909091949463
     Saved: ~
 Window Geometry:
   Displays:

@@ -69,8 +69,8 @@ def generate_launch_description() -> LaunchDescription:
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
         'use_sim_time',
-        default_value='false',
-        description='Use simulation (Gazebo) clock if true',
+        default_value='False',
+        description='Use simulation (Gazebo) clock if True',
     )
 
     declare_params_file_cmd = DeclareLaunchArgument(
@@ -81,7 +81,7 @@ def generate_launch_description() -> LaunchDescription:
 
     declare_autostart_cmd = DeclareLaunchArgument(
         'autostart',
-        default_value='true',
+        default_value='True',
         description='Automatically startup the nav2 stack',
     )
 

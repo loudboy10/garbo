@@ -7,11 +7,11 @@ docks:
   home: #Charging base name
     type: "home_dock" #Cant be the same as the plugin name, but can match ID and Apriltag.
     frame: map
-    pose: [-5.0, 3.9, 0]  # [x, y, theta] General-vicinity pose of the dock in the map frame. This is the pose that Nav2 will navigate to when going to the dock, and will be used as the reference point for any external detection if use_external_detection_pose is true. For an Apriltag-based dock, this can be all zeros to start since the detected tag pose will be used as the reference.
-    id: "home" #oCant be the same as dock plugin name, but can be the same as the dock name. This is just an identifier for the dock, and can be used in the docking server's action goals to specify which dock to use.
+    pose: [-5.0, 3.9, 1.5708]  # [x, y, theta] General-vicinity pose of the dock in the map frame. This is the pose that Nav2 will navigate to when going to the dock, and will be used as the reference point for any external detection if use_external_detection_pose is true. For an Apriltag-based dock, this can be all zeros to start since the detected tag pose will be used as the reference.
+    id: "home" #Cant be the same as dock plugin name, but can be the same as the dock name. This is just an identifier for the dock, and can be used in the docking server's action goals to specify which dock to use.
     use_external_detection_pose: true #This dock is based on an Apriltag, so use the tag's detected pose as the reference for the dock's position.
     #This is the final position of the bot when docked, relative to the detected tag.
-    external_detection_translation_x: 0.5 #0.5m in front of the tag for testing, so the bot doesn't have to be perfectly on top of the tag to dock. Set to 0.0 if the dock is based on a global pose, not an Apriltag.
+    external_detection_translation_x: -1.0 #1.0m in front of the tag for testing, so the bot doesn't have to be perfectly on top of the tag to dock. Set to 0.0 if the dock is based on a global pose, not an Apriltag.
     external_detection_translation_y: 0.0 #No offset from the tag in the y direction, so the bot will be centered on the tag when docked.
     external_detection_rotation_roll: 1.5708 #Roll offset. Rotate the tag's reference point to create a point on the ground plane below it's physical location. Adjust if the camera is mounted at an angle.
     external_detection_rotation_pitch: -1.5708 #Pitch offset. Rotate the tag's reference point to create a point on the ground plane below it's physical location. Adjust if the camera is mounted at an angle.
@@ -27,7 +27,7 @@ docks:
     use_external_detection_pose: true
     external_detection_translation_x: -0.66 #The rear camera is 0.66m from the rear of the bot; ideally the bot will back right up to the bin
     external_detection_translation_y: 0.0
-    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_roll: 1.5708
     external_detection_rotation_pitch: -1.5708
     external_detection_rotation_yaw: 0.0
 
@@ -41,21 +41,21 @@ docks:
     use_external_detection_pose: true
     external_detection_translation_x: -0.66
     external_detection_translation_y: 0.0
-    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_roll: 1.5708
     external_detection_rotation_pitch: -1.5708
     external_detection_rotation_yaw: 0.0
 
   green_bin:
     type: "bin_dock"
     frame: map
-    pose: [6.25, -5, 1.5708] #Based on pose in driveway.sdf.
+    pose: [6, -5, -1.5708] #Based on pose in driveway.sdf.
     id: "green_bin"
-    dock_direction: "backward"
+    dock_direction: backward
     rotate_to_dock: true
     use_external_detection_pose: true
-    external_detection_translation_x: -0.66 #The rear camera is 0.66m from the rear of the bot; ideally the bot will back right up to the bin
+    external_detection_translation_x: -1.0 #The rear camera is 0.66m from the rear of the bot; ideally the bot will back right up to the bin
     external_detection_translation_y: 0.0
-    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_roll: 1.5708
     external_detection_rotation_pitch: -1.5708
     external_detection_rotation_yaw: 0.0
 
@@ -69,10 +69,10 @@ docks:
     use_external_detection_pose: true #This dock is based on an Apriltag signpost, so use the tag's detected pose as the reference for the dock's position. The bot will drive to the tag, then use the external detection translations and rotations to determine the final dock pose which is 2m in front of the tag and facing the same direction as the tag, so that the bins end up next to each other.
     external_detection_translation_x: -2.0
     external_detection_translation_y: 0.5
-    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_roll: 1.5708
     external_detection_rotation_pitch: -1.5708
     external_detection_rotation_yaw: 0.0
-    staging_x_offset: 0.7 #This might be tight quarters in reality, so test accordingly
+    staging_x_offset: -0.7 #This might be tight quarters in reality, so test accordingly
     staging_yaw_offset: 0.0
 
   recycle_dock: #For placing the bin next to the house, based on an Apriltag signpost
@@ -85,10 +85,10 @@ docks:
     use_external_detection_pose: true
     external_detection_translation_x: -2.0
     external_detection_translation_y: -0.5
-    external_detection_rotation_roll: -1.5708
+    external_detection_rotation_roll: 1.5708
     external_detection_rotation_pitch: -1.5708
     external_detection_rotation_yaw: 0.0
-    staging_x_offset: 0.7
+    staging_x_offset: -0.7
     staging_yaw_offset: 0.0
 
   green_dock: #This will be out in the parking area, not based on an Apriltag, but we'll use the same dock type for simplicity.
@@ -99,7 +99,7 @@ docks:
     dock_direction: "backward"
     rotate_to_dock: true
     use_external_detection_pose: false
-    staging_x_offset: 0.7
+    staging_x_offset: -0.7
     staging_yaw_offset: 0.0
 
   trash_curb: #For placing the bin out on the curb, based on nav2 localization
@@ -108,6 +108,7 @@ docks:
     pose: [-5.5196502793423949, 2.4806453110246496, 0.0] #In simulation, this is the mirror location of trash dock across the y-axis. 
     id: "trash_curb"
     dock_direction: "forward"
+    rotate_to_dock: false
     use_external_detection_pose: false #Since this dock is based on a global pose and not an Apriltag, we won't use external detection to adjust the pose. The bot will just navigate to this pose and assume it's correct.
     external_detection_translation_x: 0.0
     external_detection_translation_y: 0.0
@@ -123,6 +124,7 @@ docks:
     pose: [-5.4409400294970771, 0.50960481367723409, 0.0]
     id: "recycle_curb"
     dock_direction: "forward"
+    rotate_to_dock: false
     use_external_detection_pose: false
     external_detection_translation_x: 0.0
     external_detection_translation_y: 0.0
@@ -138,11 +140,12 @@ docks:
     pose: [0.0, 0.0, 0.0] #[-5.3450411942024942, -1.4334154578621039, 0.0]
     id: "green_curb"
     dock_direction: "forward"
+    rotate_to_dock: false
     use_external_detection_pose: false
     external_detection_translation_x: 0.0
     external_detection_translation_y: 0.0
     external_detection_rotation_roll: 0.0
     external_detection_rotation_pitch: 0.0
     external_detection_rotation_yaw: 0.0
-    staging_x_offset: -0.7
+    staging_x_offset: 0.0 #-0.7 - Just a test point at the map origin.
     staging_yaw_offset: 0.0

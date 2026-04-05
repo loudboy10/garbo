@@ -70,7 +70,6 @@
    <xacro:property name="caster_Zoffset" value="${-wheel_radius/2}"/>
    <xacro:property name="caster_mass" value="0.5"/>
 
-   
 
 <!-- Robot Base -->
     <link name='base_link'>
@@ -110,7 +109,6 @@
           <ambient>0 1 1 1</ambient>
           <diffuse>0 1 1 1</diffuse>
         </material>
-        <xacro:box_inertia m="${base_mass}" w="${base_width}" d="${base_length}" h="${base_height}"/>
       </visual>
 
       <collision name="chassis_collision">
@@ -119,7 +117,8 @@
             ${base_length} ${base_width} ${base_height}
           </size></box>
         </geometry>
-      </collision> 
+      </collision>
+      <xacro:box_inertia m="${base_mass}" w="${base_width}" d="${base_length}" h="${base_height}"/>
     </link>
 
 <!-- Drive Wheels -->
@@ -325,7 +324,7 @@
       <wheel_radius>${wheel_radius}</wheel_radius>
 
       <!-- limits -->
-      <max_linear_acceleration>0.1</max_linear_acceleration>
+      <max_linear_acceleration>3.0</max_linear_acceleration>
 
       <!-- input -->
       <topic>/demo/cmd_vel</topic>
@@ -409,7 +408,7 @@
     <joint name="depth_camera_joint" type="fixed">
       <parent>base_link</parent>
       <child>depth_camera_link</child>
-      <pose relative_to="base_link">${base_length - wheel_radius + 0.005} 0 ${2*base_height - 0.015} 0 0 0</pose>
+      <pose relative_to="base_link">${base_length - wheel_radius + 0.005} 0 0.533 0 0 0</pose><!--Camera pose set for testing-->
     </joint>
 
     <link name='depth_camera_link'>
@@ -435,10 +434,12 @@
       <sensor name="depth_camera" type="rgbd_camera">
         <always_on>true</always_on>
         <visualize>true</visualize>
-        <update_rate>5.0</update_rate>
+        <update_rate>15.0</update_rate>
         <topic>depth_camera</topic>
-        <gz_frame_id>depth_camera_optical_frame</gz_frame_id>
+        <enable_metrics>true</enable_metrics>
+        <plugin filename="gz-sim-rgbd-camera-system" name="gz::sim::systems::RGBDCamera"></plugin>
         <camera>
+          <optical_frame_id>depth_camera_optical_frame</optical_frame_id>
           <camera_info_topic>depth_camera/camera_info</camera_info_topic>
           <horizontal_fov>1.047</horizontal_fov>
           <image>
@@ -458,9 +459,6 @@
         <distortionK3>0</distortionK3>
         <distortionT1>0</distortionT1>
         <distortionT2>0</distortionT2>
-        <CxPrime>0</CxPrime>
-        <Cx>0</Cx>
-        <Cy>0</Cy>
         <focalLength>0</focalLength>
         <hackBaseline>0</hackBaseline>
       </sensor>
@@ -476,7 +474,7 @@
   <!--Rotate optical frame to ROS standard frame-->
     <joint name="depth_camera_optical_joint" type="fixed">
       <pose relative_to="depth_camera_joint">0 0 0 ${-pi/2} 0 ${-pi/2}</pose><!--0 0 0 ${-pi/2} 0 ${-pi/2}-->
-      <parent>depth_camera_link</parent>
+      <parent>depth_camera_depth_frame</parent>
       <child>depth_camera_optical_frame</child>
     </joint>
     <link name="depth_camera_optical_frame"/>
