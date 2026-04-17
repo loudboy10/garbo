@@ -286,30 +286,30 @@ local_costmap:
           raytrace_min_range: 0.0 #Increase to eliminate hits on the robot body itself
           obstacle_max_range: 2.5 #Default 2.5. Reduce to 1m to ignore ramp
           obstacle_min_range: 0.0 #Increase to match hits on the robot body itself
-#      voxel_layer:
-#        plugin: "nav2_costmap_2d::VoxelLayer"
-#        enabled: true
-#        footprint_clearing_enabled: true
-#        publish_voxel_map: false
-#        origin_z: 0.0
-#        z_resolution: 0.2
-#        z_voxels: 16
-#        unknown_threshold: 15
-#        max_obstacle_height: 2.0
-#        mark_threshold: 1 #Increase to reduce noise an small objects
-#        combination_method: 1
-#        observation_sources: depth_camera #Verify these settings and names are correct
-#        depth_camera:
-#          topic: /depth_camera/depth/color/points
-#          data_type: PointCloud2
-#          max_obstacle_height: 2.0
-#          min_obstacle_height: 0.1
-#          clearing: false
-#          marking: true
-#          raytrace_max_range: 3.0
-#          raytrace_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
-#          obstacle_max_range: 1.0 #Default 2.5. Reduced to ignore ramp
-#          obstacle_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: true
+        footprint_clearing_enabled: true
+        publish_voxel_map: false
+        origin_z: 0.0
+        z_resolution: 0.2
+        z_voxels: 16
+        unknown_threshold: 15
+        max_obstacle_height: 2.0
+        mark_threshold: 1 #Increase to reduce noise an small objects
+        combination_method: 1
+        observation_sources: depth_camera #Verify these settings and names are correct
+        depth_camera:
+          topic: /depth_camera/depth/color/points_remap
+          data_type: PointCloud2
+          max_obstacle_height: 2.0
+          min_obstacle_height: 0.1
+          clearing: false
+          marking: true
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
+          obstacle_max_range: 1.0 #Default 2.5. Reduced to ignore ramp
+          obstacle_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
       denoise_layer: #Could be a heavy compute load
         plugin: "nav2_costmap_2d::DenoiseLayer"
         enabled: true
@@ -360,30 +360,30 @@ global_costmap:
         plugin: "nav2_costmap_2d::StaticLayer"
         enabbled: true
         map_subscribe_transient_local: true
-#      voxel_layer:
-#        plugin: "nav2_costmap_2d::VoxelLayer"
-#        enabled: true
-#        footprint_clearing_enabled: true
-#        publish_voxel_map: false
-#        origin_z: 0.0
-#        z_resolution: 0.2
-#        z_voxels: 10
-#        unknown_threshold: 15
-#        max_obstacle_height: 2.0
-#        mark_threshold: 0 #Increase to reduce noise an small objects
-#        combination_method: 1
-#        observation_sources: depth_camera #Verify these settings and names are correct
-#        depth_camera:
-#          topic: /depth_camera/depth/color/points
-#          data_type: PointCloud2
-#          max_obstacle_height: 2.0
-#          min_obstacle_height: 0.1
-#          clearing: false
-#          marking: true
-#          raytrace_max_range: 3.0
-#          raytrace_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
- #         obstacle_max_range: 1.0 #Default 2.5. Reduced to ignore ramp
-#          obstacle_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0       
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: true
+        footprint_clearing_enabled: true
+        publish_voxel_map: false
+        origin_z: 0.0
+        z_resolution: 0.2
+        z_voxels: 10
+        unknown_threshold: 15
+        max_obstacle_height: 2.0
+        mark_threshold: 0 #Increase to reduce noise an small objects
+        combination_method: 1
+        observation_sources: depth_camera #Verify these settings and names are correct
+        depth_camera:
+          topic: /depth_camera/points_remap
+          data_type: PointCloud2
+          max_obstacle_height: 2.0
+          min_obstacle_height: 0.05
+          clearing: false
+          marking: true
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
+          obstacle_max_range: 2.5 #Default 2.5. Reduced to ignore ramp
+          obstacle_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0       
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: true
@@ -564,17 +564,17 @@ collision_monitor:
       min_points: 6
       visualize: false
       enabled: true
-    observation_sources: ["scan"] #"pointcloud" Add back once PointCloud is sorted
-    scan:
-      type: "scan"
-      topic: "/scan"
+    observation_sources: ["pointcloud"] #"scan"
+#    scan:
+#      type: "scan"
+#      topic: "/scan"
+#      enabled: true
+    pointcloud: #Ignoring pointcloud for now until I can figure out how to rotate it into the proper frame.
+      type: "pointcloud"
+      topic: "/depth_camera/points_remap"
+      min_height: 0.05
+      max_height: 2.0
       enabled: true
-    #pointcloud: Ignoring pointcloud for now until I can figure out how to rotate it into the proper frame.
-    #  type: "PointCloud2"
-    #  topic: "/depth_camera/points"
-    #  min_height: 0.05
-    #  max_height: 2.0
-    #  enabled: true
 
 docking_server:
   ros__parameters:

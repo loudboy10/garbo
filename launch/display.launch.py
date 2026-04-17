@@ -124,16 +124,16 @@ def generate_launch_description():
                     #("image_rect", "rear_camera/image_rect"),
                 ],
             ),
-#            ComposableNode( #maybe useful for repositioning the pointscloud image, but no idea how. 
-#                    package="depth_image_proc",
-#                    plugin="depth_image_proc::PointCloudXyzrgbNode",
-#                    name="point_cloud_xyzrgb_node",
-#                    remappings=[
-#                        ("rgb/image_rect_color", "depth_camera/image_rect"),
-#                        ("depth_registered/image_rect", "depth_registered/image"),
-#                        ("points", "depth_registered/points"),
-#                    ],
-#            ),
+            ComposableNode( #maybe useful for repositioning the pointscloud image, but no idea how. 
+                    package="depth_image_proc",
+                    plugin="depth_image_proc::PointCloudXyzrgbNode",
+                    name="point_cloud_xyzrgb_node",
+                    remappings=[
+                        ("rgb/image_rect_color", "depth_camera/image_rect"),
+                        ("depth_registered/image_rect", "depth_camera/depth_image"),
+                        ("points", "depth_camera/points_remap"),
+                    ],
+            ),
 #
 #           ComposableNode( #Unnecessary?
 #               package="image_proc",

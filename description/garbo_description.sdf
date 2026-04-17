@@ -411,7 +411,7 @@
       <pose relative_to="base_link">${base_length - wheel_radius + 0.005} 0 0.533 0 0 0</pose><!--Camera pose set for testing-->
     </joint>
 
-    <link name='depth_camera_link'>
+    <link name="depth_camera_link">
       <pose relative_to="depth_camera_joint"/>
       <visual name="depth_camera_link_visual">
         <geometry>
@@ -438,6 +438,7 @@
         <topic>depth_camera</topic>
         <enable_metrics>true</enable_metrics>
         <plugin filename="gz-sim-rgbd-camera-system" name="gz::sim::systems::RGBDCamera"></plugin>
+        <gz_frame_id>depth_camera_link</gz_frame_id>
         <camera>
           <optical_frame_id>depth_camera_optical_frame</optical_frame_id>
           <camera_info_topic>depth_camera/camera_info</camera_info_topic>
@@ -464,17 +465,10 @@
       </sensor>
     </link>
 
-    <joint name="depth_camera_depth_joint" type="fixed">
-      <parent>depth_camera_link</parent>
-      <child>depth_camera_depth_frame</child>
-      <pose relative_to="depth_camera_joint"/>
-    </joint>
-    <link name="depth_camera_depth_frame"/>
-
   <!--Rotate optical frame to ROS standard frame-->
     <joint name="depth_camera_optical_joint" type="fixed">
       <pose relative_to="depth_camera_joint">0 0 0 ${-pi/2} 0 ${-pi/2}</pose><!--0 0 0 ${-pi/2} 0 ${-pi/2}-->
-      <parent>depth_camera_depth_frame</parent>
+      <parent>depth_camera_link</parent>
       <child>depth_camera_optical_frame</child>
     </joint>
     <link name="depth_camera_optical_frame"/>

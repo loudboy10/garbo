@@ -138,10 +138,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        depth_camera_depth_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         depth_camera_link:
           Alpha: 1
           Show Axes: false
@@ -201,8 +197,6 @@ Visualization Manager:
           Value: true
         chassis:
           Value: true
-        depth_camera_depth_frame:
-          Value: true
         depth_camera_link:
           Value: true
         depth_camera_optical_frame:
@@ -210,8 +204,6 @@ Visualization Manager:
         drivewhl_l_link:
           Value: true
         drivewhl_r_link:
-          Value: true
-        green_bin:
           Value: true
         imu_link:
           Value: true
@@ -222,10 +214,6 @@ Visualization Manager:
         odom:
           Value: true
         rear_camera_link:
-          Value: true
-        recycle_bin:
-          Value: true
-        trash_bin:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -245,14 +233,8 @@ Visualization Manager:
               chassis:
                 {}
               depth_camera_link:
-                depth_camera_depth_frame:
-                  depth_camera_optical_frame:
-                    green_bin:
-                      {}
-                    recycle_bin:
-                      {}
-                    trash_bin:
-                      {}
+                depth_camera_optical_frame:
+                  {}
               drivewhl_l_link:
                 {}
               drivewhl_r_link:
@@ -332,7 +314,7 @@ Visualization Manager:
       Decay Time: 0
       Depth Map Topic: /depth_camera/depth_image
       Depth Map Transport Hint: raw
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -351,7 +333,7 @@ Visualization Manager:
       Topic Filter: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
@@ -406,7 +388,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -423,10 +405,10 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /depth_camera/points
+        Value: /depth_camera/points_remap
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -473,25 +455,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/XYOrbit
-      Distance: 10.40121841430664
+      Distance: 3.4822890758514404
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.8011680841445923
-        Y: 1.0812561511993408
-        Z: 0
+        X: -0.21254992485046387
+        Y: -0.13555991649627686
+        Z: -2.384185791015625e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9747962951660156
+      Pitch: 0.45979657769203186
       Target Frame: map
       Value: XYOrbit (rviz_default_plugins)
-      Yaw: 2.5773909091949463
+      Yaw: 3.9223899841308594
     Saved: ~
 Window Geometry:
   Displays:

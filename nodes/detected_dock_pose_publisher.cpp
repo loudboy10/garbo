@@ -125,6 +125,7 @@ private:
       // Copy the rotation from the transform to the pose
       dock_pose.pose.orientation = transform.transform.rotation;
 
+
       // Publish the dock pose for the navigation system to use
       dock_pose_pub_->publish(dock_pose);
     }

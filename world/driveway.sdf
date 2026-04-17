@@ -22,8 +22,7 @@
     <plugin filename="gz-sim-imu-system"
       name="gz::sim::systems::Imu">
     </plugin>
-    <plugin
-      filename="gz-sim-sensors-system"
+    <plugin filename="gz-sim-sensors-system"
       name="gz::sim::systems::Sensors">
       <render_engine>ogre2</render_engine>
     </plugin>
@@ -513,7 +512,7 @@
 <!--Apriltags-->
     <include>
       <name>home_tag</name>
-      <pose>-5 3.9 0.66 1.5708 0 0</pose> <!--Behind bot: -1.137 0 0.645 1.5708 0 1.5708 Original home tag: -5 3.9 0.66 1.5708 0 0 The center of this tag is 5m behind the origin, 3.9m to the left, and 26in off the ground. The tag mesh model default is flat, so it is rotated up to face inward.-->
+      <pose>-1.537 0 0.645 1.5708 0 1.5708</pose> <!--Behind bot: -1.137 0 0.645 1.5708 0 1.5708 Original home tag: -5 3.9 0.66 1.5708 0 0 The center of this tag is 5m behind the origin, 3.9m to the left, and 26in off the ground. The tag mesh model default is flat, so it is rotated up to face inward.-->
       <static>true</static>
       <uri>model://Apriltag36_11_00000</uri>
     </include>
