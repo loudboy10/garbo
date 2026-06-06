@@ -93,12 +93,9 @@ bt_navigator:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
     # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
-
     # plugin_lib_names is used to add custom BT plugins to the executor (vector of strings).
     # Built-in plugins are added automatically
     # plugin_lib_names: []
-
-
     error_code_name_prefixes:
       - assisted_teleop
       - backup
@@ -150,8 +147,8 @@ controller_server:
     general_goal_checker:
       stateful: true
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.05 #Default0.25
-      yaw_goal_tolerance: 0.01 #Default 0.25 #Change this if bot is jittery once it reaches the goal
+      xy_goal_tolerance: 0.125 #Default 0.25. Changes precision of navigation goals. Increase to allow the robot to consider itself at the goal even if it's a bit off, which can help with navigation success, especially in tight spaces or with less precise localization. Decrease for more precise navigation, but be aware that it may lead to more navigation failures if the robot has trouble getting within the tighter tolerance.
+      yaw_goal_tolerance: 0.125 #Default 0.25 #Change this if bot is jittery once it reaches the goal
       path_length_tolerance: 1.0 #Distance along the path that the robot can be from the goal and still be considered to have reached it. This is important for getting close enough to the goal when precise navigation is difficult, such as when docking or navigating to a small target. Adjust this based on the expected precision of the robot's navigation and the size of the target.
       symmetric_yaw_tolerance: false #For onmibots with no true front.
     FollowPath:
@@ -300,8 +297,8 @@ local_costmap:
         combination_method: 1
         observation_sources: depth_camera #Verify these settings and names are correct
         depth_camera:
-          topic: /depth_camera/depth/color/points_remap
-          data_type: PointCloud2
+          topic: /depth_camera/points_remap
+          data_type: "PointCloud2"
           max_obstacle_height: 2.0
           min_obstacle_height: 0.1
           clearing: false
@@ -375,7 +372,7 @@ global_costmap:
         observation_sources: depth_camera #Verify these settings and names are correct
         depth_camera:
           topic: /depth_camera/points_remap
-          data_type: PointCloud2
+          data_type: "PointCloud2"
           max_obstacle_height: 2.0
           min_obstacle_height: 0.05
           clearing: false
@@ -548,12 +545,11 @@ collision_monitor:
     cmd_vel_out_topic: "/demo/cmd_vel_nav"
     enable_stamped_cmd_vel: true # Manually added parameter
     state_topic: "collision_monitor_state"
-    transform_tolerance: 0.2
+    transform_tolerance: 0.2 #Tolerance for looking up transforms, in seconds. This should be set based on the expected latency of the robot's TF tree and the frequency of the collision monitor. A higher value can help prevent false positives due to occasional delays in TF updates, but setting it too high may cause the collision monitor to react too slowly to actual collisions. A good starting point is around 0.2 seconds, but this may need to be adjusted based on the specific performance characteristics of the robot and its sensors.
     source_timeout: 1.0
     base_shift_correction: true
     stop_pub_timeout: 2.0
-    # Polygons represent zone around the robot for "stop", "slowdown" and "limit" action types,
-    # and robot footprint for "approach" action type.
+    # Polygons represent zone around the robot for "stop", "slowdown" and "limit" action types, and robot footprint for "approach" action type.
     polygons: ["FootprintApproach"]
     FootprintApproach:
       type: "polygon"
@@ -564,112 +560,17 @@ collision_monitor:
       min_points: 6
       visualize: false
       enabled: true
-    observation_sources: ["pointcloud"] #"scan"
+    observation_sources: ["pointcloud2"] #"scan"
 #    scan:
 #      type: "scan"
 #      topic: "/scan"
 #      enabled: true
-    pointcloud: #Ignoring pointcloud for now until I can figure out how to rotate it into the proper frame.
-      type: "pointcloud"
+    pointcloud: #Remapped from DepthCloud.
+      type: "pointcloud2"
       topic: "/depth_camera/points_remap"
       min_height: 0.05
       max_height: 2.0
       enabled: true
-
-docking_server:
-  ros__parameters:
-    controller_frequency: 50.0 #Control frequency for vision-control loop. Good luck getting this running fast enough with Gazebo and depth camera
-    enable_stamped_cmd_vel: true # Manually added parameter
-    initial_perception_timeout: 5.0 #Timeout (s) to wait to obtain initial perception of the dock.
-    wait_charge_timeout: 5.0 #Timeout in seconds to wait to see if charging starts after docking. Only used if use_battery_status is true to detect successful docking.
-    dock_approach_timeout: 30.0 #Timeout (s) to attempt vision-control approach loop.
-    rotate_to_dock_timeout: 10.0 #Timeout (s) to attempt rotate-to-dock loop, if enabled.
-    undock_linear_tolerance: 0.05 #Tolerance (m) to exit the undocking control loop at staging pose.
-    undock_angular_tolerance: 0.1 #Angular tolerance (rad) to exit undocking loop at staging pose.
-    max_retries: 3 #Maximum number of retries to attempt for the entire docking procedure before giving up and reporting failure. Four total.
-    base_frame: "base_link" #Robot’s base frame for control law.
-    fixed_frame: "odom" #Fixed frame to use, recommended to be a smooth odometry frame not map.
-    odom_topic: "odom" #The topic to use for the odometry data when rotate_to_dock is enabled.
-    rotation_angular_tolerance: 0.05 #Angular tolerance (rad) to exit the rotation loop when rotate_to_dock is enabled
-    dock_prestaging_tolerance: 0.5 #L2 distance in X,Y,Theta from the staging pose to bypass navigation.
-    navigator_bt_xml: "" # Behavior Tree to use other than default.
-    service_introspection_mode: "disabled"
-
-    # Types of docks
-    dock_plugins: ['home_dock', 'bin_dock', 'placement_dock'] #Types of docks to be used. The plugin to use for each dock is set in the dock_database yaml file. Each dock can have its own plugin and parameters, but they are grouped here for organizational purposes since they share many parameters.
-    home_dock: # The home-base charging dock
-      plugin: 'opennav_docking::SimpleChargingDock'
-      use_battery_status: false # true
-      use_external_detection_pose: true #Whether to use external detection topic for dock or use the databases’ pose.
-      external_detection_timeout: 1.0 #Time (s) to wait without receiving a new detection before considering the detection lost and timing out the approach.
-      #external_detection_translation_x: -2.0 #Set per dock, if used, in docks.yaml
-      #external_detection_translation_y: -0.5 #Set per dock, if used, in docks.yaml
-      #external_detection_rotation_roll: 1.5708 #Set per dock, if used, in docks.yaml
-      #external_detection_rotation_pitch: -1.5708# Set per dock, if used, in docks.yaml
-      #external_detection_rotation_yaw: 0.0 #Set per dock, if used, in docks.yaml
-      filter_coef: 0.1 # Dock external detection method filtering algorithm coefficient.????????
-      charging_threshold: 0.5 # Threshold of current in battery state above which isCharging() = true
-      use_stall_detection: false #Whether or not to use stall detection for isDocked() or positional threshold.
-      #Setting this param empty breaks nav2 if use_stall_detection is false: stall_joint_names:  #Names in joint_states topic of joints to track.
-      stall_effort_threshold: 1.0 #Current or motor effort in joint state to trigger isDocked() = true, when use_stall_detection is true.
-      docking_threshold: 0.05 #L2 distance in meters and radians to the dock pose at which to consider the robot docked when not using stall or battery detection.
-      staging_x_offset: -2.0 #Staging pose will be 2m in front(negative) of the dock, so the bot can use its internal localization to fine-tune its position for docking instead of relying on perfect initial navigation to the dock.
-      staging_yaw_offset: 0.0 #Staging pose angle relative to dock pose (rad). If dock_direction is set to “backward”, this angle must be faced in the opposite direction of the dock pose. However, if rotate_to_dock is enabled, this angle must be facing the same direction as the dock pose because the robot will rotate to the dock pose after detection.
-      dock_direction: "forward" # Whether the robot is docking with the dock forward or backward in motion. This is the replacement for the deprecated dock_backwards parameter. Options are “forward” or “backward”.
-      rotate_to_dock: false #True enables backward docking without requiring a sensor for detection during the final approach. This may also be paired with sensor detection in the reverse direction as well if available. Note: This parameter is only valid when the dock_direction is set to “backward”.
-    bin_dock: # For docking to a bin at a non-fixed location
-      plugin: 'opennav_docking::SimpleNonChargingDock'
-      use_battery_status: false
-      use_external_detection_pose: true
-      external_detection_timeout: 1.0
-      filter_coef: 0.1
-      use_stall_detection: false
-      docking_threshold: 0.05
-      staging_x_offset: -2.0
-      staging_yaw_offset: 0.0
-      #dock_direction: "backward"
-      #rotate_to_dock: true
-    placement_dock: #For dropping off a bin next to the house or out on the curb
-      plugin: 'opennav_docking::SimpleNonChargingDock'
-      use_battery_status: false
-      external_detection_timeout: 1.0
-      filter_coef: 0.1
-      use_stall_detection: false
-      docking_threshold: 0.05
-
-    # Docks
-    #use_dock_id: true  #Not in kilted?#Easier to reference dock by id/name than by full pose, and allows for multiple docks with the same plugin but different poses. The dock id is specified in the dock database yaml file. This param is mentioned in the nav2 tutorials but not on the params page??????
-    dock_database: /home/indie/garbo_ws/src/garbo/config/docks.yaml
-
-
-    # Dock instances
-    #This doesn't throw errors.
-    #docks: ['home']  # Input your docks here. Plugin name cannot be the same as dock name.
-    #home:
-    #  type: 'home_dock'
-    #  frame: map
-    #  pose: [-5.0, 3.9, 0.0]
-    #  id: 'home'
-
-    controller:
-      k_phi: 3.0 #Ratio of the rate of change of angle relative to distance from the target. Much be > 0.
-      k_delta: 2.0 #Higher values result in converging to the target more quickly.
-      k_beta: 0.4 #Parameter to reduce linear velocity proportional to path curvature. Increasing this linearly reduces the velocity (v(t) = v_max / (1 + beta * |curv|^lambda)).
-      k_lambda: 2.0 #Parameter to reduce linear velocity proportional to path curvature. Increasing this exponentially reduces the velocity (v(t) = v_max / (1 + beta * |curv|^lambda)).
-      v_linear_min: 0.1 #Minimum linear velocity when approaching the dock. This should be set above the stall threshold of the robot to ensure it can overcome static friction and move towards the dock. The ideal value may require some experimentation, but a good starting point is around 0.15 m/s for a heavy robot. Adjust as needed based on testing to find the lowest velocity that still allows reliable movement towards the dock without stalling.
-      v_linear_max: 0.25 #Maximum linear velocity when approaching the dock. This can be set to the same value as v_linear_min for a consistent approach speed, or higher if you want the robot to move faster when it is farther from the dock. However, since precision is important in docking, especially as the robot gets closer, it may be best to keep this at the same value as v_linear_min or only slightly higher to ensure a controlled approach.
-      v_angular_max: 0.75 #Maximum angular velocity when approaching the dock. This should be set to allow the robot to turn towards the dock effectively without being too aggressive, which could cause overshooting or instability. A good starting point is around 0.5 rad/s, but this may need to be adjusted based on the robot's turning capabilities and the desired approach behavior.
-      slowdown_radius: 0.5 #Radius around the dock at which to start slowing down. This should be set based on the expected distance at which the robot needs to start reducing its speed to ensure a smooth and controlled approach to the dock. A good starting point is around 0.5 meters, but this may need to be adjusted based on testing and the specific dynamics of the robot.
-      rotate_to_heading_angular_vel: 1.0 #Angular velocity (rad/s) to rotate to the goal heading when rotate_to_dock is enabled.
-      rotate_to_heading_max_angular_accel: 3.2 #Max angular acceleration when rotating to the dock heading.
-      use_collision_detection: true #Whether to use collision detection to avoid obstacles.
-      costmap_topic: "local_costmap/costmap_raw" #Raw costmap topic for collision checking.
-      footprint_topic: "local_costmap/published_footprint" #Topic for footprint in the costmap frame. Footprint will change when bins are carried.
-      transform_tolerance: 0.1 #Time with which to post-date the transform that is published, to indicate that this transform is valid into the future.
-      projection_time: 5.0 #Time to look ahead for collisions (s).
-      simulation_step: 0.1 #Time step for projections (s).
-      dock_collision_threshold: 0.1 #The distance from the dock pose to ignore collisions. Set to 0.0 when the dock isn't physically contacted.
-
 
 loopback_simulator:
   ros__parameters:

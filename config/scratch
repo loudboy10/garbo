@@ -1,0 +1,131 @@
+docking_server:
+  ros__parameters:
+    autostart_node: false #added for testing param dump. This should be set to true in the launch file to enable automatic docking on startup.
+    bond_heartbeat_period: 0.25 #Added for testing param dump
+    use_sim_time: true
+    global_frame: "map"
+    base_frame: "base_link" #Robot’s base frame for control law.
+    fixed_frame: "odom" #Fixed frame to use, recommended to be a smooth odometry frame not map.
+    odom_topic: "odom" #The topic to use for the odometry data when rotate_to_dock is enabled.
+    controller_frequency: 50.0 #Control frequency for vision-control loop. Good luck getting this running fast enough with Gazebo and depth camera
+    enable_stamped_cmd_vel: true # Manually added parameter
+    initial_perception_timeout: 5.0 #Timeout (s) to wait to obtain initial perception of the dock.
+    wait_charge_timeout: 5.0 #Timeout in seconds to wait to see if charging starts after docking. Only used if use_battery_status is true to detect successful docking.
+    dock_approach_timeout: 30.0 #Timeout (s) to attempt vision-control approach loop.
+    rotate_to_dock_timeout: 10.0 #Timeout (s) to attempt rotate-to-dock loop, if enabled.
+    undock_linear_tolerance: 0.05 #Tolerance (m) to exit the undocking control loop at staging pose.
+    undock_angular_tolerance: 0.1 #Angular tolerance (rad) to exit undocking loop at staging pose.
+    max_retries: 3 #Maximum number of retries to attempt for the entire docking procedure before giving up and reporting failure. Four total.
+    rotation_angular_tolerance: 0.05 #Angular tolerance (rad) to exit the rotation loop when rotate_to_dock is enabled
+    dock_prestaging_tolerance: 0.5 #L2 distance in X,Y,Theta from the staging pose to bypass navigation.
+    navigator_bt_xml: "" # Behavior Tree to use other than default.
+    introspection_mode: "disabled"
+
+    # Types of docks
+    dock_plugins: ['home_dock', 'bin_dock', 'placement_dock'] #Types of docks to be used. The plugin to use for each dock is set in the dock_database yaml file. Each dock can have its own plugin and parameters, but they are grouped here for organizational purposes since they share many parameters.
+    home_dock: # The home-base charging dock
+      plugin: 'opennav_docking::SimpleChargingDock'
+      use_battery_status: false # true
+      use_external_detection_pose: true #Whether to use external detection topic for dock or use the databases’ pose.
+      external_detection_timeout: 1000.0 #Default 1.0 Time (s) to wait without receiving a new detection before considering the detection lost and timing out the approach.
+      external_detection_translation_x: -1.0 #External translations must be set at the plugin level.
+      external_detection_translation_y: 0.0
+      external_detection_rotation_roll: 1.5708
+      external_detection_rotation_pitch: -1.5708
+      external_detection_rotation_yaw: 0.0
+      filter_coef: 0.1 # "Dock external detection method filtering algorithm coefficient" WTF????????
+      charging_threshold: 0.5 # Threshold of current in battery state above which isCharging() = true
+      use_stall_detection: false #Can be used as input from a contact switch, but not yet used in simulation.
+      stall_effort_threshold: 1.0 #Leaving this empty breaks nav2 for some reason??????
+      stall_joint_names: ['drivewhl_l_joint', 'drivewhl_r_joint'] #Joint names to monitor for stall detection effort. Only used if use_stall_detection is true.
+      stall_velocity_threshold: 0.01 #Velocity threshold below which the robot is considered stalled when using stall detection.
+      docking_threshold: 0.05 #L2 distance in meters and radians to the dock pose at which to consider the robot docked when not using stall or battery detection.
+      staging_x_offset: -2.0 #Staging pose will be 2m in front(negative) of the dock, so the bot can use its internal localization to fine-tune its position for docking instead of relying on perfect initial navigation to the dock.
+      staging_yaw_offset: 0.0 #Staging pose angle relative to dock pose (rad). If dock_direction is set to “backward”, this angle must be faced in the opposite direction of the dock pose. However, if rotate_to_dock is enabled, this angle must be facing the same direction as the dock pose because the robot will rotate to the dock pose after detection.
+      dock_direction: "forward" # Whether the robot is docking with the dock forward or backward in motion. This is the replacement for the deprecated dock_backwards parameter. Options are “forward” or “backward”, with quotations.
+      rotate_to_dock: false #True enables backward docking without requiring a sensor for detection during the final approach. This may also be paired with sensor detection in the reverse direction as well if available. Note: This parameter is only valid when the dock_direction is set to “backward”.
+    
+    bin_dock: # For docking to a bin at a non-fixed location
+      plugin: 'opennav_docking::SimpleNonChargingDock'
+      use_battery_status: false
+      use_external_detection_pose: true
+      external_detection_timeout: 1000.0
+      filter_coef: 0.1
+      use_stall_detection: false #Can be used as input from a contact switch, but not yet used in simulation.
+      stall_effort_threshold: 1.0 #Leaving this empty breaks nav2 for some reason?????? 
+      stall_joint_names: ['drivewhl_l_joint', 'drivewhl_r_joint'] #Joint names to monitor for stall detection effort. Only used if use_stall_detection is true.
+      stall_velocity_threshold: 0.01 #Velocity threshold below which the robot is considered stalled when using stall detection.
+      docking_threshold: 0.05 #L2 distance in meters and radians to the dock pose at which to consider the robot docked when not using stall or battery detection.
+      staging_x_offset: -3.0
+      staging_yaw_offset: 0.0
+    #Trash bin settings
+      trash_bin.dock_direction: "backward"
+      trash_bin.rotate_to_dock: true
+      trash_bin.use_external_detection_pose: true
+      trash_bin.external_detection_translation_x: -1.0 #The rear camera is 0.66m from the rear of the bot; ideally the bot will back right up to the bin
+      trash_bin.external_detection_translation_y: 0.0
+      trash_bin.external_detection_rotation_roll: 1.5708
+      trash_bin.external_detection_rotation_pitch: -1.5708
+      trash_bin.external_detection_rotation_yaw: 0.0
+    #Recycle bin settings
+      recycle_bin.dock_direction: "backward"
+      recycle_bin.rotate_to_dock: true
+      recycle_bin.use_external_detection_pose: true
+      recycle_bin.external_detection_translation_x: -1.0 #The rear camera is 0.66m from the rear of the bot; ideally the bot will back right up to the bin
+      recycle_bin.external_detection_translation_y: 0.0
+      recycle_bin.external_detection_rotation_roll: 1.5708
+      recycle_bin.external_detection_rotation_pitch: -1.5708
+      recycle_bin.external_detection_rotation_yaw: 0.0
+    #Green bin settings
+      green_bin.dock_direction: "forward" #Forward for testing, normally "backward"
+      green_bin.rotate_to_dock: false #Forward for testing, normally true
+      green_bin.use_external_detection_pose: true
+      green_bin.external_detection_translation_x: -1.0 #The rear camera is 0.66m from the rear of the bot; ideally the bot will back right up to the bin
+      green_bin.external_detection_translation_y: 0.0
+      green_bin.external_detection_rotation_roll: 1.5708
+      green_bin.external_detection_rotation_pitch: -1.5708
+      green_bin.external_detection_rotation_yaw: 0.0
+
+    placement_dock: #For dropping off a bin next to the house or out on the curb
+      plugin: 'opennav_docking::SimpleNonChargingDock'
+      use_battery_status: false
+      external_detection_timeout: 1000.0
+      filter_coef: 0.1
+      use_stall_detection: false #Can be used as input from a contact switch, but not yet used in simulation.
+      stall_effort_threshold: 1.0 #Leaving this empty breaks nav2 for some reason??????
+      stall_joint_names: ['drivewhl_l_joint', 'drivewhl_r_joint'] #Joint names to monitor for stall detection effort. Only used if use_stall_detection is true.
+      stall_velocity_threshold: 0.01 #Velocity threshold below which the robot is considered stalled when using stall detection.
+      docking_threshold: 0.05
+
+    # Docks
+    #use_dock_id: true  #Not in kilted?#Easier to reference dock by id/name than by full pose, and allows for multiple docks with the same plugin but different poses. The dock id is specified in the dock database yaml file. This param is mentioned in the nav2 tutorials but not on the params page??????
+    dock_database: /home/indie/garbo_ws/src/garbo/config/docks.yaml
+
+
+    # Dock instances
+    #This doesn't throw errors.
+    #docks: ['home']  # Input your docks here. Plugin name cannot be the same as dock name.
+    #home:
+    #  type: 'home_dock'
+    #  frame: map
+    #  pose: [-5.0, 3.9, 0.0]
+    #  id: 'home'
+
+    controller:
+      beta: 0.4 #Parameter to reduce linear velocity proportional to path curvature. Increasing this linearly reduces the velocity (v(t) = v_max / (1 + beta * |curv|^lambda)).
+      k_phi: 3.0 #Ratio of the rate of change of angle relative to distance from the target. Much be > 0.
+      k_delta: 2.0 #Higher values result in converging to the target more quickly.
+      k_lambda: 2.0 #Parameter to reduce linear velocity proportional to path curvature. Increasing this exponentially reduces the velocity (v(t) = v_max / (1 + beta * |curv|^lambda)).
+      v_linear_min: 0.1 #Minimum linear velocity when approaching the dock. This should be set above the stall threshold of the robot to ensure it can overcome static friction and move towards the dock. The ideal value may require some experimentation, but a good starting point is around 0.15 m/s for a heavy robot. Adjust as needed based on testing to find the lowest velocity that still allows reliable movement towards the dock without stalling.
+      v_linear_max: 0.25 #Maximum linear velocity when approaching the dock. This can be set to the same value as v_linear_min for a consistent approach speed, or higher if you want the robot to move faster when it is farther from the dock. However, since precision is important in docking, especially as the robot gets closer, it may be best to keep this at the same value as v_linear_min or only slightly higher to ensure a controlled approach.
+      v_angular_max: 0.75 #Maximum angular velocity when approaching the dock. This should be set to allow the robot to turn towards the dock effectively without being too aggressive, which could cause overshooting or instability. A good starting point is around 0.5 rad/s, but this may need to be adjusted based on the robot's turning capabilities and the desired approach behavior.
+      slowdown_radius: 0.5 #Radius around the dock at which to start slowing down. This should be set based on the expected distance at which the robot needs to start reducing its speed to ensure a smooth and controlled approach to the dock. A good starting point is around 0.5 meters, but this may need to be adjusted based on testing and the specific dynamics of the robot.
+      rotate_to_heading_angular_vel: 1.0 #Angular velocity (rad/s) to rotate to the goal heading when rotate_to_dock is enabled.
+      rotate_to_heading_max_angular_accel: 3.2 #Max angular acceleration when rotating to the dock heading.
+      use_collision_detection: false #Whether to use collision detection to avoid obstacles.
+      costmap_topic: "local_costmap/costmap_raw" #Raw costmap topic for collision checking.
+      footprint_topic: "local_costmap/published_footprint" #Topic for footprint in the costmap frame. Footprint will change when bins are carried.
+      transform_tolerance: 0.1 #Time with which to post-date the transform that is published, to indicate that this transform is valid into the future.
+      projection_time: 5.0 #Time to look ahead for collisions (s).
+      simulation_step: 0.1 #Time step for projections (s).
+      dock_collision_threshold: 0.0 #The distance from the dock pose to ignore collisions. Set to 0.0 when the dock isn't physically contacted.

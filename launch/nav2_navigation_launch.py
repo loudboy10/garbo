@@ -33,6 +33,7 @@ def generate_launch_description() -> LaunchDescription:
     autostart = LaunchConfiguration('autostart')
     graph_filepath = LaunchConfiguration('graph')
     params_file = LaunchConfiguration('params_file')
+    docking_params_file = LaunchConfiguration('docking_params_file')
     use_composition = LaunchConfiguration('use_composition')
     container_name = LaunchConfiguration('container_name')
     container_name_full = (namespace, '/', container_name)
@@ -68,6 +69,16 @@ def generate_launch_description() -> LaunchDescription:
         allow_substs=True,
     )
 
+    docking_params = ParameterFile(
+        RewrittenYaml(
+            source_file=docking_params_file,
+            root_key=namespace,
+            param_rewrites=param_substitutions,
+            convert_types=True,
+        ),
+        allow_substs=True,
+    )
+
     stdout_linebuf_envvar = SetEnvironmentVariable(
         'RCUTILS_LOGGING_BUFFERED_STREAM', '1'
     )
@@ -86,6 +97,12 @@ def generate_launch_description() -> LaunchDescription:
         'params_file',
         default_value=os.path.join(bringup_dir, 'config', 'nav2_params.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes',
+    )
+
+    declare_docking_params_file_cmd = DeclareLaunchArgument(
+        'docking_params_file',
+        default_value=os.path.join(bringup_dir, 'config', 'docking_params.yaml'),
+        description='Full path to the ROS2 Nav2 docking parameters file to use for docking server node',
     )
 
     declare_graph_file_cmd = DeclareLaunchArgument(
@@ -230,7 +247,8 @@ def generate_launch_description() -> LaunchDescription:
                 output='screen',
                 respawn=use_respawn,
                 respawn_delay=2.0,
-                parameters=[configured_params],
+                #parameters=[configured_params],
+                parameters=[docking_params],
                 arguments=['--ros-args', '--log-level', log_level],
                 remappings=remappings + [('cmd_vel', 'cmd_vel_docking')],
                 ),
@@ -319,7 +337,8 @@ def generate_launch_description() -> LaunchDescription:
                         package='opennav_docking',
                         plugin='opennav_docking::DockingServer',
                         name='docking_server',
-                        parameters=[configured_params],
+                        #parameters=[configured_params],
+                        parameters=[docking_params],
                         remappings=remappings + [('cmd_vel', 'cmd_vel_docking')],
                     ),
                     ComposableNode(
@@ -345,6 +364,7 @@ def generate_launch_description() -> LaunchDescription:
     ld.add_action(declare_namespace_cmd)
     ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(declare_params_file_cmd)
+    ld.add_action(declare_docking_params_file_cmd)
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_graph_file_cmd)
     ld.add_action(declare_use_composition_cmd)

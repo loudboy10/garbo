@@ -36,8 +36,8 @@ def generate_launch_description():
     bridge_config_path = os.path.join(pkg_share, "config", "bridge_config.yaml")
 
 #Variables
-    camera_frame_type = LaunchConfiguration("camera_frame_type")
-    camera_namespace = LaunchConfiguration("camera_namespace")
+    camera_frame_type = LaunchConfiguration("camera_frame_type") #Used by original dock detector node
+    camera_namespace = LaunchConfiguration("camera_namespace") #Used by original dock detector node
     #tag_family = LaunchConfiguration("tag_family")
     #tag_id = LaunchConfiguration("tag_id")
 
@@ -124,7 +124,7 @@ def generate_launch_description():
                     #("image_rect", "rear_camera/image_rect"),
                 ],
             ),
-            ComposableNode( #maybe useful for repositioning the pointscloud image, but no idea how. 
+            ComposableNode( #may be useful for repositioning the pointscloud image, but no idea how. 
                     package="depth_image_proc",
                     plugin="depth_image_proc::PointCloudXyzrgbNode",
                     name="point_cloud_xyzrgb_node",
@@ -160,17 +160,26 @@ def generate_launch_description():
 #           )
         ]
     )
+    #Original detector version
     start_detected_dock_pose_publisher = Node(
         package="garbo",
         executable="detected_dock_pose_publisher",
         parameters=[{
             "use_sim_time": True,
-            "parent_frame": [camera_namespace, TextSubstitution(text=""), camera_frame_type],
-            "child_frame": "home",
-            "publish_rate": 10.0
+            #"parent_frame": [camera_namespace, TextSubstitution(text=""), camera_frame_type],
+            #"child_frame": "home",
+            #"publish_rate": 10.0
         }],
         output="screen"
     )
+#T23CHIN6 detector version
+#    start_dock_pose_publisher_node = Node(
+#        package="garbo", #"docking_demo"
+#        executable="dock_pose_publisher",
+#        name="dock_pose_publisher",
+#        parameters=[{"use_sim_time": True}],
+#        output="screen",
+#    )
     gz_server = GzServer(                   #Moved near the end to help solve a race condition where TF wasnt fully loaded before the sim started.
         world_sdf_file=world_path,
         container_name="ros_gz_container",
@@ -227,7 +236,7 @@ def generate_launch_description():
         }.items(),
     )
 
-#Beginning of new code addition for lidar initialization
+#Beginning of new code addition for lidar initialization. This was needed to correct issues with Gazebo loading out of sequence.
        # === NEW: Force lidar entity initialization after spawn ===
     force_lidar_init = ExecuteProcess(
         cmd=["gz", "model", "-m", "garbo", "-l", "lidar_link"],
@@ -249,6 +258,7 @@ def generate_launch_description():
     ld.add_action(declare_tag_family_cmd)
     ld.add_action(declare_tag_id_cmd)
     ld.add_action(start_detected_dock_pose_publisher)
+#    ld.add_action(start_dock_pose_publisher_node)
 
     return LaunchDescription([
         DeclareLaunchArgument(name="model", default_value=default_model_path, description="Absolute path to robot model file"),
@@ -261,9 +271,9 @@ def generate_launch_description():
         twist_mux,
         apriltag_node,
         container, #image_proc
-        ld, #Dock detector
         gz_server,
         ros_gz_bridge,
+        ld, #Dock detector
 #        depth_camera_bridge_image,
 #        depth_camera_bridge_depth,
 #        depth_camera_bridge_points,

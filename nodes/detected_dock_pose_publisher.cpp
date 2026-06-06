@@ -62,7 +62,7 @@ public:
   {
     // Declare parameters with default values and documentation
     this->declare_parameter("parent_frame", "depth_camera_optical_frame");
-    this->declare_parameter("child_frame", "home");
+    this->declare_parameter("child_frame", "green_bin_ID"); // Default to the green bin tag name (NOT THE DOCK NAME!), can be overridden for other tags
     this->declare_parameter("publish_rate", 10.0);  // Hz
 
     // Get the values of our parameters
@@ -106,7 +106,7 @@ private:
     geometry_msgs::msg::PoseStamped dock_pose;
     // Set the timestamp to now
     dock_pose.header.stamp = this->get_clock()->now();
-    // The frame ID should match the frame we want the pose expressed in
+    // The frame ID sculd match the frame we want the pose expressed in
     dock_pose.header.frame_id = parent_frame_;
 
     try {
