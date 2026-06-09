@@ -1,6 +1,6 @@
 
 
-#Configuration file for nav2 navigation and docking
+#Configuration file for nav2 navigation
 #https://github.com/ros-navigation/navigation2/blob/kilted/nav2_bringup/params/nav2_params.yaml
 
 #To-Do
@@ -149,7 +149,7 @@ controller_server:
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.125 #Default 0.25. Changes precision of navigation goals. Increase to allow the robot to consider itself at the goal even if it's a bit off, which can help with navigation success, especially in tight spaces or with less precise localization. Decrease for more precise navigation, but be aware that it may lead to more navigation failures if the robot has trouble getting within the tighter tolerance.
       yaw_goal_tolerance: 0.125 #Default 0.25 #Change this if bot is jittery once it reaches the goal
-      path_length_tolerance: 1.0 #Distance along the path that the robot can be from the goal and still be considered to have reached it. This is important for getting close enough to the goal when precise navigation is difficult, such as when docking or navigating to a small target. Adjust this based on the expected precision of the robot's navigation and the size of the target.
+      path_length_tolerance: 0.5 #Distance along the path that the robot can be from the goal and still be considered to have reached it. This is important for getting close enough to the goal when precise navigation is difficult, such as when docking or navigating to a small target. Adjust this based on the expected precision of the robot's navigation and the size of the target.
       symmetric_yaw_tolerance: false #For onmibots with no true front.
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController" #This smoothly rolls out and turns towards goal, compute heavy. Try using rotation shim control which is easy point-n-shoot

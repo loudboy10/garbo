@@ -61,14 +61,19 @@ public:
   : Node("detected_dock_pose_publisher")
   {
     // Declare parameters with default values and documentation
-    this->declare_parameter("parent_frame", "depth_camera_optical_frame");
-    this->declare_parameter("child_frame", "green_bin_ID"); // Default to the green bin tag name (NOT THE DOCK NAME!), can be overridden for other tags
+    this->declare_parameter("parent_frame", "map"); //Originally "depth_camera_optical_frame" but changed so that the dock pose would stay constant if visual lock was lost.
+    this->declare_parameter("child_frame", "home_ID"); // Default to the tag_ID name (NOT THE DOCK NAME!), can be overridden for other tags
     this->declare_parameter("publish_rate", 10.0);  // Hz
 
     // Get the values of our parameters
     parent_frame_ = this->get_parameter("parent_frame").as_string();
     child_frame_ = this->get_parameter("child_frame").as_string();
     double publish_rate = this->get_parameter("publish_rate").as_double();
+
+    //Register the parameter callback
+    param_callback_handle_ = this->add_on_set_parameters_callback(
+      std::bind(&DetectedDockPosePublisher::paramCallback, this, std::placeholders::_1));
+
 
     // Create a transform buffer to store and look up transforms
     tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -92,6 +97,38 @@ public:
   }
 
 private:
+
+  //Callback function to handle parameter changes
+  rcl_interfaces::msg::SetParametersResult paramCallback(
+    const std::vector<rclcpp::Parameter> & parameters)
+  {
+    rcl_interfaces::msg::SetParametersResult result;
+    result.successful = true;
+    result.reason = "";
+
+    for (const auto & param : parameters)
+    {
+      if (param.get_name() == "child_frame")
+      {
+        if (param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
+        {
+          child_frame_ = param.as_string();
+          RCLCPP_INFO(this->get_logger(), "Updated child_frame to: '%s'", child_frame_.c_str());
+        }
+        else
+        {
+          result.successful = false;
+          result.reason = "child_frame must be a string";
+        }
+      }
+    }
+    return result;
+  }
+
+  std::string child_frame_;
+  OnSetParametersCallbackHandle::SharedPtr param_callback_handle_;
+
+
   /**
    * @brief Timer callback that publishes the latest dock pose
    *
@@ -106,7 +143,7 @@ private:
     geometry_msgs::msg::PoseStamped dock_pose;
     // Set the timestamp to now
     dock_pose.header.stamp = this->get_clock()->now();
-    // The frame ID sculd match the frame we want the pose expressed in
+    // The frame ID should match the frame we want the pose expressed in
     dock_pose.header.frame_id = parent_frame_;
 
     try {
@@ -138,7 +175,7 @@ private:
 
   // Frame names from parameters
   std::string parent_frame_; ///< Name of the camera frame
-  std::string child_frame_;  ///< Name of the AprilTag frame
+  //Already declared at line 128:   std::string child_frame_;  ///< Name of the AprilTag frame
 
   // ROS infrastructure
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;        ///< Buffer for storing transforms

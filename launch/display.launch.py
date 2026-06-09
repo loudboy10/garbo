@@ -167,7 +167,7 @@ def generate_launch_description():
         parameters=[{
             "use_sim_time": True,
             #"parent_frame": [camera_namespace, TextSubstitution(text=""), camera_frame_type],
-            #"child_frame": "home",
+            "child_frame": "home_ID", #decleared here so that it can be updated by the apriltag node to match the tag family and id being used. This allows the same dock detector node to be used regardless of the specific tag being used, as long as the apriltag node is configured correctly.
             #"publish_rate": 10.0
         }],
         output="screen"

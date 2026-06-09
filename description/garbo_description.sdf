@@ -442,7 +442,7 @@
         <camera>
           <optical_frame_id>depth_camera_optical_frame</optical_frame_id>
           <camera_info_topic>depth_camera/camera_info</camera_info_topic>
-          <horizontal_fov>1.047</horizontal_fov>
+          <horizontal_fov>1.25</horizontal_fov>
           <image>
             <width>640</width>
             <height>480</height>
