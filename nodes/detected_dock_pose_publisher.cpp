@@ -1,4 +1,5 @@
-/**
+/**CLI command: ros2 param set detected_dock_pose_publisher child_frame green_bin_ID
+ * 
  * @file detected_dock_pose_publisher.cpp
  * @brief Publishes the pose of an AprilTag located on/near a docking station
  *

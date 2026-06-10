@@ -21,7 +21,7 @@
 #--It may be too computationally expensive to use the full rectangular footprint in global_costmap. Would need to find solution to move robot radius to center (currently at base-link)
 #-Added initial pose settings under amcl
 #-Velocity smoother: increased max velocity
-#-Reduced obstacle_max_range to 1.0 in both costmaps to eliminate lidar/ramp issue
+#-XXXXXXXReduced obstacle_max_range to 1.0 in both costmaps to eliminate lidar/ramp issue. XXXX Reset because I've stopped messing with the ramp for now.
 #-Reduced costmap resolution for easier compute.
 
 amcl:
@@ -89,7 +89,7 @@ bt_navigator:
       plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator"
       enable_groot_monitoring: false
       groot_server_port: 1669
-    # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
+    # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' use defaults:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
     # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
@@ -124,7 +124,7 @@ controller_server:
     failure_tolerance: 1.0 #Seconds to wait for the controller plugin to recover before the action fails. Default 0.0 for disable, -1.0 for infinite
     publish_zero_velocity: true #Whether to publish a zero velocity command on goal exit. This is useful for stopping the robot when a goal terminates
     progress_checker_plugins: ["progress_checker"]
-    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    goal_checker_plugins: ["general_goal_checker"] #, "axis_goal_checker"] Need to upgrade to Lyrical for this to work.
     controller_plugins: ["FollowPath"]
     use_realtime_priority: false
     speed_limit_topic: "speed_limit" #For use by the Speed Filter, if used.
@@ -139,11 +139,12 @@ controller_server:
       required_movement_radius: 0.5
       movement_time_allowance: 10.0
     # Goal checker parameters
-    #precise_goal_checker:
-    #  plugin: "nav2_controller::SimpleGoalChecker"
-    #  xy_goal_tolerance: 0.25
-    #  yaw_goal_tolerance: 0.25 #Change this if bot is jittery once it reaches the goal
-    #  stateful: true
+    #axis_goal_checker: #Need to upgrade to Lyrical for this to work.
+      #plugin: "nav2_controller::AxisGoalChecker"
+      #along_path_tolerance: 0.125 #Default 0.25 Tolerance for the projected distance along the path direction. This checks how far ahead or behind the goal the robot is when projected onto the path axis.
+      #cross_track_tolerance: 0.125 #Default 0.25 Tolerance for the distance perpendicular to the path direction. This checks how far off to the side of the path the robot is.
+      #path_length_tolerance: 0.5 #Default 1.0 Maximum path length to consider for goal checking. If the remaining path length exceeds this value, the goal check is skipped. This prevents premature goal acceptance when far from the goal.
+      #is_overshoot_valid: false #Whether to allow overshooting past the goal along the path direction. When false (default), uses fabs(projected_distance) < along_path_tolerance for symmetric tolerance. When true, uses projected_distance < along_path_tolerance, allowing the robot to be any distance past the goal but still requiring it to be within tolerance if before the goal.
     general_goal_checker:
       stateful: true
       plugin: "nav2_controller::SimpleGoalChecker"
@@ -268,7 +269,7 @@ local_costmap:
       #robot_radius: 0.22
       footprint: "[ [0.573, 0.25], [0.573, -0.25], [-0.127, -0.25], [-0.127, 0.25] ]" #FL, FR, RL, RR corners in meters from base_link (x-longitudinal, y-transverse offset)
       subscribe_to_stamped_footprint: false #Uses PolygonStamped messages instead of Polygon. Useful for carrying bins?      
-      plugins: ["obstacle_layer","denoise_layer","inflation_layer"] #, "voxel_layer" Add back once Pointcloud is sorted
+      plugins: ["obstacle_layer","denoise_layer","inflation_layer", "voxel_layer"] 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -281,7 +282,7 @@ local_costmap:
           max_obstacle_height: 2.0 #How in hell does a lidar know a height??????
           raytrace_max_range: 3.0
           raytrace_min_range: 0.0 #Increase to eliminate hits on the robot body itself
-          obstacle_max_range: 2.5 #Default 2.5. Reduce to 1m to ignore ramp
+          obstacle_max_range: 2.5 #Default 2.5. Reduce to 1m to ignore ramp incline
           obstacle_min_range: 0.0 #Increase to match hits on the robot body itself
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
@@ -305,7 +306,7 @@ local_costmap:
           marking: true
           raytrace_max_range: 3.0
           raytrace_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
-          obstacle_max_range: 1.0 #Default 2.5. Reduced to ignore ramp
+          obstacle_max_range: 2.5 #Default 2.5. Reduce to ignore ramp incline
           obstacle_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
       denoise_layer: #Could be a heavy compute load
         plugin: "nav2_costmap_2d::DenoiseLayer"
@@ -338,7 +339,7 @@ global_costmap:
       footprint: "[ [0.573, 0.25], [0.573, -0.25], [-0.127, -0.25], [-0.127, 0.25] ]" #FL, FR, RL, RR corners in meters from base_link (x-longitudinal, y-transverse offset)
       footprint_padding: 0.01 #Buffer around the physical footprint
       subscribe_to_stamped_footprint: false #Uses PolygonStamped messages instead of Polygon. Useful for carrying bins?
-      plugins: ["static_layer","obstacle_layer","inflation_layer"] #, "voxel_layer Add voxel back once PointCloud is sorted.  
+      plugins: ["static_layer","obstacle_layer","inflation_layer", "voxel_layer"] 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -351,7 +352,7 @@ global_costmap:
           max_obstacle_height: 2.0 #How in hell does a lidar know a height??????
           raytrace_max_range: 3.0
           raytrace_min_range: 0.2 #Increase to match hits on the robot body itself
-          obstacle_max_range: 1.0 #Default 2.5. Reduced to ignore ramp
+          obstacle_max_range: 2.5 #Default 2.5. Reduce to ignore ramp incline
           obstacle_min_range: 0.2 #Increase to match hits on the robot body itself
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -379,7 +380,7 @@ global_costmap:
           marking: true
           raytrace_max_range: 3.0
           raytrace_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0
-          obstacle_max_range: 2.5 #Default 2.5. Reduced to ignore ramp
+          obstacle_max_range: 2.5 #Default 2.5. Reduce to ignore ramp incline
           obstacle_min_range: 0.05 #Filters out noise right in front of the camera. Default 0.0       
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -565,7 +566,7 @@ collision_monitor:
 #      type: "scan"
 #      topic: "/scan"
 #      enabled: true
-    pointcloud: #Remapped from DepthCloud.
+    pointcloud: #Remapped from DepthCloud because Gazebo is whack
       type: "pointcloud2"
       topic: "/depth_camera/points_remap"
       min_height: 0.05
@@ -587,7 +588,7 @@ loopback_simulator:
     scan_angle_increment: 0.02617
     scan_use_inf: true
 
-#lifecycle_manager_localization: #Adding this to increase the bond timer.
+#lifecycle_manager_localization: #Adding this to increase the bond timer. #This is commented-out as default from Nav2. Havent looked into why though.
 #  ros__parameters:
 #    use_sim_time: false
 #    autostart: true

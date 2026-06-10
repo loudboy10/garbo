@@ -21,7 +21,6 @@ from ros_gz_sim.actions import GzServer
 from launch import LaunchDescription
 
 
-
 def generate_launch_description():
     
     pkg_share = get_package_share_directory("garbo")
@@ -61,8 +60,6 @@ def generate_launch_description():
         default_value="0",
         description="ID of the AprilTag being used"
     )
-
-
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -166,21 +163,14 @@ def generate_launch_description():
         executable="detected_dock_pose_publisher",
         parameters=[{
             "use_sim_time": True,
-            #"parent_frame": [camera_namespace, TextSubstitution(text=""), camera_frame_type],
+            "parent_frame": [camera_namespace, TextSubstitution(text=""), camera_frame_type],
             "child_frame": "home_ID", #decleared here so that it can be updated by the apriltag node to match the tag family and id being used. This allows the same dock detector node to be used regardless of the specific tag being used, as long as the apriltag node is configured correctly.
-            #"publish_rate": 10.0
+            "publish_rate": 10.0
         }],
         output="screen"
     )
-#T23CHIN6 detector version
-#    start_dock_pose_publisher_node = Node(
-#        package="garbo", #"docking_demo"
-#        executable="dock_pose_publisher",
-#        name="dock_pose_publisher",
-#        parameters=[{"use_sim_time": True}],
-#        output="screen",
-#    )
-    gz_server = GzServer(                   #Moved near the end to help solve a race condition where TF wasnt fully loaded before the sim started.
+
+    gz_server = GzServer(  #Moved near the end to help solve a race condition where TF wasnt fully loaded before the sim started.
         world_sdf_file=world_path,
         container_name="ros_gz_container",
         create_own_container="True",
@@ -194,6 +184,7 @@ def generate_launch_description():
         create_own_container="False",
         use_composition="True",
     )
+    #Keeping in case use changes. The original plan was to use the image bridge for the depth camera, but it was easier to use the parameter bridge for the pointscloud topic. The image bridge is still needed for the rear camera since it doesn't have a pointscloud topic.
 #    depth_camera_bridge_image = Node(
 #        package="ros_gz_image",
 #        executable="image_bridge",
@@ -218,6 +209,7 @@ def generate_launch_description():
 #        parameters=[{"use_sim_time": True}],
 #        arguments=["/depth_camera/depth/color/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked"],
 #    )
+#Not yet implemented.
 #    rear_camera_bridge_image = Node(
 #        package="ros_gz_image",
 #        executable="image_bridge",
@@ -258,12 +250,11 @@ def generate_launch_description():
     ld.add_action(declare_tag_family_cmd)
     ld.add_action(declare_tag_id_cmd)
     ld.add_action(start_detected_dock_pose_publisher)
-#    ld.add_action(start_dock_pose_publisher_node)
 
     return LaunchDescription([
         DeclareLaunchArgument(name="model", default_value=default_model_path, description="Absolute path to robot model file"),
         DeclareLaunchArgument(name="rvizconfig", default_value=default_rviz_config_path, description="Absolute path to rviz config file"),
-        #DeclareLaunchArgument(name="use_sim_time", default_value="True", description="Flag to enable use_sim_time"),
+        DeclareLaunchArgument(name="use_sim_time", default_value="True", description="Flag to enable use_sim_time"),
         ExecuteProcess(cmd=["gz", "sim", "-g"], output="screen"),
         robot_state_publisher_node,
         rviz_node,
