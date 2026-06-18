@@ -60,7 +60,6 @@ def generate_launch_description():
         default_value="0",
         description="ID of the AprilTag being used"
     )
-
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -101,7 +100,17 @@ def generate_launch_description():
             #("/camera_info", "/depth_camera/camera_info")
         ],
         parameters=[apriltag_config_path, {"use_sim_time": True}],
-    )   
+    )
+    #Apriltag landmark static transform publisher
+    #Works fine but not sure how to use it????
+    #landmark_publisher_node = Node(
+    #    package='tf2_ros',
+    #        executable='static_transform_publisher',
+    #        name='landmark_publisher',
+    #        arguments=[('5.0', '2.5', '0.66', '0', '0', '3.1416', 'map', 'placement_dock'), '-5.0', '3.9', '0.66', '0', '0', '-1.5708', 'map', 'home'], #should it be placement_dock_ID and home_ID to match apriltag.yaml?
+    #        output='screen'
+    #    )
+
     #https://docs.ros.org/en/kilted/p/image_proc/doc/tutorials.html#launch-image-proc-components 
     container = ComposableNodeContainer(
         name="image_proc_container",
@@ -157,7 +166,7 @@ def generate_launch_description():
 #           )
         ]
     )
-    #Original detector version
+    #Apriltag dock pose publisher
     start_detected_dock_pose_publisher = Node(
         package="garbo",
         executable="detected_dock_pose_publisher",
@@ -261,6 +270,7 @@ def generate_launch_description():
         robot_localization_node,
         twist_mux,
         apriltag_node,
+#        landmark_publisher_node,
         container, #image_proc
         gz_server,
         ros_gz_bridge,

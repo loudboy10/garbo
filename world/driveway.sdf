@@ -331,7 +331,7 @@
     </model>
 
     <model name='trash_bin'>
-      <pose>5 0.5 0.45 0 0 0</pose>
+      <pose>2 2.75 0.45 0 0 0</pose>
       <link name='box_link'>
         <inertial>
           <inertia>
@@ -382,9 +382,9 @@
         <uri>model://Apriltag36_11_00001</uri>
       </include>
     </model>
-
+<!--
     <model name='recycle_bin'>
-      <pose>5 0 0.5 0 0 0</pose>
+      <pose>2 2.25 0.5 0 0 0</pose>
       <link name='box_link'>
         <inertial>
           <inertia>
@@ -430,12 +430,12 @@
       <self_collide>false</self_collide>
       <include>
         <name>recycle_bin_tag</name>
-        <pose>0.25 0 0.145 1.5708 0 1.5708</pose> <!--Placed on front of bin, 0.645m off the ground to match cameras-->
+        <pose>0.25 0 0.145 1.5708 0 1.5708</pose> --><!--Placed on front of bin, 0.645m off the ground to match cameras--><!--
         <static>true</static>
         <uri>model://Apriltag36_11_00002</uri>
       </include>
     </model>
-
+-->
     <model name='green_bin'>
       <pose>6 -5 0.5 0 0 1.5708 </pose>
       <link name='box_link'>
@@ -518,10 +518,17 @@
     </include>
 
     <include>
-      <name>placement_dock</name> <!--This one tag will be used as a reference to place both trash and recycle bin.-->
-      <pose>7.0 0.5 0.66 1.5708 0 -1.5708</pose>  <!--In front of bot 1.878 0 0.645 1.5708 0 -1.5708  Original reference tag 7 .5 0.66 1.5708 0 -1.5708-->
+      <name>trash_return_dock</name> <!--This one tag will be used as a reference to place both trash and recycle bin.-->
+      <pose>1.5 2.75 0.66 1.5708 0 1.5708</pose>  <!--In front of bot 1.878 0 0.645 1.5708 0 -1.5708  Original reference tag 7 .5 0.66 1.5708 0 -1.5708-->
       <static>true</static>
       <uri>model://Apriltag36_11_00004</uri>
+    </include>
+
+        <include>
+      <name>recycle_return_dock</name> <!--This one tag will be where the recycle can is returned to.-->
+      <pose>1.5 1.75 0.66 1.5708 0 1.5708</pose> <!--Behind the trash bin by 0.25m(x), at camera level(z), facing forward.-->
+      <static>true</static>
+      <uri>model://Apriltag36_11_00005</uri>
     </include>
     
   </world>

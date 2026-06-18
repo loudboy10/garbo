@@ -1,4 +1,5 @@
 ### ekf config file ###
+# https://github.com/cra-ros-pkg/robot_localization/blob/kilted-devel/params/ekf.yaml
 ekf_node:
     ros__parameters:
 # The frequency, in Hz, at which the filter will output a position estimate. Note that the filter will not begin
@@ -30,8 +31,9 @@ ekf_node:
         map_frame: map              # Defaults to "map" if unspecified
         odom_frame: odom            # Defaults to "odom" if unspecified
         base_link_frame: base_link  # Defaults to "base_link" if unspecified
-        world_frame: odom           # Defaults to the value of odom_frame if unspecified
+        world_frame: odom #map for pose0           # Defaults to the value of odom_frame if unspecified
         
+        #Wheel encoder data from Gazebo via bridge
         odom0: demo/odom
         odom0_config: [false, false, false,
                        false, false, false,
@@ -39,9 +41,20 @@ ekf_node:
                        false, false, true,
                        false, false, false]
 
+        #IMU data from Gazebo via bridge
         imu0: demo/imu
         imu0_config: [false, false, false,
                       false, false, false,
                       false, false, false,
                       false, false, true,
                       false, false, false]
+
+        # AprilTag data from detected_dock_pose_publisher node
+        #pose0: /EKF_dock_pose
+        #pose0_config: [true,  true,  false, # X, Y, Z
+        #               false, false, true,  # Roll, Pitch, Yaw
+        #               false, false, false, # Vx, Vy, Vz
+        #               false, false, false, # V_roll, V_pitch, V_yaw
+        #               false, false, false] # Accel
+        #pose0_relative: false # Absolute pose (true for relative, false for absolute)?????????
+        #pose0_differential: false # Set to true if you only want to use the tag for velocity/deltas

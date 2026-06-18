@@ -1,30 +1,33 @@
 #CLI command: ros2 action send_goal /dock_robot nav2_msgs/action/DockRobot "{use_dock_id: true, dock_id: 'green_bin'}" --feedback
+            # ros2 param set /detected_dock_pose_publisher child_frame green_bin_ID
+#Most up-to-date docs   https://github.com/ros-navigation/navigation2/tree/kilted/nav2_docking
 
+
+#Parameters for the docking_server component of Nav2. Not included in the bulk Nav2 params for clarity.
 docking_server:
   ros__parameters:
     autostart_node: false #added for testing param dump. This should be set to true in the launch file to enable automatic docking on startup.
-    bond_heartbeat_period: 0.25 #Added for testing param dump
     use_sim_time: true
     global_frame: "map"
     base_frame: "base_link" #Robot’s base frame for control law.
-    fixed_frame: "odom" #Fixed frame to use, recommended to be a smooth odometry frame not map.
+    fixed_frame: "odom" #Fixed frame to use. Uses odom instead of map because the local relative location is more significant than the overall global position.
     odom_topic: "odom" #The topic to use for the odometry data when rotate_to_dock is enabled.
-    controller_frequency: 50.0 #Control frequency for vision-control loop. Good luck getting this running fast enough with Gazebo and depth camera
-    enable_stamped_cmd_vel: true # Manually added parameter
-    initial_perception_timeout: 5.0 #Timeout (s) to wait to obtain initial perception of the dock.
+    controller_frequency: 25.0 #Default 50.0 Control frequency for vision-control loop. Good luck getting this running fast enough with Gazebo and depth camera
+    enable_stamped_cmd_vel: true # Manually added parameter. Now also default in Kilted
+    initial_perception_timeout: 20.0 #Default 5.0 Timeout (s) to wait to obtain initial perception of the dock.
     wait_charge_timeout: 5.0 #Timeout in seconds to wait to see if charging starts after docking. Only used if use_battery_status is true to detect successful docking.
-    dock_approach_timeout: 30.0 #Timeout (s) to attempt vision-control approach loop.
-    rotate_to_dock_timeout: 10.0 #Timeout (s) to attempt rotate-to-dock loop, if enabled.
+    dock_approach_timeout: 60.0 #Timeout (s) to attempt vision-control approach loop.
+    rotate_to_dock_timeout: 60.0 #Timeout (s) to attempt rotate-to-dock loop, if enabled.
     undock_linear_tolerance: 0.05 #Tolerance (m) to exit the undocking control loop at staging pose.
     undock_angular_tolerance: 0.1 #Angular tolerance (rad) to exit undocking loop at staging pose.
     max_retries: 3 #Maximum number of retries to attempt for the entire docking procedure before giving up and reporting failure. Four total.
-    rotation_angular_tolerance: 0.05 #Angular tolerance (rad) to exit the rotation loop when rotate_to_dock is enabled
+    rotation_angular_tolerance: 0.05 #Default 0.05 Angular tolerance (rad) to exit the rotation loop when rotate_to_dock is enabled
     dock_prestaging_tolerance: 0.5 #L2 distance in X,Y,Theta from the staging pose to bypass navigation.
     navigator_bt_xml: "" # Behavior Tree to use other than default.
     introspection_mode: "disabled"
 
-    # Types of docks
-    dock_plugins: ['home_dock', 'bin_dock', 'curb_dock', 'return_dock'] #Types of docks to be used. The plugin to use for each dock is set in the dock_database yaml file. Each dock can have its own plugin and parameters, but they are grouped here for organizational purposes since they share many parameters.
+    # Types of docks    Unfortunately similar docks cannot have different external_translations under the same plugin, so now each more plugins are added to handle the variations of return docks referencing an AprilTag.
+    dock_plugins: ['home_dock', 'bin_pickup_dock', 'bin_dropoff_dock', 'trash_return_dock', 'recycle_return_dock', 'green_return_dock'] #Types of docks to be used. The plugin to use for each dock is set in the dock_database yaml file. Each dock can have its own plugin and parameters, but they are grouped here for organizational purposes since they share many parameters.
     
     home_dock: # The home-base charging dock
       plugin: 'opennav_docking::SimpleChargingDock'
@@ -42,16 +45,15 @@ docking_server:
       dock_direction: "forward" # Whether the robot is docking with the dock forward or backward in motion. This is the replacement for the deprecated dock_backwards parameter. Options are “forward” or “backward”, with quotations.
       rotate_to_dock: false #True enables backward docking without requiring a sensor for detection during the final approach. This may also be paired with sensor detection in the reverse direction as well if available. Note: This parameter is only valid when the dock_direction is set to “backward”.
       #If dock_direction is set to “backward”, this angle must be faced in the opposite direction of the dock pose. However, if rotate_to_dock is enabled, this angle must be facing the same direction as the dock pose because the robot will rotate to the dock pose after detection.
-      use_external_detection_pose: true #Whether to use external detection topic for dock or use the databases’ pose.
+      use_external_detection_pose: true #Whether to use external detection topic for dock or use the databases’ pose. Externals come from detected_dock_pose_publisher node.
       external_detection_timeout: 3.0 #Default 1.0 Time (s) to wait without receiving a new detection before considering the detection lost and timing out the approach.
-      home.external_detection_translation_x: -1.0 #External translations must be set at the plugin level.
-      home2.external_detection_translation_x: -4.0 #External translations must be set at the plugin level.
+      external_detection_translation_x: -1.0 #External translations must be set at the plugin level.
       external_detection_translation_y: 0.0
       external_detection_rotation_roll: -1.5708
       external_detection_rotation_pitch: 1.5708
       external_detection_rotation_yaw: 0.0
 
-    bin_dock: # For docking to a bin at a non-fixed location. Location is defined initially but will need to be saved when moved.
+    bin_pickup_dock: # For docking to a bin itself
       plugin: 'opennav_docking::SimpleNonChargingDock'
       use_battery_status: false
       filter_coef: 0.1
@@ -72,7 +74,7 @@ docking_server:
       external_detection_rotation_pitch: 1.5708
       external_detection_rotation_yaw: 0.0
 
-    curb_dock: # For dropping the bins off at the curb. Maybe put a tag on the back of each bin as well so that the bins can be placed next to each other accurately.
+    bin_dropoff_dock: # For dropping the bins off at the curb. Maybe put a tag on the back of each bin as well so that the bins can be placed next to each other accurately.
       plugin: 'opennav_docking::SimpleNonChargingDock'
       use_battery_status: false
       filter_coef: 0.1
@@ -87,14 +89,51 @@ docking_server:
       dock_direction: "forward" #Forward because the bot just drives forward into the spot, drops the bin, then pulls away forward before turning around.
       #*Undock_direction: "forward"* Sudo-param reminder for when Behavior Trees are set up. 
       use_external_detection_pose: false #Since this dock is based on a global pose and not an Apriltag, we won't use external detection to adjust the pose. The bot will just navigate to this pose and assume it's correct.
+
+    trash_return_dock: #For returning the trash bin to its starting position next to the house, based on an Apriltag signpost.
+    #The robot will stage facing the AprilTag 'placement_dock'(in driveway.sdf) as it would for a normal dock, then back into location based on external_translations.
+      plugin: 'opennav_docking::SimpleNonChargingDock'
+      use_battery_status: false
+      filter_coef: 0.1
+      use_stall_detection: false
+      stall_effort_threshold: 1.0
+      stall_joint_names: ['drivewhl_l_joint', 'drivewhl_r_joint']
+      stall_velocity_threshold: 0.01
+      docking_threshold: 0.05
+      staging_x_offset: -2.0
+      staging_yaw_offset: 0.0
+      rotate_to_dock: true # After staging, spin 180 and back in blindly
+      dock_direction: "backward" #Back into the spot as defined by external_detections
+      use_external_detection_pose: true
       external_detection_timeout: 3.0
-      external_detection_translation_x: 0.0
+      external_detection_translation_x: -0.902 # = -1*((gap between dock and rear of the bin) + (bin depth box_size_x) + (distance from base_link_x to rear of chassis) + (any desired gap between bot and bin)) = -1*(0.325 + 0.35 + 0.127 + 0.1) = -.902 meters in front of the dock (dock -x direction)
       external_detection_translation_y: 0.0
-      external_detection_rotation_roll: 0.0
-      external_detection_rotation_pitch: 0.0
+      external_detection_rotation_roll: -1.5708
+      external_detection_rotation_pitch: 1.5708
       external_detection_rotation_yaw: 0.0
 
-    return_dock: #For dropping off a bin at the house
+    recycle_return_dock: #For returning the recycle bin to its starting position next to the house, based on an Apriltag signpost.
+      plugin: 'opennav_docking::SimpleNonChargingDock'
+      use_battery_status: false
+      filter_coef: 0.1
+      use_stall_detection: false
+      stall_effort_threshold: 1.0
+      stall_joint_names: ['drivewhl_l_joint', 'drivewhl_r_joint']
+      stall_velocity_threshold: 0.01
+      docking_threshold: 0.025
+      staging_x_offset: -2.0
+      staging_yaw_offset: 0.0
+      rotate_to_dock: true #Forward for testing, normally true
+      dock_direction: "backward" #Forward for testing, normally "backward"
+      use_external_detection_pose: true
+      external_detection_timeout: 3.0
+      external_detection_translation_x: -0.977 # = -1*((gap between dock and rear of the bin) + (bin depth box_size_x) + (distance from base_link_x to rear of chassis) + (any desired gap between bot and bin)) = -1*(0.25 + 0.5 + 0.127 + 0.1) = -0.977 meters in front of the dock (dock -x direction)
+      external_detection_translation_y: 0.0
+      external_detection_rotation_roll: -1.5708
+      external_detection_rotation_pitch: 1.5708
+      external_detection_rotation_yaw: 0.0
+
+    green_return_dock: #For returning the green bin to its starting position, which is not based on an AprilTag at this point.
       plugin: 'opennav_docking::SimpleNonChargingDock'
       use_battery_status: false
       filter_coef: 0.1
@@ -107,106 +146,105 @@ docking_server:
       staging_yaw_offset: 0.0
       rotate_to_dock: false #Forward for testing, normally true
       dock_direction: "forward" #Forward for testing, normally "backward"
-      use_external_detection_pose: true
-      external_detection_timeout: 3.0
-      external_detection_translation_x: -1.0
-      external_detection_translation_y: 0.0
-      external_detection_rotation_roll: -1.5708
-      external_detection_rotation_pitch: 1.5708
-      external_detection_rotation_yaw: 0.0
-    #Trash_dock: #For placing the bin next to the house, based on an Apriltag signpost
-    #Recycle_dock: #For placing the bin next to the house, based on an Apriltag signpost
-    #Green_dock: #This will be out in the parking area, not based on an Apriltag, but we'll use the same dock type for simplicity.
-    #Trash_curb: #For placing the bin out on the curb, based on nav2 localization
-    #Recycle_curb:
-    #Green_curb:
+      use_external_detection_pose: false #Since this dock is not based on an Apriltag, we won't use external detection to adjust the pose. The bot will just navigate to this pose and assume it's correct.
+
+    # Docks
+    # Dock name cannot be the same as plugin name.
+    docks: ['home', 'trash_bin_pickup', 'recycle_bin_pickup', 'green_bin_pickup', 'trash_curb_dropoff', 'recycle_curb_dropoff', 'green_curb_dropoff', 'trash_curb_pickup', 'recycle_curb_pickup', 'green_curb_pickup', 'trash_return', 'recycle_return', 'green_return'] #List of dock names to be used. The parameters for each dock are set below and in the plugins.
+    home: #Charging base name. Cannot be the same as the plugin name, but CAN be the same as the apriltag name from apriltag.yaml.
+      type: 'home_dock' #The dock plugin type to use
+      frame: map #The frame which the translations from /detected_dock_pose_publisher are refering. 'map' points all the way back to map origin at 0,0,0; 'depth_camera_optical_frame' points right to the camera lens. Map seems to produce better accuracy.
+      pose: [-5.0, 3.9, 1.5708]  # [x, y, theta] The location of the dock frame in relation to the the map frame, with theta being the robot heading. This dock faces the Apriltag on the wall, but the pose at this point is independant of the tag. This is the pose that Nav2 will navigate to when going to the dock. Staging offsets are based on this pose. If use_external_detection_pose is true, unless an Apriltag is used.
+      id: "home_ID" # Name of the Apriltag to lock onto for docking guidance, from apriltag.yaml. This param is not needed if a dock doesnt reference an apriltag, such as the curb dropoff docks.
+
+    trash_bin_pickup: # For picking up the bin itself from its normal spot near the house, based on its Apriltag
+      type: 'bin_pickup_dock'
+      frame: map
+      pose: [2.175, 2.75, 3.1416] #Facing the bin's pose from driveway.sdf, then updated dynamically based on the detected Apriltag pose if use_external_detection_pose is true.
+      id: "trash_bin_ID"
+
+    recycle_bin_pickup:
+      type: 'bin_pickup_dock'
+      frame: map
+      pose: [2.25, 2.25, 3.1416] #Facing the bin's pose from driveway.sdf.
+      id: "recycle_bin_ID"
+
+    green_bin_pickup: 
+      type: 'bin_pickup_dock'
+      frame: map
+      pose: [6.0, -5.0, -1.5708]
+      id: "green_bin_ID"
+
+    trash_curb_dropoff: #For placing the bin out on the curb, based on nav2 localization
+      type: 'bin_dropoff_dock'
+      frame: map
+      pose: [-5.5197, 2.4806, 3.1416] #In simulation, this is the mirror location of trash dock across the y-axis. 
+      #id: "trash_curb_ID" #99% sure this isnt needed since this dock doesnt reference an apriltag.
+
+    recycle_curb_dropoff:
+      type: 'bin_dropoff_dock'
+      frame: map
+      pose: [-5.4409, 0.5096, 3.1416] 
+      #id: "recycle_curb_ID"
+
+    green_curb_dropoff:
+      type: 'bin_dropoff_dock'
+      frame: map
+      pose: [0.0, 0.0, 0.0] #Zeros for testing #Normal [-5.3450, -1.4335, 3.1416]
+      #id: "green_curb_ID"
+
+    trash_curb_pickup: #For retrieving the bin from the curb, based on nav2 localization. This is separate from the trash_curb_dropoff dock because the pickup location may be different from the dropoff location if the bin is not placed back in the exact same spot, and we want to allow for that variability by having a separate dock for pickup with a larger staging _x for better detection of a bin that is not perfectly placed on the curb. Holy verboisty, Copilot...
+      type: 'bin_pickup_dock'
+      frame: map
+      pose: [-5.5197, 2.48065, 0.0] #In simulation, this is the mirror location of trash dock across the y-axis. 
+      id: "trash_curb_ID"
+
+    recycle_curb_pickup:
+      type: 'bin_pickup_dock'
+      frame: map
+      pose: [-5.4409, 0.5096, 0.0] 
+      id: "recycle_bin_ID"
+
+    green_curb_pickup:
+      type: 'bin_pickup_dock'
+      frame: map
+      pose: [0.0, 0.0, 0.0] #Zeros for testing #Normal [-5.3450, -1.4335, 3.1416]
+      id: "green_bin_ID"
+
+    trash_return: #For placing the bin next to the house, based on an Apriltag on the wall behind where the bin will be placed.
+      type: 'trash_return_dock'
+      frame: map
+      pose: [1.5, 2.75, 3.14159]
+      id: "trash_return_ID" 
+
+    recycle_return: #For placing the bin next to the house, based on an Apriltag on the wall behind where the bin will be placed.
+      type: 'recycle_return_dock'
+      frame: map
+      pose: [1.5, 1.75, 3.14159]
+      id: "recycle_return_ID" 
+
+    green_return: #For placing the bin out in the driveway somewhere, not associated with an Apriltag
+      type: 'green_return_dock'
+      frame: map
+      pose: [6.0, -4.873, -1.5708] #Original location in driveway.sdf, with the offet between bin center and base_link subtracted from the y component. Subtracted in this case because the robot/bin faces inward on the map on the -y side.
+      #id: "green_return_ID"
 
     controller:
       beta: 0.4 #Parameter to reduce linear velocity proportional to path curvature. Increasing this linearly reduces the velocity (v(t) = v_max / (1 + beta * |curv|^lambda)).
       k_phi: 3.0 #Ratio of the rate of change of angle relative to distance from the target. Much be > 0.
       k_delta: 2.0 #Higher values result in converging to the target more quickly.
-      k_lambda: 2.0 #Parameter to reduce linear velocity proportional to path curvature. Increasing this exponentially reduces the velocity (v(t) = v_max / (1 + beta * |curv|^lambda)).
+      lambda: 2.0 #Parameter to reduce linear velocity proportional to path curvature. Increasing this exponentially reduces the velocity (v(t) = v_max / (1 + beta * |curv|^lambda)).
       v_linear_min: 0.1 #Minimum linear velocity when approaching the dock. This should be set above the stall threshold of the robot to ensure it can overcome static friction and move towards the dock. The ideal value may require some experimentation, but a good starting point is around 0.15 m/s for a heavy robot. Adjust as needed based on testing to find the lowest velocity that still allows reliable movement towards the dock without stalling.
-      v_linear_max: 0.1 #Maximum linear velocity when approaching the dock. This can be set to the same value as v_linear_min for a consistent approach speed, or higher if you want the robot to move faster when it is farther from the dock. However, since precision is important in docking, especially as the robot gets closer, it may be best to keep this at the same value as v_linear_min or only slightly higher to ensure a controlled approach.
-      v_angular_max: 0.25 #Maximum angular velocity when approaching the dock. This should be set to allow the robot to turn towards the dock effectively without being too aggressive, which could cause overshooting or instability. A good starting point is around 0.5 rad/s, but this may need to be adjusted based on the robot's turning capabilities and the desired approach behavior.
-      slowdown_radius: 1.0 #Radius around the dock at which to start slowing down. This should be set based on the expected distance at which the robot needs to start reducing its speed to ensure a smooth and controlled approach to the dock. A good starting point is around 0.5 meters, but this may need to be adjusted based on testing and the specific dynamics of the robot.
-      rotate_to_heading_angular_vel: 1.0 #Angular velocity (rad/s) to rotate to the goal heading when rotate_to_dock is enabled.
-      rotate_to_heading_max_angular_accel: 3.2 #Max angular acceleration when rotating to the dock heading.
-      use_collision_detection: true #Whether to use collision detection to avoid obstacles.
+      v_linear_max: 0.15 #Maximum linear velocity when approaching the dock. This can be set to the same value as v_linear_min for a consistent approach speed, or higher if you want the robot to move faster when it is farther from the dock. However, since precision is important in docking, especially as the robot gets closer, it may be best to keep this at the same value as v_linear_min or only slightly higher to ensure a controlled approach.
+      v_angular_max: 0.75 #Maximum angular velocity when approaching the dock. This should be set to allow the robot to turn towards the dock effectively without being too aggressive, which could cause overshooting or instability. A good starting point is around 0.5 rad/s, but this may need to be adjusted based on the robot's turning capabilities and the desired approach behavior.
+      slowdown_radius: 0.25 #Radius around the dock at which to start slowing down. Matches staging_x_offset
+      rotate_to_heading_angular_vel: 2.0 #Default 1.0 Angular velocity (rad/s) to rotate to the goal heading when rotate_to_dock is enabled.
+      rotate_to_heading_max_angular_accel: 3.5 #Default 3.2 Max angular acceleration when rotating to the dock heading.
       costmap_topic: "local_costmap/costmap_raw" #Raw costmap topic for collision checking.
       footprint_topic: "local_costmap/published_footprint" #Topic for footprint in the costmap frame. Footprint will change when bins are carried.
       transform_tolerance: 0.1 #Time with which to post-date the transform that is published, to indicate that this transform is valid into the future.
       projection_time: 2.0 #Time to look ahead for collisions (s).
       simulation_step: 0.1 #Time step for projections (s).
+      use_collision_detection: true #Whether to use collision detection to avoid obstacles.
       dock_collision_threshold: 0.0 #The distance from the dock pose to ignore collisions. Set to 0.0 when the dock isn't physically contacted.
       collision_approach_velocity: 0.05 #Linear velocity to use when a collision is detected during approach. This should be set low enough to allow the robot to carefully maneuver around the obstacle while still making progress towards the dock, but not so low that it causes the robot to stall. A good starting point is around 0.05 m/s, but this may need to be adjusted based on testing and the specific dynamics of the robot.
-
-    # Docks
-    #Not used: dock_database: /home/indie/garbo_ws/src/garbo/config/docks.yaml
-    # Input your docks here. Plugin name cannot be the same as dock name.
-    docks: ['home', 'home2', 'trash_bin', 'recycle_bin', 'green_bin', 'trash_dock', 'recycle_dock', 'green_dock', 'trash_curb', 'recycle_curb', 'green_curb'] #List of dock names to be used. The parameters for each dock are set below and in the plugins.
-    home: #Charging base name
-      type: 'home_dock' #Cant be the same as the plugin name, but can match ID and Apriltag.
-      frame: map
-      pose: [-5.0, 3.9, 1.5708]  # [x, y, theta] General-vicinity pose of the dock in the map frame. This is the pose that Nav2 will navigate to when going to the dock, and will be used as the reference point for any external detection if use_external_detection_pose is true.
-      id: "home_ID" #Cant be the same as dock plugin name, but can be the same as the dock name. This is just an identifier for the dock, and can be used in the docking server's action goals to specify which dock to use.
-
-    home2: #Charging base name
-      type: 'home_dock' #Cant be the same as the plugin name, but can match ID and Apriltag.
-      frame: map
-      pose: [-5.0, 3.9, 1.5708]  # [x, y, theta] General-vicinity pose of the dock in the map frame. This is the pose that Nav2 will navigate to when going to the dock, and will be used as the reference point for any external detection if use_external_detection_pose is true.
-      id: "home_ID" #Cant be the same as dock plugin name, but can be the same as the dock name. This is just an identifier for the dock, and can be used in the docking server's action goals to specify which dock to use.
-
-    trash_bin: # For picking up the bin itself, based on its Apriltag
-      type: 'bin_dock'
-      frame: map
-      pose: [5.175, 0.5, 0.0] #Based on pose in driveway.sdf to start with, then updated dynamically based on the detected Apriltag pose if use_external_detection_pose is true.
-      id: "trash_bin_ID"
-
-    recycle_bin:
-      type: 'bin_dock'
-      frame: map
-      pose: [5.25, 0.0, 0.0] #Based on pose in driveway.sdf.
-      id: "recycle_bin_ID"
-
-    green_bin: #green_bin_dock: #suffix added to differentiat from green_bin AprilTag of the same name.
-      type: 'bin_dock'
-      frame: map
-      pose: [6.0, -5.0, -1.5708] #Based on pose in driveway.sdf.
-      id: "green_bin_ID"
-
-    trash_dock: #For placing the bin next to the house, based on an Apriltag signpost
-      type: 'return_dock'
-      frame: map
-      pose: [7.0, 0.5, 1.5708] #This is the location of a reference tag which external detection translations are based on.
-      id: "trash_dock_ID"
-
-    recycle_dock: #For placing the bin next to the house, based on an Apriltag signpost
-      type: 'return_dock'
-      frame: map
-      pose: [7.0, 0.5, 1.5708] #Based on spawn point in driveway.sdf. This will update as the bin moves?
-      id: "recycle_dock_ID"
-
-    green_dock: #This will be out in the parking area, not based on an Apriltag, but we'll use the same dock type for simplicity.
-      type: 'return_dock'
-      frame: map
-      pose: [6.0, -5.0, 1.5708] #Map pose based on spawn point in parking_area.sdf
-      id: "green_dock_ID"
-
-    trash_curb: #For placing the bin out on the curb, based on nav2 localization
-      type: 'curb_dock'
-      frame: map
-      pose: [-5.5196502793423949, 2.4806453110246496, 3.141592653589793] #In simulation, this is the mirror location of trash dock across the y-axis. 
-      id: "trash_curb_ID"
-
-    recycle_curb:
-      type: 'curb_dock'
-      frame: map
-      pose: [-5.4409400294970771, 0.50960481367723409, 3.141592653589793] 
-      id: "recycle_curb_ID"
-
-    green_curb:
-      type: 'curb_dock'
-      frame: map
-      pose: [0.0, 0.0, 0.0] #Zeros for testing #[-5.3450411942024942, -1.4334154578621039, 3.141592653589793] #In simulation, this is the mirror location of recycle dock across the y-axis.
-      id: "green_curb_ID"

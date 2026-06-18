@@ -1,7 +1,10 @@
 /**CLI command: ros2 param set detected_dock_pose_publisher child_frame green_bin_ID
  * 
- * @file detected_dock_pose_publisher.cpp
- * @brief Publishes the pose of an AprilTag located on/near a docking station
+ *EKF pose publisher is commented out becuase I'm not sure how to use it, even though I added it. It is not in the original node.
+ *
+ * 
+ * file detected_dock_pose_publisher.cpp
+ * Publishes the pose of an AprilTag located on/near a docking station
  *
  * This program detects an AprilTag that is mounted near or on a docking station and publishes
  * its pose relative to the camera optical frame. The optical frame follows the typical computer
@@ -19,16 +22,16 @@
  *     /tf (tf2_msgs/TFMessage): Transform tree containing camera optical frame to tag transforms
  *
  * Publishing Topics:
- *     /detected_dock_pose (geometry_msgs/PoseStamped): Pose of the detected AprilTag relative
- *                                                      to the camera optical frame
+ *     /detected_dock_pose (geometry_msgs/PoseStamped): Pose of the detected AprilTag relative to the camera optical frame
+ *     /EKF_dock_pose (geometry_msgs/PoseWithCovarianceStamped): Pose of the detected AprilTag relative to the camera optical frame, with a covariance matrix
  *
  * Parameters:
  *     parent_frame (string, default: "cam_1_depth_optical_frame"): Name of the camera's optical frame
  *     child_frame (string, default: "tag36h11:0"): Name of the AprilTag frame
  *     publish_rate (double, default: 10.0): How often to publish the tag pose in Hz
  *
- * @author Addison Sears-Collins
- * @date December 11, 2024
+ * Modified from AutomaticAddison.com, Addison Sears-Collins
+ *
  */
 
 #include <memory>
@@ -36,11 +39,12 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+//#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
 
 /**
- * @brief A ROS2 node that publishes AprilTag poses relative to the camera optical frame
+ * A ROS2 node that publishes AprilTag poses relative to the camera optical frame
  *
  * This node listens for transforms between the camera's optical frame (cam_1_depth_optical_frame)
  * and an AprilTag frame (tag36h11:0). The optical frame is important as it follows standard
@@ -54,7 +58,7 @@ class DetectedDockPosePublisher : public rclcpp::Node
 {
 public:
   /**
-   * @brief Constructor for the DetectedDockPosePublisher node
+   * Constructor for the DetectedDockPosePublisher node
    *
    * Initializes the node, sets up parameters, and creates publishers and transform listeners
    */
@@ -62,7 +66,7 @@ public:
   : Node("detected_dock_pose_publisher")
   {
     // Declare parameters with default values and documentation
-    this->declare_parameter("parent_frame", "map"); //Originally "depth_camera_optical_frame" but changed so that the dock pose would stay constant if visual lock was lost.
+    this->declare_parameter("parent_frame", "depth_camera_optical_frame"); //Reference frame default "depth_camera_optical_frame"
     this->declare_parameter("child_frame", "home_ID"); // Default to the tag_ID name (NOT THE DOCK NAME!), can be overridden for other tags
     this->declare_parameter("publish_rate", 10.0);  // Hz
 
@@ -75,7 +79,6 @@ public:
     param_callback_handle_ = this->add_on_set_parameters_callback(
       std::bind(&DetectedDockPosePublisher::paramCallback, this, std::placeholders::_1));
 
-
     // Create a transform buffer to store and look up transforms
     tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
 
@@ -85,6 +88,10 @@ public:
     // Create a publisher for the dock pose
     dock_pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
       "detected_dock_pose", 10);
+
+    // Create a publisher for the EKF pose
+//    EKF_pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+//      "EKF_dock_pose", 10);
 
     // Create a timer that will trigger pose updates
     timer_ = this->create_wall_timer(
@@ -131,7 +138,7 @@ private:
 
 
   /**
-   * @brief Timer callback that publishes the latest dock pose
+   * Timer callback that publishes the latest dock pose
    *
    * This function is called periodically to:
    * 1. Look up the latest transform between the camera and AprilTag
@@ -147,15 +154,32 @@ private:
     // The frame ID should match the frame we want the pose expressed in
     dock_pose.header.frame_id = parent_frame_;
 
+    // Create a new EKF message
+//    geometry_msgs::msg::PoseWithCovarianceStamped EKF_pose;
+    // Set the timestamp to now
+//    EKF_pose.header.stamp = this->get_clock()->now();
+    // The frame ID should match the frame we want the pose expressed in
+//    EKF_pose.header.frame_id = parent_frame_;
+    //Set the covarience for the message. This should always be zero (because the tag position is known?)
+//    EKF_pose.pose.covariance = {
+//    0.01, 0.0,  0.0,  0.0,  0.0,  0.0,
+//    0.0,  0.01, 0.0,  0.0,  0.0,  0.0,
+//    0.0,  0.0,  0.01, 0.0,  0.0,  0.0,
+//    0.0,  0.0,  0.0,  0.01, 0.0,  0.0,
+//    0.0,  0.0,  0.0,  0.0,  0.01, 0.0,
+//    0.0,  0.0,  0.0,  0.0,  0.0,  0.01
+//    };
+
     try {
-      // Look up the transform
+
+      // Look up the transform to the pose
       geometry_msgs::msg::TransformStamped transform = tf_buffer_->lookupTransform(
         parent_frame_,
         child_frame_,
         tf2::TimePointZero // get latest transform
       );
 
-      // Copy the translation from the transform to the pose
+      // Copy the translation from the transform to the pose for docking
       dock_pose.pose.position.x = transform.transform.translation.x;
       dock_pose.pose.position.y = transform.transform.translation.y;
       dock_pose.pose.position.z = transform.transform.translation.z;
@@ -163,10 +187,22 @@ private:
       // Copy the rotation from the transform to the pose
       dock_pose.pose.orientation = transform.transform.rotation;
 
-
       // Publish the dock pose for the navigation system to use
       dock_pose_pub_->publish(dock_pose);
+
+
+      // Copy the translation from the transform to the pose for EKF (Covariance messages are another layer down, hence the extra 'pose'??????)
+//      EKF_pose.pose.pose.position.x = transform.transform.translation.x;
+//      EKF_pose.pose.pose.position.y = transform.transform.translation.y;
+//      EKF_pose.pose.pose.position.z = transform.transform.translation.z;
+
+      // Copy the rotation from the transform to the pose
+//      EKF_pose.pose.pose.orientation = transform.transform.rotation;
+
+      // Publish the dock pose for the robot_localization package to use
+//      EKF_pose_pub_->publish(EKF_pose);
     }
+
     catch (const tf2::TransformException & ex) {
       // If we can't get the transform, log it at debug level to avoid spamming
       RCLCPP_DEBUG(this->get_logger(), "Could not get transform: %s", ex.what());
@@ -182,6 +218,7 @@ private:
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;        ///< Buffer for storing transforms
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_; ///< Listener for transforms
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr dock_pose_pub_; ///< Publisher for dock poses
+//  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr EKF_pose_pub_; ///< Publisher for EKF poses
   rclcpp::TimerBase::SharedPtr timer_;               ///< Timer for periodic publishing
 };
 
