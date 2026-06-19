@@ -501,12 +501,11 @@
       </collision>
 
       <xacro:box_inertia m="0.035" w="0.01" d="0.03" h="0.03"/>
-<!--Camera not actually in use yet
       <sensor name="rear_camera" type="camera">
         <always_on>true</always_on>
         <visualize>true</visualize>
         <update_rate>5.0</update_rate>
-        <topic>rear_camera/image_raw</topic>
+        <topic>rear_camera/image</topic>
         <gz_frame_id>rear_camera_optical_link</gz_frame_id>
         <camera>
           <camera_info_topic>rear_camera/camera_info</camera_info_topic>
@@ -522,17 +521,14 @@
             </clip>
           </camera>
       </sensor>
-    -->
+
     </link>
-          <!--Rear camera not actually in use yet
     <joint name="rear_camera_optical_joint" type="fixed">
       <pose relative_to="rear_camera_joint">0 0 0 ${-pi/2} 0 ${-pi/2}</pose>
       <parent>rear_camera_link</parent>
-      <child>rear_camera_optical_link</child>
+      <child>rear_camera_optical_frame</child>
     </joint>
-    <link name="rear_camera_optical_link"/>
-  -->
-
+    <link name="rear_camera_optical_frame"/>
 
   </model>
 </sdf>

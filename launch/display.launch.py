@@ -23,22 +23,17 @@ from launch import LaunchDescription
 
 def generate_launch_description():
     
+    #Top level directory for resources and parameter files
     pkg_share = get_package_share_directory("garbo")
-    default_model_path = os.path.join(pkg_share, "description", "garbo_description.sdf")
-    default_rviz_config_path = os.path.join(pkg_share, "rviz", "config.rviz")
-    ekf_config_path = os.path.join(pkg_share, "config", "ekf.yaml")
-    twist_mux_config_path = os.path.join(pkg_share, "config", "twist_mux.yaml")
-    apriltag_config_path = os.path.join(pkg_share, "config", "apriltag.yaml")
-    ros_gz_sim_share = get_package_share_directory("ros_gz_sim")
-    gz_spawn_model_launch_source = os.path.join(ros_gz_sim_share, "launch", "gz_spawn_model.launch.py")
-    world_path = os.path.join(pkg_share, "world", "driveway.sdf")
-    bridge_config_path = os.path.join(pkg_share, "config", "bridge_config.yaml")
+        #Moved the resource links to the respective node launch sections rather than the variables that were here. Cleaner, less confusing for now.
 
-#Variables
-    camera_frame_type = LaunchConfiguration("camera_frame_type") #Used by original dock detector node
-    camera_namespace = LaunchConfiguration("camera_namespace") #Used by original dock detector node
-    #tag_family = LaunchConfiguration("tag_family")
-    #tag_id = LaunchConfiguration("tag_id")
+
+#Variables for apriltag_ros. Use generic camera name so that input camera can be switched on the fly.
+    # Use topic_mux to switch between camera topics "ros2 run topic_tools mux /apriltag_camera/image_raw /depth_camera/image_raw /rear_camera/image_raw mux:=camera_mux"
+                                                    #"ros2 run topic_tools mux /apriltag_camera/camera_info /depth_camera/camera_info rear_camera/camera_info mux:=camera_mux"
+                                                                            # <output_topic>  <input_topic_1> [input_topic_2] [rename topic for clarity]
+    camera_frame_type = LaunchConfiguration("camera_frame_type")
+    camera_namespace = LaunchConfiguration("camera_namespace")
 
     declare_camera_frame_type_cmd = DeclareLaunchArgument(
         name="camera_frame_type",
@@ -47,7 +42,7 @@ def generate_launch_description():
     )
     declare_camera_namespace_cmd = DeclareLaunchArgument(
         name="camera_namespace",
-        default_value="depth_camera",
+        default_value="apriltag_camera",
         description="Namespace for the camera and AprilTag nodes"
     )
     declare_tag_family_cmd = DeclareLaunchArgument(
@@ -60,32 +55,6 @@ def generate_launch_description():
         default_value="0",
         description="ID of the AprilTag being used"
     )
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[{"robot_description": Command(["xacro ", LaunchConfiguration("model")])}, {"use_sim_time": True}]
-    )
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="screen",
-        arguments=["-d", LaunchConfiguration("rvizconfig")],
-        parameters=[{"use_sim_time": True}],
-    )
-    robot_localization_node = Node(
-        package="robot_localization",
-        executable="ekf_node",
-        name="ekf_node",
-        output="screen",
-        parameters=[ekf_config_path, {"use_sim_time": True}],
-    )
-    twist_mux = Node(
-        package="twist_mux",
-        executable="twist_mux",
-        parameters=[twist_mux_config_path, {"use_sim_time": True}, {"use_stamped": True}],
-        remappings=[("/cmd_vel_out", "/demo/cmd_vel") ],
-    )
     apriltag_node = Node(
         package="apriltag_ros", # The name of the package containing the node executable
         executable="apriltag_node", # The name of the executable for the AprilTag detector
@@ -94,22 +63,75 @@ def generate_launch_description():
         # Optional: Remap topics if necessary to match your system (e.g., camera input)
         remappings=[ 
             #("/image_rect", "/depth_camera/image_downsized"),
-            ("/image_rect", "/depth_camera/image_rect"),
+            ("/image_rect", "/apriltag_camera/image_rect"),
             #("/image_rect", "/rear_camera/image_downsized"),
             #("/image_rect", "/rear_camera/image_rect"),
             #("/camera_info", "/depth_camera/camera_info")
         ],
-        parameters=[apriltag_config_path, {"use_sim_time": True}],
+        parameters=[os.path.join(pkg_share, "config", "apriltag.yaml"),
+                    {"use_sim_time": True}],
     )
-    #Apriltag landmark static transform publisher
-    #Works fine but not sure how to use it????
-    #landmark_publisher_node = Node(
-    #    package='tf2_ros',
-    #        executable='static_transform_publisher',
-    #        name='landmark_publisher',
-    #        arguments=[('5.0', '2.5', '0.66', '0', '0', '3.1416', 'map', 'placement_dock'), '-5.0', '3.9', '0.66', '0', '0', '-1.5708', 'map', 'home'], #should it be placement_dock_ID and home_ID to match apriltag.yaml?
-    #        output='screen'
-    #    )
+
+    
+    robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        parameters=[{"robot_description": Command(["xacro ", LaunchConfiguration("model")])}, {"use_sim_time": True}]
+    )
+
+
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        arguments=["-d", LaunchConfiguration("rvizconfig")],
+        parameters=[{"use_sim_time": True}],
+    )
+
+
+    robot_localization_node = Node(
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_node",
+        output="screen",
+        parameters=[os.path.join(pkg_share, "config", "ekf.yaml"),
+                    {"use_sim_time": True}],
+    )
+
+
+    twist_mux = Node(
+        package="twist_mux",
+        executable="twist_mux",
+        parameters=[os.path.join(pkg_share, "config", "twist_mux.yaml"), 
+                    {"use_sim_time": True},
+                    {"use_stamped": True}],
+        remappings=[("/cmd_vel_out", "/demo/cmd_vel")],
+    )
+
+#Change the camera used by Apriltag nodes: ros2 service call /camera_mux/select topic_tools_interfaces/srv/MuxSelect "{topic: 'rear_camera/image_raw'}"
+    camera_mux = Node(
+        package="topic_tools",
+        executable="mux",
+        name='camera_mux',
+        output='screen',
+        arguments=['apriltag_camera/image_raw', 
+                    'depth_camera/image_raw',
+                    'rear_camera/image_raw',],
+        remappings=[("mux", "camera_mux")],
+    )
+
+ #Change the camera info used by Apriltag nodes: ros2 service call /camera_info_mux/select topic_tools_interfaces/srv/MuxSelect "{topic: 'rear_camera/camera_info'}"
+    camera_info_mux = Node(
+        package="topic_tools",
+        executable="mux",
+        name='camera_info_mux',
+        output='screen',
+        arguments=['apriltag_camera/camera_info', 
+                    'depth_camera/camera_info',
+                    'rear_camera/camera_info'],
+    )
+
 
     #https://docs.ros.org/en/kilted/p/image_proc/doc/tutorials.html#launch-image-proc-components 
     container = ComposableNodeContainer(
@@ -124,8 +146,8 @@ def generate_launch_description():
                 plugin="image_proc::RectifyNode",
                 name="rectify_node",
                 remappings=[
-                    ("image", "depth_camera/image_raw"),
-                    ("image_rect", "depth_camera/image_rect"),
+                    ("image", "apriltag_camera/image_raw"),
+                    ("image_rect", "apriltag_camera/image_rect"),
                     #("image", "rear_camera/image_raw"),
                     #("image_rect", "rear_camera/image_rect"),
                 ],
@@ -135,7 +157,7 @@ def generate_launch_description():
                     plugin="depth_image_proc::PointCloudXyzrgbNode",
                     name="point_cloud_xyzrgb_node",
                     remappings=[
-                        ("rgb/image_rect_color", "depth_camera/image_rect"),
+                        ("rgb/image_rect_color", "apriltag_camera/image_rect"), #Only changed RBG source to generic camera name. Depth inputs should be unaffected.
                         ("depth_registered/image_rect", "depth_camera/depth_image"),
                         ("points", "depth_camera/points_remap"),
                     ],
@@ -167,6 +189,8 @@ def generate_launch_description():
         ]
     )
     #Apriltag dock pose publisher
+
+
     start_detected_dock_pose_publisher = Node(
         package="garbo",
         executable="detected_dock_pose_publisher",
@@ -179,56 +203,27 @@ def generate_launch_description():
         output="screen"
     )
 
+
     gz_server = GzServer(  #Moved near the end to help solve a race condition where TF wasnt fully loaded before the sim started.
-        world_sdf_file=world_path,
+        world_sdf_file= os.path.join(pkg_share, "world", "driveway.sdf"),
         container_name="ros_gz_container",
         create_own_container="True",
         use_composition="True",
         #arguments=["-s",],
     )
-    ros_gz_bridge = RosGzBridge(
+
+    ros_gz_bridge = RosGzBridge( #Sends camera stream from Gazebo to ROS/RVIZ
         bridge_name="ros_gz_bridge",
-        config_file=bridge_config_path,
+        config_file= os.path.join(pkg_share, "config", "bridge_config.yaml"),
         container_name="ros_gz_container",
         create_own_container="False",
         use_composition="True",
     )
-    #Keeping in case use changes. The original plan was to use the image bridge for the depth camera, but it was easier to use the parameter bridge for the pointscloud topic. The image bridge is still needed for the rear camera since it doesn't have a pointscloud topic.
-#    depth_camera_bridge_image = Node(
-#        package="ros_gz_image",
-#        executable="image_bridge",
-#        name="bridge_gz_ros_depth_camera_image",
-#        output="screen",
-#        parameters=[{"use_sim_time": True}],
-#        arguments=["/depth_camera/image"],
-#   )
-#    depth_camera_bridge_depth = Node(
-#        package="ros_gz_image",
-#        executable="image_bridge",
-#        name="bridge_gz_ros_depth_camera_depth",
-#        output="screen",
-#        parameters=[{"use_sim_time": True}],
-#        arguments=["/depth_camera/depth_image"],
-#    )
-#    depth_camera_bridge_points = Node(
-#        package="ros_gz_bridge",
-#        executable="parameter_bridge", #parameter_bridge?
-#        name="bridge_gz_ros_depth_camera_points",
-#        output="screen",
-#        parameters=[{"use_sim_time": True}],
-#        arguments=["/depth_camera/depth/color/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked"],
-#    )
-#Not yet implemented.
-#    rear_camera_bridge_image = Node(
-#        package="ros_gz_image",
-#        executable="image_bridge",
-#        name="bridge_gz_ros_rear_camera_image",
-#        output="screen",
-#        parameters=[{"use_sim_time": True}],
-#        arguments=["/rear_camera/image_raw"],
-#    )
+
     spawn_entity = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(gz_spawn_model_launch_source),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory("ros_gz_sim"),
+                                                   "launch",
+                                                   "gz_spawn_model.launch.py")),
         launch_arguments={
             "world": "driveway",
             "topic": "/robot_description",
@@ -253,6 +248,7 @@ def generate_launch_description():
     # Include the delayed force cmd to your launch arguemnt.
 #End of new code addition for lidar initialization
 
+
     ld = LaunchDescription()
     ld.add_action(declare_camera_frame_type_cmd)
     ld.add_action(declare_camera_namespace_cmd)
@@ -261,24 +257,38 @@ def generate_launch_description():
     ld.add_action(start_detected_dock_pose_publisher)
 
     return LaunchDescription([
-        DeclareLaunchArgument(name="model", default_value=default_model_path, description="Absolute path to robot model file"),
-        DeclareLaunchArgument(name="rvizconfig", default_value=default_rviz_config_path, description="Absolute path to rviz config file"),
-        DeclareLaunchArgument(name="use_sim_time", default_value="True", description="Flag to enable use_sim_time"),
+        DeclareLaunchArgument(name="model",
+                              default_value=os.path.join(pkg_share, "description", "garbo_description.sdf"),
+                              description="Absolute path to robot model file"),
+        DeclareLaunchArgument(name="rvizconfig",
+                              default_value=os.path.join(pkg_share, "rviz", "config.rviz"),
+                              description="Absolute path to rviz config file"),
+        DeclareLaunchArgument(name="use_sim_time", default_value="True",
+                              description="Flag to enable use_sim_time"),
         ExecuteProcess(cmd=["gz", "sim", "-g"], output="screen"),
         robot_state_publisher_node,
         rviz_node,
         robot_localization_node,
         twist_mux,
+        camera_mux,
+        camera_info_mux,
         apriltag_node,
 #        landmark_publisher_node,
         container, #image_proc
         gz_server,
         ros_gz_bridge,
         ld, #Dock detector
-#        depth_camera_bridge_image,
-#        depth_camera_bridge_depth,
-#        depth_camera_bridge_points,
-#        rear_camera_bridge_image,
         spawn_entity,
         delayed_force_cmd, #Force lidar initialization after spawn
     ])
+
+#spare stuff
+    #Apriltag landmark static transform publisher
+    #Works fine but not sure how to use it????
+    #landmark_publisher_node = Node(
+    #    package='tf2_ros',
+    #        executable='static_transform_publisher',
+    #        name='landmark_publisher',
+    #        arguments=[('5.0', '2.5', '0.66', '0', '0', '3.1416', 'map', 'placement_dock'), '-5.0', '3.9', '0.66', '0', '0', '-1.5708', 'map', 'home'], #should it be placement_dock_ID and home_ID to match apriltag.yaml?
+    #        output='screen'
+    #    )
