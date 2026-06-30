@@ -29,9 +29,6 @@ def generate_launch_description():
 
 
 #Variables for apriltag_ros. Use generic camera name so that input camera can be switched on the fly.
-    # Use topic_mux to switch between camera topics "ros2 run topic_tools mux /apriltag_camera/image_raw /depth_camera/image_raw /rear_camera/image_raw mux:=camera_mux"
-                                                    #"ros2 run topic_tools mux /apriltag_camera/camera_info /depth_camera/camera_info rear_camera/camera_info mux:=camera_mux"
-                                                                            # <output_topic>  <input_topic_1> [input_topic_2] [rename topic for clarity]
     camera_frame_type = LaunchConfiguration("camera_frame_type")
     camera_namespace = LaunchConfiguration("camera_namespace")
 
@@ -42,7 +39,7 @@ def generate_launch_description():
     )
     declare_camera_namespace_cmd = DeclareLaunchArgument(
         name="camera_namespace",
-        default_value="apriltag_camera",
+        default_value="depth_camera",
         description="Namespace for the camera and AprilTag nodes"
     )
     declare_tag_family_cmd = DeclareLaunchArgument(
@@ -63,7 +60,7 @@ def generate_launch_description():
         # Optional: Remap topics if necessary to match your system (e.g., camera input)
         remappings=[ 
             #("/image_rect", "/depth_camera/image_downsized"),
-            ("/image_rect", "/apriltag_camera/image_rect"),
+            ("/image_rect", "/depth_camera/image_rect"),
             #("/image_rect", "/rear_camera/image_downsized"),
             #("/image_rect", "/rear_camera/image_rect"),
             #("/camera_info", "/depth_camera/camera_info")
@@ -83,7 +80,6 @@ def generate_launch_description():
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
-        name="rviz2",
         output="screen",
         arguments=["-d", LaunchConfiguration("rvizconfig")],
         parameters=[{"use_sim_time": True}],
@@ -109,30 +105,6 @@ def generate_launch_description():
         remappings=[("/cmd_vel_out", "/demo/cmd_vel")],
     )
 
-#Change the camera used by Apriltag nodes: ros2 service call /camera_mux/select topic_tools_interfaces/srv/MuxSelect "{topic: 'rear_camera/image_raw'}"
-    camera_mux = Node(
-        package="topic_tools",
-        executable="mux",
-        name='camera_mux',
-        output='screen',
-        arguments=['apriltag_camera/image_raw', 
-                    'depth_camera/image_raw',
-                    'rear_camera/image_raw',],
-        remappings=[("mux", "camera_mux")],
-    )
-
- #Change the camera info used by Apriltag nodes: ros2 service call /camera_info_mux/select topic_tools_interfaces/srv/MuxSelect "{topic: 'rear_camera/camera_info'}"
-    camera_info_mux = Node(
-        package="topic_tools",
-        executable="mux",
-        name='camera_info_mux',
-        output='screen',
-        arguments=['apriltag_camera/camera_info', 
-                    'depth_camera/camera_info',
-                    'rear_camera/camera_info'],
-    )
-
-
     #https://docs.ros.org/en/kilted/p/image_proc/doc/tutorials.html#launch-image-proc-components 
     container = ComposableNodeContainer(
         name="image_proc_container",
@@ -146,8 +118,8 @@ def generate_launch_description():
                 plugin="image_proc::RectifyNode",
                 name="rectify_node",
                 remappings=[
-                    ("image", "apriltag_camera/image_raw"),
-                    ("image_rect", "apriltag_camera/image_rect"),
+                    ("image", "depth_camera/image_raw"),
+                    ("image_rect", "depth_camera/image_rect"),
                     #("image", "rear_camera/image_raw"),
                     #("image_rect", "rear_camera/image_rect"),
                 ],
@@ -157,7 +129,7 @@ def generate_launch_description():
                     plugin="depth_image_proc::PointCloudXyzrgbNode",
                     name="point_cloud_xyzrgb_node",
                     remappings=[
-                        ("rgb/image_rect_color", "apriltag_camera/image_rect"), #Only changed RBG source to generic camera name. Depth inputs should be unaffected.
+                        ("rgb/image_rect_color", "depth_camera/image_rect"),
                         ("depth_registered/image_rect", "depth_camera/depth_image"),
                         ("points", "depth_camera/points_remap"),
                     ],
@@ -270,14 +242,16 @@ def generate_launch_description():
         rviz_node,
         robot_localization_node,
         twist_mux,
-        camera_mux,
-        camera_info_mux,
         apriltag_node,
 #        landmark_publisher_node,
         container, #image_proc
         gz_server,
         ros_gz_bridge,
         ld, #Dock detector
+#        depth_camera_bridge_image,
+#        depth_camera_bridge_depth,
+#        depth_camera_bridge_points,
+#        rear_camera_bridge_image,
         spawn_entity,
         delayed_force_cmd, #Force lidar initialization after spawn
     ])

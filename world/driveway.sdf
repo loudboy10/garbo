@@ -524,7 +524,7 @@
       <uri>model://Apriltag36_11_00004</uri>
     </include>
 
-        <include>
+    <include>
       <name>recycle_return_dock</name> <!--This one tag will be where the recycle can is returned to.-->
       <pose>1.5 1.75 0.66 1.5708 0 1.5708</pose> <!--Behind the trash bin by 0.25m(x), at camera level(z), facing forward.-->
       <static>true</static>

@@ -36,12 +36,14 @@
 
 #include <memory>
 #include <string>
+#include <iostream>
 
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 //#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
+#include "nav2_msgs/action/dock_robot.hpp" // For checking docking state
 
 /**
  * A ROS2 node that publishes AprilTag poses relative to the camera optical frame
@@ -62,6 +64,7 @@ public:
    *
    * Initializes the node, sets up parameters, and creates publishers and transform listeners
    */
+  using DockRobotFeedbackMsg = nav2_msgs::action::DockRobot_FeedbackMessage;  
   DetectedDockPosePublisher()
   : Node("detected_dock_pose_publisher")
   {
@@ -69,15 +72,23 @@ public:
     this->declare_parameter("parent_frame", "depth_camera_optical_frame"); //Reference frame default "depth_camera_optical_frame"
     this->declare_parameter("child_frame", "home_ID"); // Default to the tag_ID name (NOT THE DOCK NAME!), can be overridden for other tags
     this->declare_parameter("publish_rate", 10.0);  // Hz
+    this->declare_parameter("docking_state", 0); //for checking docking state
 
     // Get the values of our parameters
     parent_frame_ = this->get_parameter("parent_frame").as_string();
     child_frame_ = this->get_parameter("child_frame").as_string();
     double publish_rate = this->get_parameter("publish_rate").as_double();
 
-    //Register the parameter callback
+    //Register the child_frame parameter callback
     param_callback_handle_ = this->add_on_set_parameters_callback(
       std::bind(&DetectedDockPosePublisher::paramCallback, this, std::placeholders::_1));
+
+    // Subscribe to the docking server action feedback topic
+    feedback_sub_ = this->create_subscription<DockRobotFeedbackMsg>(
+      "/dock_robot/_action/feedback",
+      rclcpp::SystemDefaultsQoS(),
+      std::bind(&DetectedDockPosePublisher::feedback_callback, this, std::placeholders::_1)
+    );
 
     // Create a transform buffer to store and look up transforms
     tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -104,7 +115,27 @@ public:
       parent_frame_.c_str(), child_frame_.c_str());
   }
 
+    //Make docking state available elsewhere in the node
+    uint16_t get_docking_state() const{
+    return docking_state_;
+    }
+
 private:
+
+  //Action subscriber to chcek dock state
+    rclcpp::Subscription<DockRobotFeedbackMsg>::SharedPtr feedback_sub_;
+  
+  // Stored state variable updated automatically when any external client commands a dock
+  uint16_t docking_state_;
+
+  void feedback_callback(const DockRobotFeedbackMsg::SharedPtr msg)
+  {
+    // The actual feedback payload lives inside the '.feedback' field of the topic wrapper
+    docking_state_ = msg->feedback.state;
+
+    RCLCPP_INFO(this->get_logger(), "Passive State Catch -> Current Docking State: %u", docking_state_);
+  }
+
 
   //Callback function to handle parameter changes
   rcl_interfaces::msg::SetParametersResult paramCallback(
@@ -145,8 +176,10 @@ private:
    * 2. Convert the transform into a pose message
    * 3. Publish the pose for the docking system to use
    */
+
   void timer_callback()
   {
+    if (docking_state_ < 5) {
     // Create a new pose message
     geometry_msgs::msg::PoseStamped dock_pose;
     // Set the timestamp to now
@@ -209,6 +242,7 @@ private:
       return;
     }
   }
+  }
 
   // Frame names from parameters
   std::string parent_frame_; ///< Name of the camera frame
@@ -235,6 +269,7 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
   // Create and spin (run) the node
   rclcpp::spin(std::make_shared<DetectedDockPosePublisher>());
+  auto node = std::make_shared<DetectedDockPosePublisher>();
   // Clean up ROS and exit
   rclcpp::shutdown();
   return 0;

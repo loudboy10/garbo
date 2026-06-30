@@ -26,19 +26,19 @@ find_package(apriltag_ros REQUIRED)
 find_package(apriltag_msgs REQUIRED)
 find_package(image_proc REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(nav2_msgs REQUIRED) # For checking docking state
+
 
 add_executable(detected_dock_pose_publisher nodes/detected_dock_pose_publisher.cpp)
-#add_executable(dock_pose_publisher nodes/dock_pose_publisher.cpp)
 ament_target_dependencies(detected_dock_pose_publisher
-#ament_target_dependencies(dock_pose_publisher
   rclcpp
   geometry_msgs
   tf2_ros
+  nav2_msgs #For checking docking state
 )
 
 install(TARGETS
   detected_dock_pose_publisher
-#  dock_pose_publisher
   DESTINATION lib/${PROJECT_NAME}
 )
 
