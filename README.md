@@ -4,14 +4,16 @@ It is a beginner hobbiest project based on Nav2 Sam_bot, Josh Newan's Articulate
 
 Currently the main launch file, Nav2 localization launch file, and Nav2 navigation launch file are all separate for testing and my own learning.
 
-Main launch with : ros2 launch garbo display.launch.py
+Main launch with: ros2 launch garbo display.launch.py
+
 Nav2 Localization launch: ros2 launch garbo nav2_localization_launch.py use_sim_time:=true
+
 Nav2 Navigation launch: ros2 launch garbo nav2_navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
 
 To change the intended dock:
 ros2 param set /detected_dock_pose_publisher child_frame <dock_ID_here>
 
-Followed by the dock command. Note that the dock_ID and dock name are not the same, and dock_ID will not work here. (If I misundersand something about this I would love to know)
+Followed by the dock command. Note that the dock_ID and dock name are not the same, and dock_ID will not work here. (If I misundersand something about this I would love to know):
 ros2 action send_goal /dock_robot nav2_msgs/action/DockRobot "{dock_id: <dock_name>}" --feedback
 
 
