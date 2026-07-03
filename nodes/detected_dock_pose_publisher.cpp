@@ -185,7 +185,7 @@ private:
     // Set the timestamp to now
     dock_pose.header.stamp = this->get_clock()->now();
     // The frame ID should match the frame we want the pose expressed in
-    dock_pose.header.frame_id = parent_frame_;
+    dock_pose.header.frame_id = "odom"; //parent_frame_;
 
     // Create a new EKF message
 //    geometry_msgs::msg::PoseWithCovarianceStamped EKF_pose;
@@ -207,7 +207,7 @@ private:
 
       // Look up the transform to the pose
       geometry_msgs::msg::TransformStamped transform = tf_buffer_->lookupTransform(
-        parent_frame_,
+        "odom",  //parent_frame_,
         child_frame_,
         tf2::TimePointZero // get latest transform
       );
