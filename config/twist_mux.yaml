@@ -1,7 +1,6 @@
 # Twist_mux parameters
 
-#Twist-mux combines the various navigation and movement controls sources,
-#such as manual control from keyboard joystick and autonomous control from nav2
+#Twist-mux combines the various navigation and movement controls sources, such as manual control from keyboard joystick and autonomous control from nav2
 #and outputs a unified movement instruction on the /cmd_vel topic as a TwistStamped message.
 #Each input source is assigned a priority so that lower level commands are ignored, such as manual override of autonomous navigation.
 
@@ -32,7 +31,7 @@ twist_mux:
 #        priority: 90 #High priority to override automation
 
       navigation:
-        topic   : /demo/cmd_vel_nav #Takes input from Nav2 autonomous navigation stack.
+        topic   : /cmd_vel_nav #Takes input from Nav2 autonomous navigation stack.
         timeout : 0.5
         priority: 80 #This will be the main operating mode.
 

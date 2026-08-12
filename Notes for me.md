@@ -107,3 +107,10 @@ To-Do
 -Adjust twist-mux timeouts if commands start conflicting. Increase a timeout to block other inputs for longer.
 -Odom is at same height as base_link, not on the ground. Fix?
 -Use docking plugins>subscribe_toggle? Reduces overheard in transit, but not sure how to toggle it.
+-To drop off bins at the house, dock in reference to a tag in front, then execute a quick Twist command to back up -n- wheel rotations to reach desired drop point. Blindly rotating to the dock location seems like too much PITA.
+
+To change the location of an onject in Gazebo manually: gz service -s /world/driveway/set_pose --reqtype gz.msgs.Pose --reptype gz.msgs.Boolean --timeout 2000 --req "name: 'trash_bin', position: {x: 2.0, y: 2.75, z: 2.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}"
+data: true
+To change the location of an object in Gazebo through ROS2: https://ros2-tutorial.readthedocs.io/en/latest/gazebo/custom_nodes.html
+
+To run the Backup node manually: ros2 run garbo backup

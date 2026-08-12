@@ -1,28 +1,24 @@
-/**CLI command: ros2 param set detected_dock_pose_publisher child_frame green_bin_ID
+/** Still need to remove the dock publisher components and leave only the EKF stuff. Still not sure if I can use this????
  * 
- *EKF pose publisher is commented out becuase I'm not sure how to use it, even though I added it. It is not in the original node.
- *
+ * https://kjdotio-innex1-rover.mintlify.app/components/localisation
+ * https://github.com/KJdotIO/innex1-rover/blob/main/src/lunabot_localisation/lunabot_localisation/tag_pose_publisher.py
  * 
- * file detected_dock_pose_publisher.cpp
- * Publishes the pose of an AprilTag located on/near a docking station
- *
- * This program detects an AprilTag that is mounted near or on a docking station and publishes
- * its pose relative to the camera optical frame. The optical frame follows the typical computer
- * vision convention where:
+ * This program detects an AprilTag that is mounted at a known and fixed location,
+ * and publishes its pose relative to the camera optical frame.
+ * The optical frame follows the typical computer vision convention where:
  *   - Z forward (pointing out from the camera)
  *   - X right
  *   - Y down
  *
  * The node subscribes to TF2 transforms published by the AprilTag detection system between the
  * camera's optical frame and the detected tag's frame. It then republishes these transforms as
- * PoseStamped messages that can be used by the Nav2 docking system to compute the actual
- * docking pose.
+ * PoseWithCovarianceStamped messages that can be used by the the robot_localization package and EKF
+ * to correct odometry drift and improve localization.
  *
  * Subscription Topics:
  *     /tf (tf2_msgs/TFMessage): Transform tree containing camera optical frame to tag transforms
  *
  * Publishing Topics:
- *     /detected_dock_pose (geometry_msgs/PoseStamped): Pose of the detected AprilTag relative to the camera optical frame
  *     /EKF_dock_pose (geometry_msgs/PoseWithCovarianceStamped): Pose of the detected AprilTag relative to the camera optical frame, with a covariance matrix
  *
  * Parameters:
@@ -40,7 +36,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-//#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
 #include "nav2_msgs/action/dock_robot.hpp" // For checking docking state
@@ -56,17 +52,17 @@
  * in the optical frame coordinate system. The Nav2 docking system can then use this tag pose
  * as a reference to compute the actual docking position.
  */
-class DetectedDockPosePublisher : public rclcpp::Node
+class LandmarkPosePublisher : public rclcpp::Node
 {
 public:
   /**
-   * Constructor for the DetectedDockPosePublisher node
+   * Constructor for the LandmarkPosePublisher node
    *
    * Initializes the node, sets up parameters, and creates publishers and transform listeners
    */
   using DockRobotFeedbackMsg = nav2_msgs::action::DockRobot_FeedbackMessage;  
-  DetectedDockPosePublisher()
-  : Node("detected_dock_pose_publisher")
+  LandmarkPosePublisher()
+  : Node("landmark_pose_publisher")
   {
     // Declare parameters with default values and documentation
     this->declare_parameter("parent_frame", "depth_camera_optical_frame"); //Reference frame default "depth_camera_optical_frame"
@@ -81,13 +77,13 @@ public:
 
     //Register the child_frame parameter callback
     param_callback_handle_ = this->add_on_set_parameters_callback(
-      std::bind(&DetectedDockPosePublisher::paramCallback, this, std::placeholders::_1));
+      std::bind(&LandmarkPosePublisher::paramCallback, this, std::placeholders::_1));
 
     // Subscribe to the docking server action feedback topic
     feedback_sub_ = this->create_subscription<DockRobotFeedbackMsg>(
       "/dock_robot/_action/feedback",
       rclcpp::SystemDefaultsQoS(),
-      std::bind(&DetectedDockPosePublisher::feedback_callback, this, std::placeholders::_1)
+      std::bind(&LandmarkPosePublisher::feedback_callback, this, std::placeholders::_1)
     );
 
     // Create a transform buffer to store and look up transforms
@@ -101,17 +97,17 @@ public:
       "detected_dock_pose", 10);
 
     // Create a publisher for the EKF pose
-//    EKF_pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-//      "EKF_dock_pose", 10);
+    EKF_pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+      "EKF_dock_pose", 10);
 
     // Create a timer that will trigger pose updates
     timer_ = this->create_wall_timer(
       std::chrono::milliseconds(static_cast<int>(1000.0 / publish_rate)),
-      std::bind(&DetectedDockPosePublisher::timer_callback, this));
+      std::bind(&LandmarkPosePublisher::timer_callback, this));
 
     // Log that we've successfully initialized
     RCLCPP_INFO(this->get_logger(),
-      "Detected dock pose publisher initialized with parent frame: '%s' and child frame: '%s'",
+      "Landmark pose publisher initialized with parent frame: '%s' and child frame: '%s'",
       parent_frame_.c_str(), child_frame_.c_str());
   }
 
@@ -187,20 +183,20 @@ private:
     dock_pose.header.frame_id = "map"; //parent_frame_;
 
     // Create a new EKF message
-//    geometry_msgs::msg::PoseWithCovarianceStamped EKF_pose;
+    geometry_msgs::msg::PoseWithCovarianceStamped EKF_pose;
     // Set the timestamp to now
-//    EKF_pose.header.stamp = this->get_clock()->now();
+    EKF_pose.header.stamp = this->get_clock()->now();
     // The frame ID should match the frame we want the pose expressed in
-//    EKF_pose.header.frame_id = parent_frame_;
+    EKF_pose.header.frame_id = parent_frame_;
     //Set the covarience for the message. This should always be zero (because the tag position is known?)
-//    EKF_pose.pose.covariance = {
-//    0.01, 0.0,  0.0,  0.0,  0.0,  0.0,
-//    0.0,  0.01, 0.0,  0.0,  0.0,  0.0,
-//    0.0,  0.0,  0.01, 0.0,  0.0,  0.0,
-//    0.0,  0.0,  0.0,  0.01, 0.0,  0.0,
-//    0.0,  0.0,  0.0,  0.0,  0.01, 0.0,
-//    0.0,  0.0,  0.0,  0.0,  0.0,  0.01
-//    };
+    EKF_pose.pose.covariance = {
+    0.01, 0.0,  0.0,  0.0,  0.0,  0.0,
+    0.0,  0.01, 0.0,  0.0,  0.0,  0.0,
+    0.0,  0.0,  0.01, 0.0,  0.0,  0.0,
+    0.0,  0.0,  0.0,  0.01, 0.0,  0.0,
+    0.0,  0.0,  0.0,  0.0,  0.01, 0.0,
+    0.0,  0.0,  0.0,  0.0,  0.0,  0.01
+    };
 
     try {
 
@@ -220,19 +216,19 @@ private:
       dock_pose.pose.orientation = transform.transform.rotation;
 
       // Publish the dock pose for the navigation system to use
-      dock_pose_pub_->publish(dock_pose);
+//Stops the redundant message from being sent      dock_pose_pub_->publish(dock_pose);
 
 
       // Copy the translation from the transform to the pose for EKF (Covariance messages are another layer down, hence the extra 'pose'??????)
-//      EKF_pose.pose.pose.position.x = transform.transform.translation.x;
-//      EKF_pose.pose.pose.position.y = transform.transform.translation.y;
-//      EKF_pose.pose.pose.position.z = transform.transform.translation.z;
+      EKF_pose.pose.pose.position.x = transform.transform.translation.x;
+      EKF_pose.pose.pose.position.y = transform.transform.translation.y;
+      EKF_pose.pose.pose.position.z = transform.transform.translation.z;
 
       // Copy the rotation from the transform to the pose
-//      EKF_pose.pose.pose.orientation = transform.transform.rotation;
+      EKF_pose.pose.pose.orientation = transform.transform.rotation;
 
       // Publish the dock pose for the robot_localization package to use
-//      EKF_pose_pub_->publish(EKF_pose);
+      EKF_pose_pub_->publish(EKF_pose);
     }
 
     catch (const tf2::TransformException & ex) {
@@ -250,12 +246,12 @@ private:
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;        ///< Buffer for storing transforms
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_; ///< Listener for transforms
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr dock_pose_pub_; ///< Publisher for dock poses
-//  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr EKF_pose_pub_; ///< Publisher for EKF poses
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr EKF_pose_pub_; ///< Publisher for EKF poses
   rclcpp::TimerBase::SharedPtr timer_;               ///< Timer for periodic publishing
 };
 
 /**
- * @brief Main function that starts the dock pose publisher node
+ * @brief Main function that starts the landmark pose publisher node
  *
  * @param argc Number of command line arguments
  * @param argv Array of command line arguments
@@ -266,8 +262,8 @@ int main(int argc, char * argv[])
   // Initialize ROS
   rclcpp::init(argc, argv);
   // Create and spin (run) the node
-  rclcpp::spin(std::make_shared<DetectedDockPosePublisher>());
-  auto node = std::make_shared<DetectedDockPosePublisher>();
+  rclcpp::spin(std::make_shared<LandmarkPosePublisher>());
+  auto node = std::make_shared<LandmarkPosePublisher>();
   // Clean up ROS and exit
   rclcpp::shutdown();
   return 0;

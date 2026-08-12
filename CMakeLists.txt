@@ -28,7 +28,6 @@ find_package(image_proc REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(nav2_msgs REQUIRED) # For checking docking state
 
-
 add_executable(detected_dock_pose_publisher nodes/detected_dock_pose_publisher.cpp)
 ament_target_dependencies(detected_dock_pose_publisher
   rclcpp
@@ -37,8 +36,27 @@ ament_target_dependencies(detected_dock_pose_publisher
   nav2_msgs #For checking docking state
 )
 
-install(TARGETS
+add_executable(rotate nodes/rotate.cpp)
+ament_target_dependencies(rotate
+  rclcpp
+  geometry_msgs
+  tf2_ros
+  nav2_msgs #For checking docking state
+)
+
+
+add_executable(reverse nodes/reverse.cpp)
+ament_target_dependencies(reverse
+  rclcpp
+  geometry_msgs
+  tf2_ros
+  nav2_msgs
+)
+
+install(TARGETS  #cpp executables
   detected_dock_pose_publisher
+  rotate
+  reverse
   DESTINATION lib/${PROJECT_NAME}
 )
 

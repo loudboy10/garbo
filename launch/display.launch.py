@@ -102,7 +102,7 @@ def generate_launch_description():
         parameters=[os.path.join(pkg_share, "config", "twist_mux.yaml"), 
                     {"use_sim_time": True},
                     {"use_stamped": True}],
-        remappings=[("/cmd_vel_out", "/demo/cmd_vel")],
+        remappings=[("/cmd_vel_out", "/cmd_vel")],
     )
 
     #https://docs.ros.org/en/kilted/p/image_proc/doc/tutorials.html#launch-image-proc-components 
@@ -203,6 +203,7 @@ def generate_launch_description():
             "z": "1.0",
         }.items(),
     )
+
 
 #Beginning of new code addition for lidar initialization. This was needed to correct issues with Gazebo loading out of sequence.
        # === NEW: Force lidar entity initialization after spawn ===

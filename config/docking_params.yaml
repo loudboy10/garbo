@@ -11,17 +11,17 @@ docking_server:
     global_frame: "map"
     base_frame: "base_link" #Robot’s base frame for control law.
     fixed_frame: "odom" #Fixed frame to use. Uses odom instead of map because the local relative location is more significant than the overall global position.
-    odom_topic: "odom" #The topic to use for the odometry data when rotate_to_dock is enabled.
-    controller_frequency: 25.0 #Default 50.0 Control frequency for vision-control loop. Good luck getting this running fast enough with Gazebo and depth camera
+    odom_topic: "/odom" #The topic to use for the odometry data when rotate_to_dock is enabled.
+    controller_frequency: 50.0 #Default 50.0 Control frequency for vision-control loop. Good luck getting this running fast enough with Gazebo and depth camera
     enable_stamped_cmd_vel: true # Manually added parameter. Now also default in Kilted
-    initial_perception_timeout: 20.0 #Default 5.0 Timeout (s) to wait to obtain initial perception of the dock.
+    initial_perception_timeout: 5.0 #Default 5.0 Timeout (s) to wait to obtain initial perception of the dock.
     wait_charge_timeout: 5.0 #Timeout in seconds to wait to see if charging starts after docking. Only used if use_battery_status is true to detect successful docking.
     dock_approach_timeout: 60.0 #Timeout (s) to attempt vision-control approach loop.
     rotate_to_dock_timeout: 60.0 #Timeout (s) to attempt rotate-to-dock loop, if enabled.
     undock_linear_tolerance: 0.05 #Tolerance (m) to exit the undocking control loop at staging pose.
     undock_angular_tolerance: 0.1 #Angular tolerance (rad) to exit undocking loop at staging pose.
     max_retries: 3 #Maximum number of retries to attempt for the entire docking procedure before giving up and reporting failure. Four total.
-    rotation_angular_tolerance: 0.05 #Default 0.05 Angular tolerance (rad) to exit the rotation loop when rotate_to_dock is enabled
+    rotation_angular_tolerance: 0.01 #Default 0.05 Angular tolerance (rad) to exit the rotation loop when rotate_to_dock is enabled
     dock_prestaging_tolerance: 0.5 #L2 distance in X,Y,Theta from the staging pose to bypass navigation.
     navigator_bt_xml: "" # Behavior Tree to use other than default.
     introspection_mode: "disabled"
@@ -38,7 +38,7 @@ docking_server:
       stall_effort_threshold: 1.0 #Leaving this empty breaks nav2 for some reason??????
       stall_joint_names: ['drivewhl_l_joint', 'drivewhl_r_joint'] #Joint names to monitor for stall detection effort. Only used if use_stall_detection is true.
       stall_velocity_threshold: 0.01 #Velocity threshold below which the robot is considered stalled when using stall detection.
-      docking_threshold: 0.01 #L2 distance in meters and radians to the dock pose at which to consider the robot docked when not using stall or battery detection.
+      docking_threshold: 0.05 #L2 distance in meters and radians to the dock pose at which to consider the robot docked when not using stall or battery detection.
       staging_x_offset: -2.0 #Staging pose will be 2m in front(negative) of the dock, so the bot can use its internal localization to fine-tune its position for docking instead of relying on perfect initial navigation to the dock.
       staging_yaw_offset: 0.0 #Staging pose angle relative to dock pose (rad). If dock_direction is set to “backward”, this angle must be faced in the opposite direction of the dock pose. However, if rotate_to_dock is enabled, this angle must be facing the same direction as the dock pose because the robot will rotate to the dock pose after detection.
       dock_prestaging_tolerance: 0.05 #L2 distance in X,Y,Theta from the staging pose to bypass navigation and go straight to vision-based approach. This should be set based on the accuracy of the robot's navigation and localization, as well as the size of the staging area. A good starting point is around 0.5 meters, but this may need to be adjusted based on testing to find the right balance between allowing direct vision-based approach when close enough and ensuring reliable navigation to the staging area when farther away.
@@ -47,10 +47,10 @@ docking_server:
       #If dock_direction is set to “backward”, this angle must be faced in the opposite direction of the dock pose. However, if rotate_to_dock is enabled, this angle must be facing the same direction as the dock pose because the robot will rotate to the dock pose after detection.
       use_external_detection_pose: true #Whether to use external detection topic for dock or use the databases’ pose. Externals come from detected_dock_pose_publisher node.
       external_detection_timeout: 3.0 #Default 1.0 Time (s) to wait without receiving a new detection before considering the detection lost and timing out the approach.
-      external_detection_translation_x: -3.0 #External translations must be set at the plugin level.
-      external_detection_translation_y: 0.5
-      external_detection_rotation_roll: -1.5708
-      external_detection_rotation_pitch: 1.5708
+      external_detection_translation_x: -1.0 #External translations must be set at the plugin level.
+      external_detection_translation_y: 0.0
+      external_detection_rotation_roll: -1.5707963268
+      external_detection_rotation_pitch: 1.5707963268
       external_detection_rotation_yaw: 0.0
 
     bin_pickup_dock: # For docking to a bin itself
@@ -70,8 +70,8 @@ docking_server:
       external_detection_timeout: 3.0
       external_detection_translation_x: -1.0
       external_detection_translation_y: 0.0
-      external_detection_rotation_roll: -1.5708
-      external_detection_rotation_pitch: 1.5708
+      external_detection_rotation_roll: -1.5707963268
+      external_detection_rotation_pitch: 1.5707963268
       external_detection_rotation_yaw: 0.0
 
     bin_dropoff_dock: # For dropping the bins off at the curb. Maybe put a tag on the back of each bin as well so that the bins can be placed next to each other accurately.
@@ -101,15 +101,15 @@ docking_server:
       stall_velocity_threshold: 0.01
       docking_threshold: 0.05
       staging_x_offset: -2.0
-      staging_yaw_offset: 0.0
+      staging_yaw_offset: 0.0 #Angle with respect to the dock Apriltag before external translations or rotations are applied. 0.0 is facing the tag.
       rotate_to_dock: true # After staging, spin 180 and back in blindly
       dock_direction: "backward" #Back into the spot as defined by external_detections
       use_external_detection_pose: true
       external_detection_timeout: 3.0
       external_detection_translation_x: -0.902 # = -1*((gap between dock and rear of the bin) + (bin depth box_size_x) + (distance from base_link_x to rear of chassis) + (any desired gap between bot and bin)) = -1*(0.325 + 0.35 + 0.127 + 0.1) = -.902 meters in front of the dock (dock -x direction)
       external_detection_translation_y: 0.0
-      external_detection_rotation_roll: -1.5708
-      external_detection_rotation_pitch: 1.5708
+      external_detection_rotation_roll: -1.5707963268
+      external_detection_rotation_pitch: 1.5707963268
       external_detection_rotation_yaw: 0.0
 
     recycle_return_dock: #For returning the recycle bin to its starting position next to the house, based on an Apriltag signpost.
@@ -120,18 +120,19 @@ docking_server:
       stall_effort_threshold: 1.0
       stall_joint_names: ['drivewhl_l_joint', 'drivewhl_r_joint']
       stall_velocity_threshold: 0.01
-      docking_threshold: 0.01
+      docking_threshold: 0.05
       staging_x_offset: -2.0
-      staging_yaw_offset: 0.0 #Angle with respect to the dock Apriltag before external translations or rotations are applied. 0.0 is facing the tag.
-      rotate_to_dock: true #Forward for testing, normally true
-      dock_direction: "backward" #Forward for testing, normally "backward"
+      staging_yaw_offset: 0.0 
+      dock_prestaging_tolerance: 0.05
+      dock_direction: "forward"
+      rotate_to_dock: false
       use_external_detection_pose: true
       external_detection_timeout: 3.0
-      external_detection_translation_x: -0.977 # = -1*((gap between dock and rear of the bin) + (bin depth box_size_x) + (distance from base_link_x to rear of chassis) + (any desired gap between bot and bin)) = -1*(0.25 + 0.5 + 0.127 + 0.1) = -0.977 meters in front of the dock (dock -x direction)
+      external_detection_translation_x: -1.023 #-0.977 # = -1*((gap between dock and rear of the bin) + (bin depth box_size_x) + (distance from base_link_x to rear of chassis) + (any desired gap between bot and bin)) = -1*(0.25 + 0.5 + 0.127 + 0.1) = -0.977 meters in front of the dock (dock -x direction)
       external_detection_translation_y: 0.0
-      external_detection_rotation_roll: -1.5708
-      external_detection_rotation_pitch: 1.5708
-      external_detection_rotation_yaw:  0.0 #Maybe: Use 3.14159 to reorient the docking pose in reverse of the detected dock for backwards docking: the dock pose should be X-forward IRT base_link. Also need to change external translation x to a positive value
+      external_detection_rotation_roll: -1.5707963268
+      external_detection_rotation_pitch: 1.5707963268
+      external_detection_rotation_yaw:  0.0 
 
     green_return_dock: #For returning the green bin to its starting position, which is not based on an AprilTag at this point.
       plugin: 'opennav_docking::SimpleNonChargingDock'
@@ -154,37 +155,37 @@ docking_server:
     home: #Charging base name. Cannot be the same as the plugin name, but CAN be the same as the apriltag name from apriltag.yaml.
       type: 'home_dock' #The dock plugin type to use
       frame: map #The frame which the translations from /detected_dock_pose_publisher are refering. 'map' points all the way back to map origin at 0,0,0; 'depth_camera_optical_frame' points right to the camera lens. Map seems to produce better accuracy.
-      pose: [-5.0, 3.9, 1.5708]  # [x, y, theta] The location of the dock frame in relation to the the map frame, with theta being the robot heading. This dock faces the Apriltag on the wall, but the pose at this point is independant of the tag. This is the pose that Nav2 will navigate to when going to the dock, and staging offsets are based on this pose. If use_external_detection_pose is true, the final position of the robot will be based on the Apriltag.
+      pose: [-5.0, 3.9, 1.5707963268]  # [x, y, theta] The location of the dock frame in relation to the the map frame, with theta being the robot heading. This dock faces the Apriltag on the wall, but the pose at this point is independant of the tag. This is the pose that Nav2 will navigate to when going to the dock, and staging offsets are based on this pose. If use_external_detection_pose is true, the final position of the robot will be based on the Apriltag.
       id: "home_ID" # Name of the Apriltag to lock onto for docking guidance, from apriltag.yaml. This param is not needed if a dock doesnt reference an apriltag, such as the curb dropoff docks.
 
     trash_bin_pickup: # For picking up the bin itself from its normal spot near the house, based on its Apriltag
       type: 'bin_pickup_dock'
       frame: map
-      pose: [2.175, 2.75, 3.1416] #Facing the bin's pose from driveway.sdf, then updated dynamically based on the detected Apriltag pose if use_external_detection_pose is true.
+      pose: [2.175, 2.75, 3.14159265359] #Facing the bin's pose from driveway.sdf, then updated dynamically based on the detected Apriltag pose if use_external_detection_pose is true.
       id: "trash_bin_ID"
 
     recycle_bin_pickup:
       type: 'bin_pickup_dock'
       frame: map
-      pose: [2.25, 2.25, 3.1416] #Facing the bin's pose from driveway.sdf.
+      pose: [2.25, 2.25, 3.14159265359] #Facing the bin's pose from driveway.sdf.
       id: "recycle_bin_ID"
 
     green_bin_pickup: 
       type: 'bin_pickup_dock'
       frame: map
-      pose: [6.0, -5.0, -1.5708]
+      pose: [6.0, -5.0, -1.5707963268]
       id: "green_bin_ID"
 
     trash_curb_dropoff: #For placing the bin out on the curb, based on nav2 localization
       type: 'bin_dropoff_dock'
       frame: map
-      pose: [-5.5197, 2.4806, 3.1416] #In simulation, this is the mirror location of trash dock across the y-axis. 
+      pose: [-5.5197, 2.4806, 3.14159265359] #In simulation, this is the mirror location of trash dock across the y-axis. 
       #id: "trash_curb_ID" #99% sure this isnt needed since this dock doesnt reference an apriltag.
 
     recycle_curb_dropoff:
       type: 'bin_dropoff_dock'
       frame: map
-      pose: [-5.4409, 0.5096, 3.1416] 
+      pose: [-5.4409, 0.5096, 3.14159265359] 
       #id: "recycle_curb_ID"
 
     green_curb_dropoff:
@@ -214,19 +215,19 @@ docking_server:
     trash_return: #For placing the bin next to the house, based on an Apriltag on the wall behind where the bin will be placed.
       type: 'trash_return_dock'
       frame: map
-      pose: [1.5, 2.75, 3.14159]
+      pose: [1.5, 2.75, 3.14159265359]
       id: "trash_return_ID" 
 
     recycle_return: #For placing the bin next to the house, based on an Apriltag on the wall behind where the bin will be placed.
       type: 'recycle_return_dock'
       frame: map
-      pose: [1.5, 1.75, 3.14159]
+      pose: [5.0, 1.75, 0.0] #3.14159265359]
       id: "recycle_return_ID" 
 
     green_return: #For placing the bin out in the driveway somewhere, not associated with an Apriltag
       type: 'green_return_dock'
       frame: map
-      pose: [6.0, -4.873, -1.5708] #Original location in driveway.sdf, with the offet between bin center and base_link subtracted from the y component. Subtracted in this case because the robot/bin faces inward on the map on the -y side.
+      pose: [6.0, -4.873, -1.5707963268] #Original location in driveway.sdf, with the offet between bin center and base_link subtracted from the y component. Subtracted in this case because the robot/bin faces inward on the map on the -y side.
       #id: "green_return_ID"
 
     controller:
@@ -234,12 +235,12 @@ docking_server:
       k_phi: 3.0 #Ratio of the rate of change of angle relative to distance from the target. Much be > 0.
       k_delta: 2.0 #Higher values result in converging to the target more quickly.
       lambda: 2.0 #Parameter to reduce linear velocity proportional to path curvature. Increasing this exponentially reduces the velocity (v(t) = v_max / (1 + beta * |curv|^lambda)).
-      v_linear_min: 0.1 #Minimum linear velocity when approaching the dock. This should be set above the stall threshold of the robot to ensure it can overcome static friction and move towards the dock. The ideal value may require some experimentation, but a good starting point is around 0.15 m/s for a heavy robot. Adjust as needed based on testing to find the lowest velocity that still allows reliable movement towards the dock without stalling.
-      v_linear_max: 0.15 #Maximum linear velocity when approaching the dock. This can be set to the same value as v_linear_min for a consistent approach speed, or higher if you want the robot to move faster when it is farther from the dock. However, since precision is important in docking, especially as the robot gets closer, it may be best to keep this at the same value as v_linear_min or only slightly higher to ensure a controlled approach.
-      v_angular_max: 0.75 #Maximum angular velocity when approaching the dock. This should be set to allow the robot to turn towards the dock effectively without being too aggressive, which could cause overshooting or instability. A good starting point is around 0.5 rad/s, but this may need to be adjusted based on the robot's turning capabilities and the desired approach behavior.
-      slowdown_radius: 0.25 #Radius around the dock at which to start slowing down. Matches staging_x_offset
-      rotate_to_heading_angular_vel: 2.0 #Default 1.0 Angular velocity (rad/s) to rotate to the goal heading when rotate_to_dock is enabled.
-      rotate_to_heading_max_angular_accel: 3.5 #Default 3.2 Max angular acceleration when rotating to the dock heading.
+      v_linear_min: 0.05 #Minimum linear velocity when approaching the dock. This should be set above the stall threshold of the robot to ensure it can overcome static friction and move towards the dock. The ideal value may require some experimentation, but a good starting point is around 0.15 m/s for a heavy robot. Adjust as needed based on testing to find the lowest velocity that still allows reliable movement towards the dock without stalling.
+      v_linear_max: 0.1 #Maximum linear velocity when approaching the dock. This can be set to the same value as v_linear_min for a consistent approach speed, or higher if you want the robot to move faster when it is farther from the dock. However, since precision is important in docking, especially as the robot gets closer, it may be best to keep this at the same value as v_linear_min or only slightly higher to ensure a controlled approach.
+      v_angular_max: 0.5 #Maximum angular velocity when approaching the dock. This should be set to allow the robot to turn towards the dock effectively without being too aggressive, which could cause overshooting or instability. A good starting point is around 0.5 rad/s, but this may need to be adjusted based on the robot's turning capabilities and the desired approach behavior.
+      slowdown_radius: 0.25 #Radius around the dock at which to start slowing down. Matches staging_x_offset(?)
+      rotate_to_heading_angular_vel: 0.25 #Default 1.0 Angular velocity (rad/s) to rotate to the goal heading when rotate_to_dock is enabled.
+      rotate_to_heading_max_angular_accel: 0.5 #Default 3.2 Max angular acceleration when rotating to the dock heading.
       costmap_topic: "local_costmap/costmap_raw" #Raw costmap topic for collision checking.
       footprint_topic: "local_costmap/published_footprint" #Topic for footprint in the costmap frame. Footprint will change when bins are carried.
       transform_tolerance: 0.1 #Time with which to post-date the transform that is published, to indicate that this transform is valid into the future.

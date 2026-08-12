@@ -382,9 +382,9 @@
         <uri>model://Apriltag36_11_00001</uri>
       </include>
     </model>
-<!--
+
     <model name='recycle_bin'>
-      <pose>2 2.25 0.5 0 0 0</pose>
+      <pose>2 1.75 0.5 0 0 0</pose>
       <link name='box_link'>
         <inertial>
           <inertia>
@@ -435,7 +435,7 @@
         <uri>model://Apriltag36_11_00002</uri>
       </include>
     </model>
--->
+
     <model name='green_bin'>
       <pose>6 -5 0.5 0 0 1.5708 </pose>
       <link name='box_link'>
@@ -512,21 +512,21 @@
 <!--Apriltags-->
     <include>
       <name>home_tag</name>
-      <pose>-5.0 3.9 0.66 1.5708 0 0</pose> <!--Behind bot: -1.137 0 0.645 1.5708 0 1.5708 Original home tag: -5 3.9 0.66 1.5708 0 0 The center of this tag is 5m behind the origin, 3.9m to the left, and 26in off the ground. The tag mesh model default is flat, so it is rotated up to face inward from the wall.-->
+      <pose>-5.0 3.9 0.66 1.5707963268 0 0</pose> <!--Behind bot: -1.137 0 0.645 1.5708 0 1.5708 Original home tag: -5 3.9 0.66 1.5708 0 0 The center of this tag is 5m behind the origin, 3.9m to the left, and 26in off the ground. The tag mesh model default is flat, so it is rotated up to face inward from the wall.-->
       <static>true</static>
       <uri>model://Apriltag36_11_00000</uri>
     </include>
 
     <include>
       <name>trash_return_dock</name> <!--This one tag will be used as a reference to place both trash and recycle bin.-->
-      <pose>1.5 2.75 0.66 1.5708 0 1.5708</pose>  <!--In front of bot 1.878 0 0.645 1.5708 0 -1.5708  Original reference tag 7 .5 0.66 1.5708 0 -1.5708-->
+      <pose>1.5 2.75 0.66 1.5707963268 0 1.5707963268</pose>  <!--In front of bot 1.878 0 0.645 1.5708 0 -1.5708  Original reference tag 7 .5 0.66 1.5708 0 -1.5708-->
       <static>true</static>
       <uri>model://Apriltag36_11_00004</uri>
     </include>
 
     <include>
       <name>recycle_return_dock</name> <!--This one tag will be where the recycle can is returned to.-->
-      <pose>1.5 1.75 0.66 1.5708 0 1.5708</pose> <!--Behind the trash bin by 0.25m(x), at camera level(z), facing forward.-->
+      <pose>5.0 1.75 0.66 1.5707963268 0 -1.5707963268</pose> <!--In front of the bin dropoff so that the bot is facing away from the house and can back up into place.-->
       <static>true</static>
       <uri>model://Apriltag36_11_00005</uri>
     </include>
