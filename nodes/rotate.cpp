@@ -82,7 +82,7 @@ private:
         if (std::abs(error) > 0.05) { // 0.05 rad tolerance (~2.8 degrees)
             twist_msg.twist.angular.z = std::min(std::max(kp * error, -angular_speed_limit), angular_speed_limit);
         } else {
-            msg.twist.angular.z = 0.0;
+            twist_msg.twist.angular.z = 0.0;
             rotating_ = false;
             RCLCPP_INFO(this->get_logger(), "Rotation completed!");
             rclcpp::shutdown();
